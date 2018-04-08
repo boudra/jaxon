@@ -198,14 +198,14 @@ ERL_NIF_TERM decode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
             break;
 
         case SYNTAX_ERROR:
-            printf("expected ");
-            for(int i = 0; i < sizeof(event.value.syntax_error.expected)/sizeof(json_event_type_t); i++) {
-                if(event.value.syntax_error.expected[i] == 0) {
-                    break;
-                }
-                printf("%s ", event_type_to_string(event.value.syntax_error.expected[i]));
-            }
-            printf(" in `%s`", event.value.syntax_error.context);
+            /* printf("expected "); */
+            /* for(int i = 0; i < sizeof(event.value.syntax_error.expected)/sizeof(json_event_type_t); i++) { */
+            /*     if(event.value.syntax_error.expected[i] == 0) { */
+            /*         break; */
+            /*     } */
+            /*     printf("%s ", event_type_to_string(event.value.syntax_error.expected[i])); */
+            /* } */
+            /* printf(" in `%s`", event.value.syntax_error.context); */
             ret = data->nif_error;
             break;
 
