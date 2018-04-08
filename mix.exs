@@ -11,26 +11,39 @@ defmodule Jaxon.MixProject do
   def project do
     [
       app: :jaxon,
+      name: "Jaxon",
       version: "0.1.0",
       elixir: "~> 1.6",
       compilers: [:nifs] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      source_url: "https://github.com/boudra/jaxon",
+      description: description(),
+      package: package()
+    ]
+  end
+
+  defp description() do
+    "Jaxon is an efficient and simple event-based JSON parser for Elixir, it's main goal is to be able to parse huge JSON files with minimal memory footprint."
+  end
+
+  defp package() do
+    [
+      name: "jaxon",
+      files: ["lib", "mix.exs", "README*", "readme*", "LICENSE*", "license*"],
+      maintainers: ["Mohamed Boudra"],
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/boudra/jaxon"}
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    []
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
-    ]
+    []
   end
 end

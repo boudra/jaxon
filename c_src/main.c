@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     switch(event.type) {
       case KEY:
-      case VALUE:
+      case STRING:
         printf("string: \"%.*s\" ", (int)event.value.string.size, event.value.string.buffer);
         break;
 
