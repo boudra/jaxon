@@ -10,25 +10,31 @@ defmodule Jaxon do
     |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
   ```
 
-  Call `decode/1` on the decoder to consume the events:
+  Call `decode/1` on the decoder to consume the events one by one:
 
   ```
-  Jaxon.decode(decoder)
+  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  iex> Jaxon.decode(decoder)
+  :start_object
   ```
 
-  In this case, the events returned will be:
+  Or call `consume/1` to read all the events in a list:
 
   ```
-  # :start_object
-  # {:key, "jaxon"}
-  # {:string, "rocks"}
-  # {:key, "array"}
-  # :start_array
-  # {:integer, 1}
-  # {:integer, 2}
-  # :end_array
-  # :end_object
-  # :end
+  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  iex> Jaxon.consume(decoder)
+  [
+   :start_object,
+   {:key, "jaxon"},
+   {:string, "rocks"},
+   {:key, "array"},
+   :start_array,
+   {:integer, 1},
+   {:integer, 2},
+   :end_array,
+   :end_object,
+   :end
+  ]
   ```
   """
 
