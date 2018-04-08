@@ -1,3 +1,7 @@
+[![Hex.pm](https://img.shields.io/hexpm/v/jaxon.svg)](https://hex.pm/packages/jaxon)
+
+------------------------------------
+
 # Jaxon
 
 Jaxon is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse huge JSON files with minimal memory footprint.
