@@ -8,14 +8,14 @@
 
 [Online documentation](https://hexdocs.pm/jaxon/)
 
-### :muscle:   Features
+## :muscle:   Features
 
 * **Event based parsing:** Parses data as it comes, no need to hold everything in memory, perfect for consuming large JSON streams of any size
 * **Pausable partial parsing:** Pass a portion of your JSON and then resume parsing when you have the rest
 * **No schema restrictions:** It only decodes JSON to Erlang terms
 
 
-### :running:  To do
+## :running:  To do
 
 * **Reading with JSON path:** Make an Elixir stream from a list of JSON path expressions.
 * **Better and more informative errors**
