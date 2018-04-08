@@ -22,20 +22,23 @@ decoder =
     |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
 
 # every decode/1 call with return a different parsing event
-Jaxon.decode(decoder)
+iex> Jaxon.decode(decoder)
 
-# The events will be:
+# For the passed binary, the events will be:
 
-# :start_object
-# {:key, "jaxon"}
-# {:string, "rocks"}
-# {:key, "array"}
-# :start_array
-# {:integer, 1}
-# {:integer, 2}
-# :end_array
-# :end_object
-# :end
+iex> Jaxon.consume(decoder)
+[
+:start_object,
+{:key, "jaxon"},
+{:string, "rocks"},
+{:key, "array"},
+:start_array,
+{:integer, 1},
+{:integer, 2},
+:end_array,
+:end_object,
+:end
+]
 ```
 
 ### Partial parsing
