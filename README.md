@@ -25,6 +25,8 @@ decoder =
 # every decode/1 call with return a different parsing event
 Jaxon.decode(decoder)
 
+# The events will be:
+
 # :start_object
 # {:key, "jaxon"}
 # {:string, "rocks"}
@@ -43,8 +45,8 @@ This is very useful when you're streaming JSON from the network or disk.
 
 ```elixir
 decoder =
-	Jaxon.make_decoder()
-  |> Jaxon.update_decoder("{\"whoo")
+    Jaxon.make_decoder()
+    |> Jaxon.update_decoder("{\"whoo")
 
 > Jaxon.decode(decoder)
 # :start_object

@@ -46,6 +46,15 @@ defmodule Jaxon do
     ])
   end
 
+  @doc ~S"""
+  Get a single event from the decoder, must call `update_decoder/2` with your data beforehand.
+
+  ## Example
+
+  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.decode()
+  :start_object
+  """
+
   @spec decode(decoder) :: event
   def decode(_) do
     raise "NIF not compiled"
@@ -59,5 +68,28 @@ defmodule Jaxon do
   @spec make_decoder() :: decoder
   def make_decoder() do
     raise "NIF not compiled"
+  end
+
+  @doc ~S"""
+  Helper function that calls `decode/1` until there are no more events.
+
+  ## Example
+
+  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.consume()
+  [:start_object, {:key, "jaxon"}, {:string, "rocks"}, :end_object, :end]
+  """
+
+  @spec consume(decoder) :: [event]
+  def consume(decoder) do
+    case Jaxon.decode(decoder) do
+      event = {:incomplete, _} ->
+        [event]
+
+      event when event in [:end, :error, :ok] ->
+        [event]
+
+      event ->
+        [event | consume(decoder)]
+    end
   end
 end
