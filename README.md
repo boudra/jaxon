@@ -4,7 +4,24 @@
 
 # Jaxon
 
-Jaxon is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse huge JSON files with minimal memory footprint.
+**Jaxon** is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse **JSON data of any size** with a **very small memory** footprint.
+
+[Online documentation](https://hexdocs.pm/jaxon/)
+
+### :muscle:   Features
+
+* **Event based parsing:** Parses data as it comes, no need to hold everything in memory, perfect for consuming large JSON streams of any size
+* **Pausable partial parsing:** Pass a portion of your JSON and then resume parsing when you have the rest
+* **No schema restrictions:** It only decodes JSON to Erlang terms
+
+
+### :running:  To do
+
+* **Reading with JSON path:** Make an Elixir stream from a list of JSON path expressions.
+* **Better and more informative errors**
+* **Unicode support in strings**
+* **Benchmarking**
+* **JSON encoding?**
 
 ## :rocket:  Installation
 
@@ -90,4 +107,12 @@ nil
 {:incomplete, binary}
 :end
 :error
+```
+
+## License
+
+```
+Copyright © 2018 Mohamed Boudra <mohamed@boudra.me>
+
+This project is under the Apache 2.0 license. See the LICENSE file for more details.
 ```
