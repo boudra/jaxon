@@ -33,9 +33,9 @@ def deps do
 end
 ```
 
-## :thinking:  How to use
+## :thinking:  How to use it
 
-### Event-based parsing
+### Decode a binary into events
 
 ```elixir
 decoder =
@@ -62,7 +62,7 @@ iex> Jaxon.consume(decoder)
 ]
 ```
 
-### Partial parsing
+### Partial decoding
 
 This is very useful when you're streaming JSON from the network or disk.
 
