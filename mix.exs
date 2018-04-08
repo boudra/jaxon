@@ -30,7 +30,7 @@ defmodule Jaxon.MixProject do
   defp package() do
     [
       name: "jaxon",
-      files: ["lib", "mix.exs", "README*", "readme*", "LICENSE*", "license*"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Mohamed Boudra"],
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/boudra/jaxon"}
@@ -44,6 +44,6 @@ defmodule Jaxon.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    []
+    [{:ex_doc, ">= 0.0.0", only: :dev}]
   end
 end
