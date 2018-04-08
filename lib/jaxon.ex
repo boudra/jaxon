@@ -1,6 +1,35 @@
 defmodule Jaxon do
-  @moduledoc """
-  Documentation for Jaxon.
+  @moduledoc ~S"""
+  ## Example
+
+  Create a new decoder and add your JSON data:
+
+  ```
+  decoder =
+    Jaxon.make_decoder()
+    |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  ```
+
+  Call `decode/1` on the decoder to consume the events:
+
+  ```
+  Jaxon.decode(decoder)
+  ```
+
+  In this case, the events returned will be:
+
+  ```
+  # :start_object
+  # {:key, "jaxon"}
+  # {:string, "rocks"}
+  # {:key, "array"}
+  # :start_array
+  # {:integer, 1}
+  # {:integer, 2}
+  # :end_array
+  # :end_object
+  # :end
+  ```
   """
 
   @type event ::
