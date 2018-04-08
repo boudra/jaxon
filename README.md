@@ -44,26 +44,25 @@ Jaxon.decode(decoder)
 This is very useful when you're streaming JSON from the network or disk.
 
 ```elixir
-decoder =
-    Jaxon.make_decoder()
-    |> Jaxon.update_decoder("{\"whoo")
+iex> d = Jaxon.make_decoder()
+iex> d = Jaxon.update_decoder(d, "{\"whoo")
 
-> Jaxon.decode(decoder)
-# :start_object
+iex> d = Jaxon.decode(d)
+:start_object
 
-> {:incomplete, rest} = Jaxon.decode(decoder)
-# {:incomplete, "\"whoo"}
+iex> {:incomplete, rest} = Jaxon.decode(d)
+{:incomplete, "\"whoo"}
 
-> d = Jaxon.update_decoder(rest <> "ps\":\":)\"}")
-> Jaxon.decode(decoder)
-# {:key, "whoops)"}
+iex> d = Jaxon.update_decoder(d, rest <> "ps\":\":)\"}")
+iex> Jaxon.decode(d)
+{:key, "whoops"}
 
-> Jaxon.decode(decoder)
-# {:string, ":)"}
+iex> Jaxon.decode(d)
+{:string, ":)"}
 
-> Jaxon.decode(decoder)
-# :end_object
+iex> Jaxon.decode(d)
+:end_object
 
-> Jaxon.decode(decoder)
-# :end
+iex> Jaxon.decode(d)
+:end
 ```
