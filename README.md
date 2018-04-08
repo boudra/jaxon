@@ -2,17 +2,17 @@
 
 Jaxon is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse huge JSON files with minimal memory footprint.
 
-## :rocket: Installation
+## :rocket:  Installation
 
 ```elixir
 def deps do
   [
-    {:jaxon, "~> 0.1.0"}
+    {:jaxon, "~> 0.1.0"} # or {:jaxon, git: "https://github.com/boudra/jaxon.git", ref: "master"}
   ]
 end
 ```
 
-## :thinking: How to use
+## :thinking:  How to use
 
 ### Event-based parsing
 
