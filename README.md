@@ -65,3 +65,22 @@ iex> Jaxon.decode(d)
 iex> Jaxon.decode(d)
 :end
 ```
+
+### Possible events returned
+
+
+```elixir
+:start_object
+:end_object
+:start_array
+:end_array
+{:key, binary}
+{:string, binary}
+{:integer, integer}
+{:decimal, float}
+{:boolean, boolean}
+nil
+{:incomplete, binary}
+:end
+:error
+```

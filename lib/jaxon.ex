@@ -41,6 +41,7 @@ defmodule Jaxon do
   @type event ::
           :start_object
           | :end_object
+          | :start_array
           | :end_array
           | {:key, binary}
           | {:string, binary}
