@@ -19,8 +19,8 @@ end
 
 ```elixir
 decoder =
-	Jaxon.make_decoder()
-  |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+    Jaxon.make_decoder()
+    |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
 
 # every decode/1 call with return a different parsing event
 Jaxon.decode(decoder)
