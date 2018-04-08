@@ -116,3 +116,5 @@ Copyright © 2018 Mohamed Boudra <mohamed@boudra.me>
 
 This project is under the Apache 2.0 license. See the LICENSE file for more details.
 ```
+
+Developed at [Sqlify.io](https://sqlify.io) for big data JSON parsing.
