@@ -2,8 +2,7 @@
 
 Jaxon is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse huge JSON files with minimal memory footprint.
 
-
-## Installation
+## :rocket: Installation
 
 ```elixir
 def deps do
@@ -13,7 +12,7 @@ def deps do
 end
 ```
 
-## How to use
+## :thinking: How to use
 
 ### Event-based parsing
 
