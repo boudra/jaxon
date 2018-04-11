@@ -56,9 +56,15 @@ defmodule Jaxon.Reader do
               end)
               |> Enum.unzip()
 
-            final_results = Enum.map(results, &List.first/1)
+            final_results =
+              results
+              |> Enum.map(fn
+                [] -> [nil]
+                r -> r
+              end)
+              |> transpose()
 
-            {[final_results], {decoder, path, {root, queries, record}, rest}}
+            {final_results, {decoder, path, {root, queries, record}, rest}}
         end
       end,
       fn
@@ -185,4 +191,11 @@ defmodule Jaxon.Reader do
   defp access(_, _, acc) do
     acc
   end
+
+  defp transpose([[x | xs] | xss]) do
+    [[x | for([h | _] <- xss, do: h)] | transpose([xs | for([_ | t] <- xss, do: t)])]
+  end
+
+  defp transpose([[] | xss]), do: transpose(xss)
+  defp transpose([]), do: []
 end

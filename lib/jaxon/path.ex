@@ -53,7 +53,7 @@ defmodule Jaxon.Path do
   {:error, "Ending quote not found for string at `\"test[x]`"}
   ```
   """
-  @spec encode(String.t()) :: {:ok, json_path} | {:error, String.t()}
+  @spec parse(String.t()) :: {:ok, json_path} | {:error, String.t()}
   def parse(bin) do
     case parse_json_path(bin, "", []) do
       {:error, err} ->
@@ -72,7 +72,7 @@ defmodule Jaxon.Path do
   [:root, :all, "pets", 0]
   ```
   """
-  @spec encode(String.t()) :: json_path | no_return
+  @spec parse!(String.t()) :: json_path | no_return
   def parse!(bin) do
     case parse(bin) do
       {:error, err} ->
@@ -83,7 +83,7 @@ defmodule Jaxon.Path do
     end
   end
 
-  @spec encode(json_path) :: String.t() | no_return
+  @spec encode!(json_path) :: String.t() | no_return
   def encode!(path) do
     case do_encode(path) do
       {:error, err} ->
@@ -200,7 +200,7 @@ defmodule Jaxon.Path do
 
   defp do_encode_segment(s) when is_binary(s) do
     if(String.contains?(s, [".", "\""])) do
-      String.replace(s, "\"", "\\\"")
+      "\"#{String.replace(s, "\"", "\\\"")}\""
     else
       s
     end
