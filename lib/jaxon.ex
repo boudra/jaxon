@@ -58,7 +58,12 @@ defmodule Jaxon do
   @on_load :load_nifs
 
   def load_nifs do
-    :erlang.load_nif('./priv/decoder', [
+    nif_filename =
+      :jaxon
+      |> Application.app_dir("priv/decoder")
+      |> to_charlist
+
+    :erlang.load_nif(nif_filename, [
       :start_object,
       :end_object,
       :start_array,
