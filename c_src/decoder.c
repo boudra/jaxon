@@ -9,6 +9,7 @@
 
 #define is_space(c) (c == ' ' || c == '\n' || c == '\r' || c == '\t')
 #define max(a,b) (((a)>(b))?(a):(b))
+#define min(a,b) (((a)<(b))?(a):(b))
 
 char* peek_until(char* buf, char c) {
     while (*buf != c) {
@@ -66,56 +67,12 @@ int parse_constant(char** constant, const char *find) {
 }
 
 void syntax_error(decoder_t* d, json_event_t* e) {
-    switch(d->last_event_type) {
-        case KEY:
-            e->type = SYNTAX_ERROR;
-            e->value.syntax_error.expected[0] = COLON;
-            e->value.syntax_error.expected[1] = UNDEFINED;
-            e->value.syntax_error.context = max(d->cursor - 15, d->buffer);
-            break;
+    const size_t context_length = 30;
+    char* context = max(d->cursor - context_length, d->buffer);
 
-        case START_OBJECT:
-            e->type = SYNTAX_ERROR;
-            e->value.syntax_error.expected[0] = KEY;
-            e->value.syntax_error.expected[1] = END_OBJECT;
-            e->value.syntax_error.expected[2] = UNDEFINED;
-            e->value.syntax_error.context = max(d->cursor - 15, d->buffer);
-            break;
-
-        case START_ARRAY:
-            e->type = SYNTAX_ERROR;
-            e->value.syntax_error.expected[0] = STRING;
-            e->value.syntax_error.expected[1] = START_OBJECT;
-            e->value.syntax_error.expected[2] = START_ARRAY;
-            e->value.syntax_error.expected[3] = END_ARRAY;
-            e->value.syntax_error.expected[4] = UNDEFINED;
-            e->value.syntax_error.context = max(d->cursor - 15, d->buffer);
-            break;
-
-        case COLON:
-            e->type = SYNTAX_ERROR;
-            e->value.syntax_error.expected[0] = STRING;
-            e->value.syntax_error.expected[1] = START_OBJECT;
-            e->value.syntax_error.expected[2] = START_ARRAY;
-            e->value.syntax_error.expected[3] = UNDEFINED;
-            e->value.syntax_error.context = max(d->cursor - 15, d->buffer);
-            break;
-
-        case END_ARRAY:
-        case END_OBJECT:
-        case STRING:
-            e->type = SYNTAX_ERROR;
-            e->value.syntax_error.expected[0] = COMMA;
-            e->value.syntax_error.expected[1] = END_OBJECT;
-            e->value.syntax_error.expected[2] = END_ARRAY;
-            e->value.syntax_error.expected[3] = UNDEFINED;
-            e->value.syntax_error.context = max(d->cursor - 10, d->buffer);
-            break;
-
-        default:
-            e->type = SYNTAX_ERROR;
-            break;
-    }
+    e->type = SYNTAX_ERROR;
+    e->value.string.buffer = context;
+    e->value.string.size = min(strlen(context), context_length);
 }
 
 void decode(decoder_t* d, json_event_t* e) {
