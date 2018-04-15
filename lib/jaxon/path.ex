@@ -37,7 +37,7 @@ defmodule Jaxon.Path do
   Parse path expressions:
 
   ```
-  iex> Jaxon.Path.parse("$.*.pets[0]")
+  iex> Jaxon.Path.parse("$[*].pets[0]")
   {:ok, [:root, :all, "pets", 0]}
   ```
 
@@ -68,7 +68,7 @@ defmodule Jaxon.Path do
   Parse path expressions:
 
   ```
-  iex> Jaxon.Path.parse!("$.*.pets[0]")
+  iex> Jaxon.Path.parse!("$[*].pets[0]")
   [:root, :all, "pets", 0]
   ```
   """
@@ -134,6 +134,10 @@ defmodule Jaxon.Path do
     parse_json_path(rest, "", acc)
   end
 
+  defp parse_json_path(<<"[*]", rest::binary>>, "", acc) do
+    [:all | parse_json_path(rest, "", acc)]
+  end
+
   defp parse_json_path(<<?[, rest::binary>>, "", acc) do
     case Integer.parse(rest) do
       {i, <<?], rest::binary>>} ->
@@ -186,12 +190,12 @@ defmodule Jaxon.Path do
     s <> "." <> rest
   end
 
-  defp do_encode_segment(:all) do
-    "*"
-  end
-
   defp do_encode_segment(:root) do
     "$"
+  end
+
+  defp do_encode_segment(:all) do
+    "*"
   end
 
   defp do_encode_segment(s) when is_integer(s) do
@@ -216,6 +220,10 @@ defmodule Jaxon.Path do
 
   defp do_encode([h]) do
     do_encode_segment(h)
+  end
+
+  defp do_encode([h, :all]) when is_binary(h) do
+    do_encode_segment(h) <> "[*]"
   end
 
   defp do_encode([h, n]) when is_integer(n) and is_binary(h) do
