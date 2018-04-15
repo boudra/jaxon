@@ -167,7 +167,7 @@ defmodule Jaxon.Path do
   defp parse_json_path(bin = <<?", rest::binary>>, "", acc) do
     case parse_string(rest, "") do
       {key, rest} ->
-        add_key(key, parse_json_path(rest, "", acc))
+        [key | parse_json_path(rest, "", acc)]
 
       _ ->
         {:error, "Ending quote not found for string at `#{String.slice(bin, 0, 10)}`"}
@@ -186,6 +186,14 @@ defmodule Jaxon.Path do
     err
   end
 
+  defp append_segment(s, rest = "[" <> _) do
+    s <> rest
+  end
+
+  defp append_segment(s, "") do
+    s
+  end
+
   defp append_segment(s, rest) do
     s <> "." <> rest
   end
@@ -195,15 +203,15 @@ defmodule Jaxon.Path do
   end
 
   defp do_encode_segment(:all) do
-    "*"
+    "[*]"
   end
 
-  defp do_encode_segment(s) when is_integer(s) do
-    to_string(s)
+  defp do_encode_segment(i) when is_integer(i) do
+    "[#{i}]"
   end
 
   defp do_encode_segment(s) when is_binary(s) do
-    if(String.contains?(s, [".", "\""])) do
+    if(String.contains?(s, ["*", "$", "]", "[", ".", "\""])) do
       "\"#{String.replace(s, "\"", "\\\"")}\""
     else
       s
@@ -220,18 +228,6 @@ defmodule Jaxon.Path do
 
   defp do_encode([h]) do
     do_encode_segment(h)
-  end
-
-  defp do_encode([h, :all]) when is_binary(h) do
-    do_encode_segment(h) <> "[*]"
-  end
-
-  defp do_encode([h, n]) when is_integer(n) and is_binary(h) do
-    do_encode_segment(h) <> "[#{n}]"
-  end
-
-  defp do_encode([h, n | t]) when is_integer(n) and is_binary(h) do
-    append_segment(do_encode_segment(h) <> "[#{n}]", do_encode(t))
   end
 
   defp do_encode([h | t]) do
