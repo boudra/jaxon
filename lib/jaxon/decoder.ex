@@ -1,6 +1,4 @@
 defmodule Jaxon.Decoder do
-  alias Jaxon.Path
-
   @callback insert(any, [String.t() | integer], any) :: any
   @callback close(any, [String.t() | integer]) :: any
 
@@ -46,6 +44,10 @@ defmodule Jaxon.Decoder do
     handle_event(d, module, Jaxon.decode(d), {new_path, module.insert(data, new_path, value)})
   end
 
+  defp handle_event(_, _, {:error, context}, {_, _}) do
+    {:error, "Failed to parse your JSON data, check the syntax near `#{context}`"}
+  end
+
   defp handle_event(d, module, {_, value}, {path, data}) do
     handle_event(d, module, Jaxon.decode(d), {path, module.insert(data, path, value)})
   end
@@ -57,16 +59,6 @@ defmodule Jaxon.Decoder do
 
   defp handle_event(d, module, value = nil, {path, data}) do
     handle_event(d, module, Jaxon.decode(d), {path, module.insert(data, path, value)})
-  end
-
-  defp handle_event(_, _, :error, {path, _}) do
-    case Path.encode(path) do
-      {:error, _} ->
-        {:error, "Error parsing JSON"}
-
-      path ->
-        {:error, "Error parsing value at `#{path}`"}
-    end
   end
 
   def decode(binary, d, module, state) do
