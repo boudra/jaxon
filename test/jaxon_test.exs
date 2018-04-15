@@ -29,11 +29,11 @@ defmodule JaxonTest do
 
   defp accumulate(decoder) do
     case Jaxon.decode(decoder) do
-      event = {:incomplete, _} ->
+      event = {type, _} when type in [:incomplete, :error] ->
         [event]
 
-      event when event in [:end, :error, :ok] ->
-        [event]
+      :end ->
+        [:end]
 
       event ->
         [event | accumulate(decoder)]
@@ -103,5 +103,11 @@ defmodule JaxonTest do
       end)
 
     assert events == expected_events_stream
+  end
+
+  test "errors" do
+    d = Jaxon.make_decoder()
+    Jaxon.update_decoder(d, "}")
+    assert [{:error, "}"}] == accumulate(d)
   end
 end
