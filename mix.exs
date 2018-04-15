@@ -1,15 +1,3 @@
-defmodule Mix.Tasks.Compile.Nifs do
-  def run(_args) do
-    case System.cmd("make", ["decoder.so"]) do
-      {_, 0} ->
-        :ok
-
-      {result, _} ->
-        IO.binwrite(result)
-    end
-  end
-end
-
 defmodule Jaxon.MixProject do
   use Mix.Project
 
@@ -19,7 +7,7 @@ defmodule Jaxon.MixProject do
       name: "Jaxon",
       version: "0.1.0",
       elixir: "~> 1.6",
-      compilers: [:nifs] ++ Mix.compilers(),
+      compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/boudra/jaxon",
@@ -49,6 +37,9 @@ defmodule Jaxon.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [{:ex_doc, ">= 0.0.0", only: :dev}]
+    [
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:elixir_make, "~> 0.4", runtime: false}
+    ]
   end
 end
