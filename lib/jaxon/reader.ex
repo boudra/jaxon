@@ -11,10 +11,6 @@ defmodule Jaxon.Reader do
       queries
       |> Enum.map(&Path.parse!(&1))
 
-    if Enum.any?(queries, &(List.last(&1) == :all)) do
-      raise Jaxon.ParseError, message: "A column cannot be a repeat value"
-    end
-
     root =
       queries
       |> List.zip()
@@ -31,13 +27,7 @@ defmodule Jaxon.Reader do
         end
       end)
 
-    queries =
-      queries
-      |> Enum.map(fn q ->
-        {q, []}
-      end)
-
-    initial_state = {decoder, [], {root, queries, nil}, ""}
+    initial_state = {decoder, [], {root, queries, [], nil}, ""}
 
     bin_stream
     |> Stream.transform(
@@ -49,26 +39,25 @@ defmodule Jaxon.Reader do
           {:error, path} ->
             {:halt, {:error, path}}
 
-          {decoder, path, {root, queries, record}, rest} ->
-            {queries, results} =
-              Enum.map(queries, fn {query, result} ->
-                {{query, []}, result}
-              end)
-              |> Enum.unzip()
+          {decoder, path, {root, queries, [], record}, rest} ->
+            {[], {decoder, path, {root, queries, [], record}, rest}}
 
+          {decoder, path, {root, queries, results, record}, rest} ->
             final_results =
               results
-              |> Enum.map(fn
-                [] -> [nil]
-                r -> r
-              end)
-              |> transpose()
+              |> Enum.flat_map(fn set ->
+                m = Enum.reduce(set, 0, fn e, m -> max(m, length(e)) end)
 
-            {final_results, {decoder, path, {root, queries, record}, rest}}
+                set
+                |> Enum.map(&(&1 ++ :lists.duplicate(m - length(&1), nil)))
+                |> transpose
+              end)
+
+            {final_results, {decoder, path, {root, queries, [], record}, rest}}
         end
       end,
       fn
-        {:error, err} -> raise err
+        {:error, err} -> raise Jaxon.ParseError, message: err
         acc -> acc
       end
     )
@@ -106,38 +95,41 @@ defmodule Jaxon.Reader do
     false
   end
 
-  def close({root, queries, record}, path) do
+  def close({root, queries, results, record}, path) do
     path = [:root | Enum.reverse(path)]
 
     if query_exact_match?(root, path) do
-      queries =
-        Enum.map(queries, fn {q, acc} ->
-          {:ok, query} = match_query(root, q)
-          {q, acc ++ access(record, query, [])}
-        end)
+      results =
+        results ++
+          [
+            Enum.map(queries, fn q ->
+              {:ok, query} = match_query(root, q)
+              access(record, query, [])
+            end)
+          ]
 
-      {root, queries, nil}
+      {root, queries, results, nil}
     else
-      {root, queries, record}
+      {root, queries, results, record}
     end
   end
 
-  def insert({root, queries, record}, path, value) do
+  def insert(state = {root, queries, results, record}, path, value) do
     reversed_path = [:root | Enum.reverse(path)]
 
     case match_query(root, reversed_path) do
       {:ok, rest} ->
         cond do
           !is_list(value) && !is_map(value) ->
-            {root, queries, do_insert(record, rest, value)}
+            {root, queries, results, do_insert(record, rest, value)}
             |> close(path)
 
           true ->
-            {root, queries, do_insert(record, rest, value)}
+            {root, queries, results, do_insert(record, rest, value)}
         end
 
       nil ->
-        {root, queries, record}
+        state
     end
   end
 
@@ -179,12 +171,12 @@ defmodule Jaxon.Reader do
   end
 
   defp access(record, [key | path], acc) when is_map(record) and is_binary(key) do
-    case Map.fetch(record, key) do
-      :error ->
-        acc
-
-      {:ok, inner} ->
+    case record do
+      %{^key => inner} ->
         access(inner, path, acc)
+
+      _ ->
+        acc
     end
   end
 
