@@ -60,7 +60,7 @@ defmodule Jaxon do
   def load_nifs do
     file =
       :jaxon
-      |> Application.app_dir("priv/decoder")
+      |> Application.app_dir("decoder")
       |> to_charlist()
 
     :erlang.load_nif(file, [
