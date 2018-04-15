@@ -1,7 +1,12 @@
 defmodule Mix.Tasks.Compile.Nifs do
   def run(_args) do
-    {result, _err} = System.cmd("make", [])
-    IO.binwrite(result)
+    case System.cmd("make", ["decoder.so"]) do
+      {_, 0} ->
+        :ok
+
+      {result, _} ->
+        IO.binwrite(result)
+    end
   end
 end
 
