@@ -164,25 +164,22 @@ void decode(decoder_t* d, json_event_t* e) {
         case '7':
         case '8':
         case '9':
-            {
+            if(d->last_event_type != START_ARRAY &&
+                d->last_event_type != COMMA &&
+                d->last_event_type != COLON) {
+                syntax_error(d, e);
+            } else {
                 char *number_end = NULL;
                 double fn = strtod(d->cursor, &number_end);
                 unsigned long fl = ceil(fn);
 
 
-                /* while (*number_end != '\0' && ((*number_end >= '0' && *number_end <= '9') || *number_end == '.')) { */
-                /* 	if(*number_end == '.') { */
-                /* 		decimal = 1; */
-                /* 	} */
-                /*   number_end++; */
-                /* } */
-
-                if(*number_end == '\0') {
+                if(*number_end == '\0' || (*d->cursor == '-' && *(d->cursor + 1) == '\0')) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = number_end - d->last_token;
                 } else if (number_end == d->cursor) {
-                    e->type = UNDEFINED;
+                    syntax_error(d, e);
                 } else if(fn == fl) {
                     e->type = INTEGER;
                     e->value.integer = fl;
@@ -193,13 +190,9 @@ void decode(decoder_t* d, json_event_t* e) {
                     e->value.decimal = fn;
                     d->last_event_type = e->type;
                     d->cursor = number_end;
-                    /* e->type = STRING; */
-                    /* e->value.string.buffer = d->last_token; */
-                    /* e->value.string.size = number_end - d->last_token; */
                 }
-
-                break;
             }
+            break;
 
         case 'n':
             {
