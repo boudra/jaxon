@@ -178,7 +178,7 @@ void decode(decoder_t* d, json_event_t* e) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = number_end - d->last_token;
-                } else if (number_end == d->cursor) {
+                } else if (isinf(fn) || isnan(fn) || number_end == d->cursor) {
                     syntax_error(d, e);
                 } else if(fn == fl) {
                     e->type = INTEGER;
