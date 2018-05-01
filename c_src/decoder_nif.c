@@ -136,9 +136,6 @@ ERL_NIF_TERM decode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
 
     decode(&dr->decoder, &event);
 
-    if(event.type > 0) {
-    printf("event: %s\n", event_type_to_string(event.type));
-    }
     /* if(event.type == STRING || event.type == KEY) { */
     /* 	printf("string: `%.*s`\n", (int)event.value.string.size, event.value.string.buffer); */
     /* } */
