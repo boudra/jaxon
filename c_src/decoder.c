@@ -173,7 +173,11 @@ void decode(decoder_t* d, json_event_t* e) {
                 double fn = strtod(d->cursor, &number_end);
                 unsigned long fl = ceil(fn);
 
-                if(*number_end == '\0' || (*d->cursor == '-' && *(d->cursor + 1) == '\0')) {
+                if(*number_end == '\0' ||
+                   *number_end == '.' ||
+                   *number_end == 'E' ||
+                   *number_end == 'e' ||
+                   (*d->cursor == '-' && *(d->cursor + 1) == '\0')) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = number_end - d->last_token;
