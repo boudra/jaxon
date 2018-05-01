@@ -173,23 +173,30 @@ void decode(decoder_t* d, json_event_t* e) {
                 double fn = strtod(d->cursor, &number_end);
                 unsigned long fl = ceil(fn);
 
-
                 if(*number_end == '\0' || (*d->cursor == '-' && *(d->cursor + 1) == '\0')) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = number_end - d->last_token;
                 } else if (isinf(fn) || isnan(fn) || number_end == d->cursor) {
                     syntax_error(d, e);
-                } else if(fn == fl) {
-                    e->type = INTEGER;
-                    e->value.integer = fl;
-                    d->last_event_type = e->type;
-                    d->cursor = number_end;
                 } else {
-                    e->type = DECIMAL;
-                    e->value.decimal = fn;
-                    d->last_event_type = e->type;
-                    d->cursor = number_end;
+                    char* search = d->cursor;
+
+                    while(search < number_end && *search != '.') {
+                        search++;
+                    }
+
+                    if(search == number_end) {
+                        e->type = INTEGER;
+                        e->value.integer = fl;
+                        d->last_event_type = e->type;
+                        d->cursor = number_end;
+                    } else {
+                        e->type = DECIMAL;
+                        e->value.decimal = fn;
+                        d->last_event_type = e->type;
+                        d->cursor = number_end;
+                    }
                 }
             }
             break;
