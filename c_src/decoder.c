@@ -217,6 +217,8 @@ void decode(decoder_t* d, json_event_t* e) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = constant_end - d->last_token;
+                } else {
+                    syntax_error(d, e);
                 }
             }
 
@@ -235,6 +237,8 @@ void decode(decoder_t* d, json_event_t* e) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = constant_end - d->last_token;
+                } else {
+                    syntax_error(d, e);
                 }
             }
             break;
@@ -252,6 +256,8 @@ void decode(decoder_t* d, json_event_t* e) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = constant_end - d->last_token;
+                } else {
+                    syntax_error(d, e);
                 }
             }
             break;
