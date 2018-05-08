@@ -1,6 +1,6 @@
 defmodule JaxonReaderTest do
   use ExUnit.Case
-  doctest Jaxon.Reader
+  doctest Jaxon.Stream
 
   test "reader" do
     result =
@@ -10,7 +10,7 @@ defmodule JaxonReaderTest do
       {}
       """
       |> String.split("\n", trim: true)
-      |> Jaxon.Reader.stream_to_rows!([
+      |> Jaxon.Stream.decode([
         "$.id",
         "$.name"
       ])
@@ -25,7 +25,7 @@ defmodule JaxonReaderTest do
       [ { "name": "john", "age": 36 }, { "name": "mike", "age": 22 } ]
       """
       |> String.split("\n", trim: true)
-      |> Jaxon.Reader.stream_to_rows!([
+      |> Jaxon.Stream.decode([
         "$.*.name",
         "$.*.age"
       ])
@@ -40,7 +40,7 @@ defmodule JaxonReaderTest do
       [ { "name": "john", "age": 36, "items": [1,2] }, { "name": "mike", "age": 22, "items": [3]} ]
       """
       |> String.split("\n", trim: true)
-      |> Jaxon.Reader.stream_to_rows!([
+      |> Jaxon.Stream.decode([
         "$.*.name",
         "$.*.age",
         "$.*.items.*"
@@ -56,7 +56,7 @@ defmodule JaxonReaderTest do
       }
       """
       |> String.split("\n", trim: true)
-      |> Jaxon.Reader.stream_to_rows!([
+      |> Jaxon.Stream.decode([
         "$"
       ])
 

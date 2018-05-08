@@ -17,8 +17,6 @@
 
 ## :running:  To do
 
-* **Reading with JSON path:** Make an Elixir stream from a list of JSON path expressions.
-* **Better and more informative errors**
 * **Unicode support in strings**
 * **Benchmarking**
 * **JSON encoding?**
@@ -39,15 +37,15 @@ end
 
 ```elixir
 decoder =
-    Jaxon.make_decoder()
-    |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+    Jaxon.Decoder.new()
+    |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
 
 # every decode/1 call with return a different parsing event
-iex> Jaxon.decode(decoder)
+iex> Jaxon.Decoder.decode(decoder)
 
 # For the passed binary, the events will be:
 
-iex> Jaxon.consume(decoder)
+iex> Jaxon.Decoder.consume(decoder)
 [
 :start_object,
 {:key, "jaxon"},

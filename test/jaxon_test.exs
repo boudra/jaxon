@@ -1,6 +1,7 @@
-defmodule JaxonTest do
+defmodule DecoderTest do
   use ExUnit.Case
-  doctest Jaxon
+  alias Jaxon.Decoder
+  doctest Decoder
 
   @tests [
     {"""
@@ -28,7 +29,7 @@ defmodule JaxonTest do
   ]
 
   defp accumulate(decoder) do
-    case Jaxon.decode(decoder) do
+    case Decoder.decode(decoder) do
       event = {type, _} when type in [:incomplete, :error] ->
         [event]
 
@@ -43,43 +44,43 @@ defmodule JaxonTest do
   test "basic parsing" do
     Enum.each(@tests, fn {json, events} ->
       d =
-        Jaxon.make_decoder()
-        |> Jaxon.update_decoder(json)
+        Decoder.new()
+        |> Decoder.update(json)
 
       assert events == accumulate(d)
     end)
   end
 
   test "string partal parsing" do
-    d = Jaxon.make_decoder()
-    Jaxon.update_decoder(d, "{\"key\":\"va")
+    d = Decoder.new()
+    Decoder.update(d, "{\"key\":\"va")
     assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Jaxon.update_decoder(d, rest <> "lue\"}")
+    Decoder.update(d, rest <> "lue\"}")
     assert [{:string, "value"}, :end_object, :end] = accumulate(d)
   end
 
   test "constant partal parsing" do
-    d = Jaxon.make_decoder()
-    Jaxon.update_decoder(d, "{\"key\": tr")
+    d = Decoder.new()
+    Decoder.update(d, "{\"key\": tr")
     assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Jaxon.update_decoder(d, rest <> "ue}")
+    Decoder.update(d, rest <> "ue}")
     assert [{:boolean, true}, :end_object, :end] = accumulate(d)
   end
 
   test "string multiple partal parsing" do
-    d = Jaxon.make_decoder()
-    Jaxon.update_decoder(d, "{\"key\":\"va")
+    d = Decoder.new()
+    Decoder.update(d, "{\"key\":\"va")
     assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Jaxon.update_decoder(d, rest <> "lu")
+    Decoder.update(d, rest <> "lu")
     assert [{:incomplete, rest}] = accumulate(d)
-    Jaxon.update_decoder(d, rest <> "e\"}")
+    Decoder.update(d, rest <> "e\"}")
   end
 
   test "number partal parsing" do
-    d = Jaxon.make_decoder()
-    Jaxon.update_decoder(d, "{\"key\":2342")
+    d = Decoder.new()
+    Decoder.update(d, "{\"key\":2342")
     assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Jaxon.update_decoder(d, rest <> "5 }")
+    Decoder.update(d, rest <> "5 }")
     assert [{:integer, 23425}, :end_object, :end] = accumulate(d)
   end
 
@@ -96,8 +97,8 @@ defmodule JaxonTest do
     {_, events} =
       Stream.cycle([json])
       |> Stream.take(times)
-      |> Enum.reduce({Jaxon.make_decoder(), []}, fn line, {d, events} ->
-        Jaxon.update_decoder(d, line)
+      |> Enum.reduce({Decoder.new(), []}, fn line, {d, events} ->
+        Decoder.update(d, line)
         events = Enum.concat(events, accumulate(d))
         {d, events}
       end)
@@ -106,8 +107,8 @@ defmodule JaxonTest do
   end
 
   test "errors" do
-    d = Jaxon.make_decoder()
-    Jaxon.update_decoder(d, "}")
+    d = Decoder.new()
+    Decoder.update(d, "}")
     assert [{:error, "}"}] == accumulate(d)
   end
 end

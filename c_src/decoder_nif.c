@@ -246,9 +246,9 @@ ERL_NIF_TERM make_decoder_resource(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 }
 
 static ErlNifFunc nif_exports[] = {
-    {"make_decoder", 0, make_decoder_resource},
-    {"update_decoder", 2, update_decoder_resource},
+    {"new", 0, make_decoder_resource},
+    {"update", 2, update_decoder_resource},
     {"decode", 1, decode_nif}
 };
 
-ERL_NIF_INIT(Elixir.Jaxon, nif_exports, load, reload, upgrade, unload);
+ERL_NIF_INIT(Elixir.Jaxon.Decoder, nif_exports, load, reload, upgrade, unload);

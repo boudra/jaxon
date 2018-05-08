@@ -1,11 +1,11 @@
-defmodule Jaxon.Reader do
-  alias Jaxon.{Decoder, Path}
+defmodule Jaxon.Stream do
+  alias Jaxon.{CallbackDecoder, Path}
 
-  @behaviour Decoder
+  @behaviour CallbackDecoder
 
-  @spec stream_to_rows!(Stream.t(), [Path.json_path()]) :: {:ok, Stream.t()}
-  def stream_to_rows!(bin_stream, queries) do
-    decoder = Jaxon.make_decoder()
+  @spec decode(Stream.t(), [Path.json_path()]) :: Stream.t()
+  def decode(bin_stream, queries) do
+    decoder = Jaxon.Decoder.new()
 
     queries =
       queries
@@ -35,7 +35,7 @@ defmodule Jaxon.Reader do
       fn chunk, {decoder, path, state, rest} ->
         binary = rest <> chunk
 
-        case Decoder.decode(binary, decoder, __MODULE__, {path, state}) do
+        case CallbackDecoder.decode(binary, decoder, __MODULE__, {path, state}) do
           {:error, path} ->
             {:halt, {:error, path}}
 

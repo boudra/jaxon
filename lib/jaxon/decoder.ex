@@ -1,68 +1,134 @@
 defmodule Jaxon.Decoder do
-  @callback insert(any, [String.t() | integer], any) :: any
-  @callback close(any, [String.t() | integer]) :: any
+  @moduledoc ~S"""
+  ## Example
 
-  defp handle_event(d, _, {:incomplete, rest}, {path, data}) do
-    {d, path, data, rest}
+  Create a new decoder and add your JSON data:
+
+  ```
+  decoder =
+    Jaxon.Decoder.new()
+    |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  ```
+
+  Call `decode/1` on the decoder to consume the events one by one:
+
+  ```
+  iex> decoder = Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  iex> Jaxon.Decoder.decode(decoder)
+  :start_object
+  ```
+
+  Or call `consume/1` to read all the events in a list:
+
+  ```
+  iex> decoder = Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  iex> Jaxon.Decoder.consume(decoder)
+  {:ok, [
+   :start_object,
+   {:key, "jaxon"},
+   {:string, "rocks"},
+   {:key, "array"},
+   :start_array,
+   {:integer, 1},
+   {:integer, 2},
+   :end_array,
+   :end_object
+  ]}
+  ```
+  """
+
+  @type event ::
+          :start_object
+          | :end_object
+          | :start_array
+          | :end_array
+          | {:key, binary}
+          | {:string, binary}
+          | {:integer, integer}
+          | {:decimal, float}
+          | {:boolean, boolean}
+          | nil
+          | {:incomplete, binary}
+          | :end
+          | :error
+
+  @type decoder :: reference()
+
+  @on_load :load_nifs
+
+  def load_nifs do
+    nif_filename =
+      :jaxon
+      |> Application.app_dir("priv/decoder")
+      |> to_charlist
+
+    :erlang.load_nif(nif_filename, [
+      :start_object,
+      :end_object,
+      :start_array,
+      :end_array,
+      :key,
+      :colon,
+      :comma,
+      :string,
+      :integer,
+      :boolean,
+      nil,
+      :error,
+      :incomplete,
+      :syntax_error,
+      :end
+    ])
   end
 
-  defp handle_event(d, _, :end, {[], data}) do
-    {d, [], data, ""}
+  @doc ~S"""
+  Get a single event from the decoder, must call `update_decoder/2` with your data beforehand.
+
+  ## Example
+
+  iex> Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\"}") |> Jaxon.Decoder.decode()
+  :start_object
+  """
+
+  @spec decode(decoder) :: event
+  def decode(_) do
+    raise "NIF not compiled"
   end
 
-  defp handle_event(d, module, :start_array, {path, data}) do
-    handle_event(d, module, Jaxon.decode(d), {[-1 | path], module.insert(data, path, [])})
+  @spec update(decoder, binary) :: decoder
+  def update(_, _) do
+    raise "NIF not compiled"
   end
 
-  defp handle_event(d, module, :end_array, {[key | rest], data}) when is_integer(key) do
-    handle_event(d, module, Jaxon.decode(d), {rest, module.close(data, rest)})
+  @spec new() :: decoder
+  def new() do
+    raise "NIF not compiled"
   end
 
-  defp handle_event(d, module, :start_object, {path = [key | rest], data}) when is_integer(key) do
-    handle_event(
-      d,
-      module,
-      Jaxon.decode(d),
-      {["", key + 1 | rest], module.insert(data, path, %{})}
-    )
-  end
+  @doc ~S"""
+  Helper function that calls `decode/1` until there are no more events.
 
-  defp handle_event(d, module, :start_object, {path, data}) do
-    handle_event(d, module, Jaxon.decode(d), {["" | path], module.insert(data, path, %{})})
-  end
+  ## Example
 
-  defp handle_event(d, module, :end_object, {[_ | rest], data}) do
-    handle_event(d, module, Jaxon.decode(d), {rest, module.close(data, rest)})
-  end
+  iex> Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\"}") |> Jaxon.Decoder.consume()
+  {:ok, [:start_object, {:key, "jaxon"}, {:string, "rocks"}, :end_object]}
+  """
 
-  defp handle_event(d, module, {:key, key}, {[_ | path], data}) do
-    handle_event(d, module, Jaxon.decode(d), {[key | path], data})
-  end
+  @spec consume(decoder, [event()]) ::
+          {{:incomplete, binary}, [event]} | {:ok, [event]} | {:end, [event]}
+  def consume(decoder, acc \\ []) do
+    case decode(decoder) do
+      event = {:incomplete, _} ->
+        {event, acc}
 
-  defp handle_event(d, module, {_, value}, {[key | rest], data}) when is_integer(key) do
-    new_path = [key + 1 | rest]
-    handle_event(d, module, Jaxon.decode(d), {new_path, module.insert(data, new_path, value)})
-  end
+      {:error, context} ->
+        {:error, context}
 
-  defp handle_event(_, _, {:error, context}, {_, _}) do
-    {:error, "Failed to parse your JSON data, check the syntax near `#{context}`"}
-  end
+      :end ->
+        {:ok, acc}
 
-  defp handle_event(d, module, {_, value}, {path, data}) do
-    handle_event(d, module, Jaxon.decode(d), {path, module.insert(data, path, value)})
-  end
-
-  defp handle_event(d, module, value = nil, {[key | rest], data}) when is_integer(key) do
-    new_path = [key + 1 | rest]
-    handle_event(d, module, Jaxon.decode(d), {new_path, module.insert(data, new_path, value)})
-  end
-
-  defp handle_event(d, module, value = nil, {path, data}) do
-    handle_event(d, module, Jaxon.decode(d), {path, module.insert(data, path, value)})
-  end
-
-  def decode(binary, d, module, state) do
-    d = Jaxon.update_decoder(d, binary)
-    handle_event(d, module, Jaxon.decode(d), state)
+      event ->
+        consume(decoder, acc ++ [event])
+    end
   end
 end

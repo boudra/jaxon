@@ -1,131 +1,71 @@
 defmodule Jaxon do
-  @moduledoc ~S"""
-  ## Example
-
-  Create a new decoder and add your JSON data:
-
-  ```
-  decoder =
-    Jaxon.make_decoder()
-    |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  ```
-
-  Call `decode/1` on the decoder to consume the events one by one:
-
-  ```
-  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.decode(decoder)
-  :start_object
-  ```
-
-  Or call `consume/1` to read all the events in a list:
-
-  ```
-  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.consume(decoder)
-  [
-   :start_object,
-   {:key, "jaxon"},
-   {:string, "rocks"},
-   {:key, "array"},
-   :start_array,
-   {:integer, 1},
-   {:integer, 2},
-   :end_array,
-   :end_object,
-   :end
-  ]
-  ```
-  """
-
-  @type event ::
-          :start_object
-          | :end_object
-          | :start_array
-          | :end_array
-          | {:key, binary}
-          | {:string, binary}
-          | {:integer, integer}
-          | {:decimal, float}
-          | {:boolean, boolean}
-          | nil
-          | {:incomplete, binary}
-          | :end
-          | :error
-
-  @type decoder :: reference()
-
-  @on_load :load_nifs
-
-  def load_nifs do
-    nif_filename =
-      :jaxon
-      |> Application.app_dir("priv/decoder")
-      |> to_charlist
-
-    :erlang.load_nif(nif_filename, [
-      :start_object,
-      :end_object,
-      :start_array,
-      :end_array,
-      :key,
-      :colon,
-      :comma,
-      :string,
-      :integer,
-      :boolean,
-      nil,
-      :error,
-      :incomplete,
-      :syntax_error,
-      :end
-    ])
+  def do_decode(d, {:key, key}, acc, path) do
+    do_decode(d, Jaxon.Decoder.decode(d), acc, [key | path])
   end
 
-  @doc ~S"""
-  Get a single event from the decoder, must call `update_decoder/2` with your data beforehand.
-
-  ## Example
-
-  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.decode()
-  :start_object
-  """
-
-  @spec decode(decoder) :: event
-  def decode(_) do
-    raise "NIF not compiled"
+  def do_decode(d, :start_array, acc, path) do
+    do_decode(d, Jaxon.Decoder.decode(d), [[] | acc], path)
   end
 
-  @spec update_decoder(decoder, binary) :: decoder
-  def update_decoder(_, _) do
-    raise "NIF not compiled"
+  def do_decode(d, :start_object, acc, path) do
+    do_decode(d, Jaxon.Decoder.decode(d), [%{} | acc], path)
   end
 
-  @spec make_decoder() :: decoder
-  def make_decoder() do
-    raise "NIF not compiled"
+  def do_decode(_, _, [last], _) do
+    {:ok, last}
   end
 
-  @doc ~S"""
-  Helper function that calls `decode/1` until there are no more events.
+  def do_decode(_, {:string, value}, [], _) do
+    {:ok, value}
+  end
 
-  ## Example
+  def do_decode(_, {:integer, value}, [], _) do
+    {:ok, value}
+  end
 
-  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.consume()
-  [:start_object, {:key, "jaxon"}, {:string, "rocks"}, :end_object, :end]
-  """
+  def do_decode(_, {:decimal, value}, [], _) do
+    {:ok, value}
+  end
 
-  @spec consume(decoder) :: [event]
-  def consume(decoder) do
-    case Jaxon.decode(decoder) do
-      event = {:incomplete, _} ->
-        [event]
+  def do_decode(_, {:boolean, value}, [], _) do
+    {:ok, value}
+  end
 
-      event when event in [:end, :error, :ok] ->
-        [event]
+  def do_decode(d, event, [value, parent | acc], [key | path])
+      when event in [:end_array, :end_object] and is_map(parent) do
+    do_decode(d, Jaxon.Decoder.decode(d), [Map.put(parent, key, value) | acc], path)
+  end
 
-      event ->
-        [event | consume(decoder)]
-    end
+  def do_decode(d, event, [value, parent | acc], path)
+      when event in [:end_array, :end_object] and is_list(parent) do
+    do_decode(d, Jaxon.Decoder.decode(d), [parent ++ [value] | acc], path)
+  end
+
+  def do_decode(d, nil, [%{} = parent | acc], [key | path]) do
+    do_decode(d, Jaxon.Decoder.decode(d), [Map.put(parent, key, nil) | acc], path)
+  end
+
+  def do_decode(d, value = nil, [parent | acc], path) do
+    do_decode(d, Jaxon.Decoder.decode(d), [parent ++ [value] | acc], path)
+  end
+
+  def do_decode(d, {event, value}, [parent | acc], [key | path])
+      when event in [:string, :integer, :decimal, :boolean] and is_map(parent) do
+    do_decode(d, Jaxon.Decoder.decode(d), [Map.put(parent, key, value) | acc], path)
+  end
+
+  def do_decode(d, {event, value}, [parent | acc], path)
+      when event in [:string, :integer, :decimal, :boolean] and is_list(parent) do
+    do_decode(d, Jaxon.Decoder.decode(d), [parent ++ [value] | acc], path)
+  end
+
+  def decode(binary) do
+    d = Jaxon.Decoder.new() |> Jaxon.Decoder.update(binary)
+
+    do_decode(d, Jaxon.Decoder.decode(d), [], [])
+  end
+
+  def decode!(binary) do
+    decode(binary)
   end
 end
