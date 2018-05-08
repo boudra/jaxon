@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+  <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    Giphy
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.6.3</li>
+    <li>Erlang: 20.2.2</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+    
+    <article>
+      <h2>
+        <a name="Poison"></a>
+        Poison
+        <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+          <i
+            class="benchee-help-icon icon-question-circle-o"
+            title="Graphs showing the individual run time distribution for Poison.
+Run Times Histpgram shows the distribution of occurences of specific run times in buckets.
+Raw Run Times shows all individual recorded run times in the order they were recorded in."
+          ></i>
+        </a>
+      </h2>
+
+      <section>
+        <h3>Data Table</h3>
+<table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      <th>Iterations per Second</th>
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>median</th>
+      <th>minimum</th>
+      <th>maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      <tr>
+        
+          <td class="text-left">Poison</td>
+        
+        <td>74.60</td>
+        <td>13.41 ms</td>
+        <td>±17.16%</td>
+        <td>13.33 ms</td>
+        <td>10.04 ms</td>
+        <td>20.69 ms</td>
+        <td>373</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+      </section>
+
+      <section class="benchee-plot-container">
+        <div id="sorted-run-times" class="plot" data-job-name="Poison"></div>
+      </section>
+      <section class="benchee-plot-container">
+        <div id="raw-run-times" class="plot" data-job-name="Poison"></div>
+      </section>
+    </article>
+
+    <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+<script src="assets/javascripts/benchee.js"></script>
+
+
+    <script>
+      var measurements = {"statistics":{"std_dev_ratio":0.17164088314245457,"std_dev_ips":12.804727439667616,"std_dev":2300.7590676749683,"sample_size":373,"percentiles":{"99":18881.859999999993,"50":13327.0},"mode":[10632.0,14852.0,10710.0,10666.0,15650.0,12148.0,11285.0,14017.0,10849.0,16067.0],"minimum":10040.0,"median":13327.0,"maximum":20693.0,"ips":74.60185012588313,"average":13404.49329758713},"run_times":[13605.0,12774.0,12119.0,15878.0,15406.0,15353.0,13252.0,12784.0,12260.0,10966.0,10826.0,11342.0,14134.0,20293.0,16152.0,16837.0,18736.0,15118.0,14490.0,15217.0,13098.0,13896.0,1.42e4,13311.0,12952.0,13668.0,16510.0,14076.0,15092.0,16067.0,16303.0,15559.0,16630.0,14750.0,14546.0,13851.0,13260.0,13026.0,13410.0,13119.0,12541.0,14839.0,13374.0,12887.0,13485.0,14431.0,13051.0,13483.0,12957.0,14043.0,13774.0,12753.0,14852.0,13241.0,12512.0,13118.0,12278.0,10774.0,10922.0,11071.0,11462.0,14522.0,12224.0,13917.0,14912.0,14551.0,15330.0,13872.0,12633.0,14142.0,15647.0,12571.0,14219.0,15398.0,15061.0,17142.0,13063.0,14511.0,12573.0,13731.0,14627.0,16682.0,15550.0,15828.0,13706.0,12578.0,15018.0,14057.0,12764.0,13088.0,12586.0,12012.0,10696.0,10810.0,10272.0,10055.0,12484.0,11091.0,12148.0,10515.0,10215.0,10062.0,10710.0,11973.0,10754.0,10153.0,10945.0,13521.0,13566.0,1.2e4,13534.0,12351.0,11488.0,11252.0,10543.0,10684.0,10183.0,10632.0,10857.0,10530.0,12133.0,11112.0,10928.0,13754.0,14242.0,11570.0,10666.0,10636.0,10110.0,10150.0,10749.0,10084.0,10286.0,10452.0,11470.0,10747.0,10204.0,10256.0,10213.0,10920.0,10414.0,11873.0,10710.0,10564.0,10284.0,11885.0,10458.0,10585.0,10504.0,10040.0,10212.0,11157.0,10666.0,12140.0,12236.0,10739.0,10376.0,10259.0,12908.0,10862.0,10521.0,10554.0,10176.0,10426.0,11164.0,10146.0,11369.0,10745.0,11251.0,10380.0,10614.0,13010.0,13404.0,13825.0,12391.0,12294.0,11524.0,10880.0,12848.0,11945.0,11391.0,12268.0,10946.0,10822.0,11033.0,11542.0,11363.0,10955.0,10251.0,10838.0,10864.0,11077.0,10849.0,10986.0,10144.0,10869.0,10673.0,11007.0,11203.0,10878.0,1.22e4,11333.0,11983.0,11175.0,11956.0,11712.0,10650.0,12293.0,11862.0,14669.0,12675.0,13845.0,13240.0,14068.0,12673.0,13334.0,12113.0,11286.0,11361.0,11344.0,10632.0,11789.0,11056.0,11176.0,10926.0,10248.0,10645.0,12148.0,11521.0,10904.0,11968.0,11425.0,10751.0,11629.0,10849.0,11589.0,11154.0,11285.0,10845.0,10911.0,10496.0,11936.0,11612.0,11285.0,13761.0,11484.0,13015.0,16766.0,15651.0,16579.0,18088.0,17525.0,17794.0,17054.0,14976.0,15491.0,16173.0,17912.0,15142.0,15163.0,18128.0,19297.0,17127.0,17146.0,15419.0,15316.0,17672.0,15439.0,15190.0,17517.0,15960.0,17186.0,15278.0,15380.0,16294.0,13381.0,15911.0,18164.0,18221.0,15282.0,15952.0,17104.0,17596.0,17966.0,15650.0,16917.0,15112.0,14646.0,14479.0,14178.0,17215.0,15105.0,15188.0,15599.0,17401.0,15197.0,14681.0,16175.0,16248.0,15604.0,16151.0,15426.0,12949.0,12243.0,14167.0,14928.0,13812.0,14531.0,13186.0,13880.0,14765.0,14602.0,14066.0,14527.0,13833.0,14439.0,15771.0,16351.0,14017.0,17737.0,14852.0,16536.0,15344.0,16128.0,14014.0,16141.0,13327.0,12470.0,13189.0,17537.0,17783.0,14648.0,16565.0,20693.0,15735.0,15238.0,16090.0,15786.0,15906.0,14899.0,16440.0,17643.0,14908.0,15360.0,14357.0,14798.0,16119.0,14017.0,15692.0,15253.0,14588.0,13971.0,13520.0,13361.0,14007.0,14539.0,15059.0,16067.0,15465.0,15453.0,14002.0,12671.0,13906.0,15185.0,14141.0,14199.0,14473.0,14032.0,15332.0,15650.0,14073.0,16715.0,17938.0]};
+      var runTimes     = measurements.run_times;
+
+      var inputHeadline = " (Giphy)"
+
+      drawRawRunTimeCharts(runTimes, inputHeadline);
+      drawRunTimeHistograms(runTimes, inputHeadline);
+    </script>
+  </body>
+</html>

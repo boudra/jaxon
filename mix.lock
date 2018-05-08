@@ -1,5 +1,17 @@
 %{
+  "benchee": {:hex, :benchee, "0.13.1", "bd93ca05be78bcb6159c7176230efeda2f724f7ffd485515175ca411dff4893e", [:mix], [{:deep_merge, "~> 0.1", [hex: :deep_merge, repo: "hexpm", optional: false]}], "hexpm"},
+  "benchee_html": {:hex, :benchee_html, "0.5.0", "1354ba8005f979c177561fe08b83cafbae43f3046e8a6cf209132b8967b6db17", [:mix], [{:benchee, "~> 0.12", [hex: :benchee, repo: "hexpm", optional: false]}, {:benchee_json, "~> 0.5", [hex: :benchee_json, repo: "hexpm", optional: false]}], "hexpm"},
+  "benchee_json": {:hex, :benchee_json, "0.5.0", "75878fd9944093ced03e9c214e6e1429da147de43e2f4a4cbc4377294ed5d029", [:mix], [{:benchee, "~> 0.12", [hex: :benchee, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
+  "deep_merge": {:hex, :deep_merge, "0.1.1", "c27866a7524a337b6a039eeb8dd4f17d458fd40fbbcb8c54661b71a22fffe846", [:mix], [], "hexpm"},
   "earmark": {:hex, :earmark, "1.2.5", "4d21980d5d2862a2e13ec3c49ad9ad783ffc7ca5769cf6ff891a4553fbaae761", [:mix], [], "hexpm"},
   "elixir_make": {:hex, :elixir_make, "0.4.1", "6628b86053190a80b9072382bb9756a6c78624f208ec0ff22cb94c8977d80060", [:mix], [], "hexpm"},
   "ex_doc": {:hex, :ex_doc, "0.18.3", "f4b0e4a2ec6f333dccf761838a4b253d75e11f714b85ae271c9ae361367897b7", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm"},
+  "exjsx": {:hex, :exjsx, "4.0.0", "60548841e0212df401e38e63c0078ec57b33e7ea49b032c796ccad8cde794b5c", [:mix], [{:jsx, "~> 2.8.0", [hex: :jsx, repo: "hexpm", optional: false]}], "hexpm"},
+  "jason": {:hex, :jason, "1.0.0", "0f7cfa9bdb23fed721ec05419bcee2b2c21a77e926bce0deda029b5adc716fe2", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
+  "jiffy": {:hex, :jiffy, "0.15.1", "be83b09388da1a6c7e798207c9d6a1c4d71bb95fcc387d37d35861788f49ab97", [:rebar3], [], "hexpm"},
+  "json": {:hex, :json, "1.2.5", "3682c18c6b07480df2122d0daf5c05457b42c1990f197ce3de53884e8ba834c4", [:mix], [{:benchee, "~> 0.8", [hex: :benchee, repo: "hexpm", optional: true]}, {:benchee_html, "~> 0.1", [hex: :benchee_html, repo: "hexpm", optional: true]}, {:exjsx, "~> 4.0", [hex: :exjsx, repo: "hexpm", optional: true]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}, {:jsone, "~> 1.4", [hex: :jsone, repo: "hexpm", optional: true]}, {:poison, "~> 3.0", [hex: :poison, repo: "hexpm", optional: true]}, {:tiny, "~> 1.0", [hex: :tiny, repo: "hexpm", optional: true]}], "hexpm"},
+  "jsone": {:hex, :jsone, "1.4.5", "547aefec1c67fe3283f77bac4daf85f3f593002764f768faaa423875a51a2320", [:rebar3], [], "hexpm"},
+  "jsx": {:hex, :jsx, "2.8.3", "a05252d381885240744d955fbe3cf810504eb2567164824e19303ea59eef62cf", [:mix, :rebar3], [], "hexpm"},
+  "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], [], "hexpm"},
+  "tiny": {:hex, :tiny, "1.0.1", "535ea7e600cb1c6ba17b53029266d9d7ec54ce29bfb05d906c433907acfa01ca", [:mix], [], "hexpm"},
 }

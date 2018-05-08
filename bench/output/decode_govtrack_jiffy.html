@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+  <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    GovTrack
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.6.3</li>
+    <li>Erlang: 20.2.2</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+    
+    <article>
+      <h2>
+        <a name="jiffy"></a>
+        jiffy
+        <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+          <i
+            class="benchee-help-icon icon-question-circle-o"
+            title="Graphs showing the individual run time distribution for jiffy.
+Run Times Histpgram shows the distribution of occurences of specific run times in buckets.
+Raw Run Times shows all individual recorded run times in the order they were recorded in."
+          ></i>
+        </a>
+      </h2>
+
+      <section>
+        <h3>Data Table</h3>
+<table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      <th>Iterations per Second</th>
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>median</th>
+      <th>minimum</th>
+      <th>maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      <tr>
+        
+          <td class="text-left">jiffy</td>
+        
+        <td>7.90</td>
+        <td>126.59 ms</td>
+        <td>±9.02%</td>
+        <td>126.76 ms</td>
+        <td>104.03 ms</td>
+        <td>154.50 ms</td>
+        <td>40</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+      </section>
+
+      <section class="benchee-plot-container">
+        <div id="sorted-run-times" class="plot" data-job-name="jiffy"></div>
+      </section>
+      <section class="benchee-plot-container">
+        <div id="raw-run-times" class="plot" data-job-name="jiffy"></div>
+      </section>
+    </article>
+
+    <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+<script src="assets/javascripts/benchee.js"></script>
+
+
+    <script>
+      var measurements = {"statistics":{"std_dev_ratio":0.09015490010327604,"std_dev_ips":0.7121971458623401,"std_dev":11412.438339373404,"sample_size":40,"percentiles":{"99":154495.0,"50":126764.0},"mode":null,"minimum":104027.0,"median":126764.0,"maximum":154495.0,"ips":7.899705340990781,"average":126587.0},"run_times":[154495.0,137250.0,153445.0,125662.0,139298.0,129206.0,139182.0,126760.0,131763.0,126358.0,133777.0,130553.0,127126.0,122124.0,104027.0,119236.0,142760.0,134438.0,109414.0,109313.0,115108.0,118477.0,126768.0,118611.0,119169.0,117070.0,130612.0,119569.0,117063.0,134029.0,118357.0,142268.0,135307.0,133805.0,114512.0,108723.0,122696.0,128129.0,116012.0,131008.0]};
+      var runTimes     = measurements.run_times;
+
+      var inputHeadline = " (GovTrack)"
+
+      drawRawRunTimeCharts(runTimes, inputHeadline);
+      drawRunTimeHistograms(runTimes, inputHeadline);
+    </script>
+  </body>
+</html>
