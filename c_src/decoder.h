@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdint.h>
 
 typedef enum {
     UNDEFINED,
@@ -22,13 +23,13 @@ typedef enum {
 } json_event_type_t;
 
 typedef struct {
-    char* buffer;
+    uint8_t* buffer;
     size_t size;
 } string_t;
 
 typedef struct {
     json_event_type_t expected[5];
-    char* context;
+    unsigned char* context;
 } syntax_error_t;
 
 typedef union {
@@ -45,15 +46,16 @@ typedef struct {
 } json_event_t;
 
 typedef struct {
-    char* buffer;
-    char* cursor;
-    char* last_token;
+    unsigned char* buffer;
+    unsigned char* cursor;
+    unsigned char* last_token;
+    size_t buffer_length;
     json_event_type_t last_event_type;
     unsigned int pair_count;
 } decoder_t;
 
 void make_decoder(decoder_t* d);
-void update_decoder_buffer(decoder_t* d, char* buf);
+void update_decoder_buffer(decoder_t* d, unsigned char* buf, size_t length);
 void decode(decoder_t* d, json_event_t* e);
 
 static inline const char* event_type_to_string(json_event_type_t type) {
@@ -106,4 +108,38 @@ static inline const char* event_type_to_string(json_event_type_t type) {
         case COLON:
             return ":";
     }
+}
+
+static inline const uint32_t hex_byte_to_u32(const char in) {
+    uint8_t c = 0;
+    if(in <= '9') {
+        c = (in - '0');
+    } else {
+        c = (in - 'A') + 10;
+    }
+    return (uint32_t)c;
+}
+
+static inline const size_t u32_size(const uint32_t in) {
+    size_t num = 1;
+    if(in >= 0x10000) {
+        num = 4;
+    } else if(in >= 0x800) {
+        num = 3;
+    } else if(in >= 0x80) {
+        num = 2;
+    }
+    return num;
+}
+
+#define is_utf8(c) (((c) > 0x7f))
+
+static inline const size_t u32_to_utf8(uint32_t in, uint8_t *out) {
+    const size_t num = u32_size(in);
+    out[0] = (in >> ((num - 1)*6));
+    out[0] |= (0xff << (8 - num) & 0xff) * is_utf8(in);
+    for(size_t i = 1; i < num; ++i) {
+        out[i] = 0x80 + ((in >> ((num-i-1)*6)) & 0x3f);
+    }
+    return num;
 }
