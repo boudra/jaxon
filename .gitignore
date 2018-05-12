@@ -23,3 +23,4 @@ erl_crash.dump
 jaxon-*.tar
 
 priv/decoder.so
+bench/output
