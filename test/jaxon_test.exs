@@ -1,114 +1,62 @@
-defmodule DecoderTest do
+defmodule JaxonTest do
   use ExUnit.Case
-  alias Jaxon.Decoder
-  doctest Decoder
+  import Jaxon
+  doctest Jaxon
 
-  @tests [
-    {"""
-     { "name": "john", "test": {"number": 5.1}, "tags":[null,true,true,1]}
-     """,
-     [
-       :start_object,
-       {:key, "name"},
-       {:string, "john"},
-       {:key, "test"},
-       :start_object,
-       {:key, "number"},
-       {:decimal, 5.1},
-       :end_object,
-       {:key, "tags"},
-       :start_array,
-       nil,
-       {:boolean, true},
-       {:boolean, true},
-       {:integer, 1},
-       :end_array,
-       :end_object,
-       :end
-     ]}
-  ]
-
-  defp accumulate(decoder) do
-    case Decoder.decode(decoder) do
-      event = {type, _} when type in [:incomplete, :error] ->
-        [event]
-
-      :end ->
-        [:end]
-
-      event ->
-        [event | accumulate(decoder)]
-    end
+  test "numbers" do
+    assert decode!("0") == 0
+    assert decode!("23e+4") == 23.0e4
+    assert decode!("23.1e+4") == 23.1e4
+    assert decode!("23.1e-4") == 23.1e-4
+    assert decode!("23.5") == 23.5
+    assert decode!("123456789.123456789") === 123_456_789.123456789
+    assert decode!("123456789123456789") === 123_456_789123456789
+    assert decode!("1") == 1
+    assert decode!("-0") == 0
+    assert decode!("0") == 0
+    assert decode!("0.1") == 0.1
+    assert decode!("-0.1") == -0.1
+    assert decode!("0e0") == 0
+    assert decode!("0E0") == 0
+    assert decode!("1e0") == 1
+    assert decode!("1E0") == 1
+    assert decode!("1.0e0") == 1.0
+    assert decode!("1e+0") == 1
+    assert decode!("1.0e+0") == 1.0
+    assert decode!("0.1e1") == 0.1e1
+    assert decode!("0.1e-1") == 0.1e-1
+    assert decode!("99.99e99") == 99.99e99
+    assert decode!("-99.99e99 ") == -99.99e99
   end
 
-  test "basic parsing" do
-    Enum.each(@tests, fn {json, events} ->
-      d =
-        Decoder.new()
-        |> Decoder.update(json)
+  test "objects" do
+    assert decode!(~s({})) == %{}
+    assert decode!(~s({"number": 2})) == %{"number" => 2}
+    assert decode!(~s({"nested": {}})) == %{"nested" => %{}}
+  end
 
-      assert events == accumulate(d)
+  test "strings" do
+    assert decode!(~s("hello")) == "hello"
+
+    assert decode!(~s("\\\n")) == "\n"
+    assert decode!(~s("\\\t")) == "\t"
+    assert decode!(~s("\\\r")) == "\r"
+    assert decode!(~s("\\u0029")) == ")"
+    assert decode!(~s("\\u0065")) == "e"
+    assert decode!(~s("\\u00E6")) == "æ"
+    assert decode!(~s("\\uD83E\\uDD16")) == "🤖"
+  end
+
+  test "benchmark files" do
+    "bench/data/*.json"
+    |> Path.wildcard()
+    |> Enum.each(fn filename ->
+      assert {:ok, _} = decode(File.read!(filename))
     end)
   end
 
-  test "string partal parsing" do
-    d = Decoder.new()
-    Decoder.update(d, "{\"key\":\"va")
-    assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Decoder.update(d, rest <> "lue\"}")
-    assert [{:string, "value"}, :end_object, :end] = accumulate(d)
-  end
-
-  test "constant partal parsing" do
-    d = Decoder.new()
-    Decoder.update(d, "{\"key\": tr")
-    assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Decoder.update(d, rest <> "ue}")
-    assert [{:boolean, true}, :end_object, :end] = accumulate(d)
-  end
-
-  test "string multiple partal parsing" do
-    d = Decoder.new()
-    Decoder.update(d, "{\"key\":\"va")
-    assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Decoder.update(d, rest <> "lu")
-    assert [{:incomplete, rest}] = accumulate(d)
-    Decoder.update(d, rest <> "e\"}")
-  end
-
-  test "number partal parsing" do
-    d = Decoder.new()
-    Decoder.update(d, "{\"key\":2342")
-    assert [:start_object, {:key, "key"}, {:incomplete, rest}] = accumulate(d)
-    Decoder.update(d, rest <> "5 }")
-    assert [{:integer, 23425}, :end_object, :end] = accumulate(d)
-  end
-
-  test "parsing newline separated json documents in a stream" do
-    [{json, events}] = @tests
-
-    times = 100
-
-    expected_events_stream =
-      Stream.cycle([events])
-      |> Enum.take(times)
-      |> List.flatten()
-
-    {_, events} =
-      Stream.cycle([json])
-      |> Stream.take(times)
-      |> Enum.reduce({Decoder.new(), []}, fn line, {d, events} ->
-        Decoder.update(d, line)
-        events = Enum.concat(events, accumulate(d))
-        {d, events}
-      end)
-
-    assert events == expected_events_stream
-  end
-
-  test "errors" do
-    d = Decoder.new()
-    Decoder.update(d, "}")
-    assert [{:error, "}"}] == accumulate(d)
+  test "escaped vs unescaped utf8" do
+    assert decode!(File.read!("bench/data/utf-8-unescaped.json")) ==
+             decode!(File.read!("bench/data/utf-8-escaped.json"))
   end
 end
