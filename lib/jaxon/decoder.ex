@@ -105,6 +105,11 @@ defmodule Jaxon.Decoder do
     raise "NIF not compiled"
   end
 
+  @spec decode_binary(binary) :: [event]
+  def decode_binary(_) do
+    raise "NIF not compiled"
+  end
+
   @doc ~S"""
   Helper function that calls `decode/1` until there are no more events.
 
