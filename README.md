@@ -2,13 +2,18 @@
 
 ------------------------------------
 
-# Jaxon
+# Jaxon :zap:
 
-**Jaxon** can parse **huge JSON documents** with a **very small memory** footprint, as fast as possible.
+**Jaxon** is the [fastest JSON parser](#benchmarks), that can stream any [JSON document](#streaming) without holding it all in memory.
+
+Roadmap:
+
+* Make an alternative parser in Elixir, for those who don't want to use NIFs.
+* JSON events to string Encoder.
 
 [Online documentation](https://hexdocs.pm/jaxon/)
 
-## :rocket:  Installation
+## Installation
 
 ```elixir
 def deps do
@@ -16,9 +21,7 @@ def deps do
 end
 ```
 
-## :thinking:  How to use it
-
-### Decode a JSON binary
+## Simple decoding
 
 ```elixir
 iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
@@ -30,7 +33,7 @@ iex> Jaxon.decode(~s({"jaxon":"rocks","array":[1,2]}))
 {:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
 ```
 
-### JSON path querying
+## Streaming
 
 Query a binary stream using JSON path expressions:
 
@@ -49,7 +52,7 @@ Query a large file without holding the whole file in memory:
 |> Enum.to_list()
 ```
 
-### Events
+## Events
 
 Everything that Jaxon does is based on parsed JSON events like these:
 
@@ -68,7 +71,7 @@ nil
 :end
 ```
 
-Which make it very flexible when decoding files and lets us use different implementations for parsers, at the moment the default parser is written in C as a NIF, a native parser written in Elixir is planned.
+Which make it very flexible when decoding files and lets us use different implementations for parsers, at the moment the default parser is written in C as a NIF.
 
 ```elixir
 config :jaxon, :parser, Jaxon.Parsers.NifParser # only NifParser is supported at the moment
@@ -86,6 +89,20 @@ Which means that it can also parse a list of JSON tokens, event if the string is
 ```elixir
 iex> Jaxon.Parser.parse(~s("this is a string" "another string"))
 [{:string, "this is a string"}, {:string, "another string"}, :end]
+```
+
+## Nif parser
+
+The NIF parser is in C and all it does is take a binary and return a list of JSON events, the NIF respects the Erlang scheduler and tries to run for a maximum of one millisecond, yielding to the VM for another call if we run over the limit.
+
+## Benchmarks
+
+Jaxon (using the NIF parser) is faster than all other mainstream Erlang/Elixir JSON parsers, including: _Jiffy, Poison and Jason_
+
+To run the benchmarks, execute:
+
+```shell
+mix bench.decode
 ```
 
 ## License
