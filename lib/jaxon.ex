@@ -1,18 +1,16 @@
 defmodule Jaxon do
   @moduledoc """
-   Simple decoding
+  Main Jaxon module.
+  """
 
-  ```elixir
-  iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
-  %{"array" => [1, 2], "jaxon" => "rocks"}
-  ```
+  @doc """
+  Decode a string.
 
   ```elixir
   iex> Jaxon.decode(~s({"jaxon":"rocks","array":[1,2]}))
   {:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
   ```
   """
-
   @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
   def decode(binary) do
     binary
@@ -24,6 +22,14 @@ defmodule Jaxon do
     end
   end
 
+  @doc """
+  Decode a string, throws if there's an error.
+
+  ```elixir
+  iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
+  %{"array" => [1, 2], "jaxon" => "rocks"}
+  ```
+  """
   @spec decode!(String.t()) :: Jaxon.Decoder.json_term() | no_return()
   def(decode!(binary)) do
     case decode(binary) do
