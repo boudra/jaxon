@@ -1,7 +1,7 @@
 defmodule Jaxon do
   def decode(binary) do
     binary
-    |> Jaxon.Decoder.decode()
+    |> Jaxon.Parser.parse()
     |> Jaxon.Decoder.events_to_term()
     |> case do
       {:ok, term, _} ->

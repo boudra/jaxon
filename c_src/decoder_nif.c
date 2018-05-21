@@ -249,7 +249,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 }
 
 static ErlNifFunc nif_exports[] = {
-    {"decode_nif", 1, decode_binary}
+    {"parse_nif", 1, decode_binary}
 };
 
-ERL_NIF_INIT(Elixir.Jaxon.Decoders.NifDecoder, nif_exports, load, reload, upgrade, unload);
+ERL_NIF_INIT(Elixir.Jaxon.Parsers.NifParser, nif_exports, load, reload, upgrade, unload);

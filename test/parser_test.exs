@@ -1,7 +1,7 @@
-defmodule DecoderTest do
+defmodule ParseTest do
   use ExUnit.Case
-  alias Jaxon.Decoder
-  doctest Decoder
+  alias Jaxon.Parser
+  doctest Parser
 
   @tests [
     {~s({ "name": "john", "test": {"number": 5.1}, "tags":[null,true,true,1]}),
@@ -53,7 +53,7 @@ defmodule DecoderTest do
 
   test "decoder tests" do
     Enum.each(@tests, fn {json, events} ->
-      assert Decoder.decode(json) == events
+      assert Parser.parse(json) == events
     end)
   end
 end

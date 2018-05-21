@@ -1,6 +1,6 @@
-defmodule Jaxon.Decoders.NifDecoder do
+defmodule Jaxon.Parsers.NifParser do
   @on_load :load_nifs
-  @behaviour Jaxon.Decoder
+  @behaviour Jaxon.Parser
 
   def load_nifs do
     nif_filename =
@@ -29,16 +29,16 @@ defmodule Jaxon.Decoders.NifDecoder do
     ])
   end
 
-  @spec decode_nif(String.t()) :: [Jaxon.Event.t()]
-  defp decode_nif(_) do
+  @spec parse_nif(String.t()) :: [Jaxon.Event.t()]
+  defp parse_nif(_) do
     raise "NIF not compiled"
   end
 
-  @spec decode(String.t()) :: [Jaxon.Event.t()]
-  def decode(binary) do
-    case decode_nif(binary) do
+  @spec parse(String.t()) :: [Jaxon.Event.t()]
+  def parse(binary) do
+    case parse_nif(binary) do
       {:yield, events, tail} ->
-        events ++ decode(tail)
+        events ++ parse(tail)
 
       events ->
         events

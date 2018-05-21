@@ -1,5 +1,5 @@
 defmodule Jaxon.Stream do
-  alias Jaxon.{Decoder, Path}
+  alias Jaxon.{Path, Parser}
 
   @doc """
 
@@ -68,7 +68,7 @@ defmodule Jaxon.Stream do
     |> Stream.transform({initial_fun, ""}, fn chunk, {fun, rest} ->
       chunk = rest <> chunk
 
-      Decoder.decode(chunk)
+      Parser.parse(chunk)
       |> fun.()
       |> case do
         {:incomplete, state, fun, rest} ->
