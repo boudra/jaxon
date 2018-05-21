@@ -1,11 +1,8 @@
 decode_jobs = %{
   "Jaxon" => fn json -> Jaxon.decode!(json) end,
-  "jiffy" => fn json -> :jiffy.decode(json, [:return_maps, :use_nil]) end
-  # "Jason" => fn json -> Jason.decode!(json) end
-  # "Poison" => fn json -> Poison.decode!(json) end
-  # "JSX" => fn json -> JSX.decode!(json, [:strict]) end,
-  # "Tiny" => fn json -> Tiny.decode!(json) end,
-  # "jsone" => fn json -> :jsone.decode(json) end
+  "jiffy" => fn json -> :jiffy.decode(json, [:return_maps, :use_nil]) end,
+  "Jason" => fn json -> Jason.decode!(json) end,
+  "Poison" => fn json -> Poison.decode!(json) end
 }
 
 decode_inputs = [
@@ -36,13 +33,13 @@ inputs = for name <- decode_inputs, into: %{}, do: {name, read_data.(name)}
 Benchee.run(
   decode_jobs,
   parallel: 1,
-  warmup: 0,
-  time: 5,
+  warmup: 2,
+  time: 10,
   inputs: inputs,
   formatters: [
     &Benchee.Formatters.Console.output/1
   ],
   formatter_options: [
-    console: %{comparison: true, extended_statistics: true}
+    console: %{comparison: true}
   ]
 )

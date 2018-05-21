@@ -53,12 +53,13 @@ defmodule Jaxon.MixProject do
     [
       {:benchee, "~> 0.8", only: :bench},
       {:benchee_html, "~> 0.1", only: :bench},
-      {:poison, "~> 3.0", only: :bench},
+      {:poison, "~> 3.0", only: [:bench, :docs]},
       {:exjsx, "~> 4.0", only: :bench},
       {:tiny, "~> 1.0", only: :bench},
       {:jsone, "~> 1.4", only: :bench},
       {:jiffy, "~> 0.14", only: :bench},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:inch_ex, "~> 0.5", only: :docs},
       {:elixir_make, "~> 0.4", runtime: false}
     ]
   end
