@@ -1,4 +1,5 @@
 defmodule Jaxon.Parsers.NifParser do
+  @moduledoc false
   @on_load :load_nifs
   @behaviour Jaxon.Parser
 

@@ -1,4 +1,5 @@
 defmodule Jaxon.Decoder do
+  @moduledoc false
   @type json_term() ::
           nil
           | true
@@ -9,9 +10,9 @@ defmodule Jaxon.Decoder do
           | String.t()
           | map
 
-  @moduledoc ~S"""
+  @doc """
+  Takes a list of events and decodes them into a term.
   """
-
   @spec events_to_term([Jaxon.Event.t()]) :: json_term()
   def events_to_term(events) do
     events_to_value(events)
