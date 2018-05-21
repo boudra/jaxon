@@ -5,13 +5,13 @@ defmodule Jaxon.MixProject do
     [
       app: :jaxon,
       name: "Jaxon",
-      version: "1.0.0-alpha.1",
+      version: "1.0.0",
       elixir: "~> 1.6",
       compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      est_coverage: [tool: ExCoveralls],
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         "bench.encode": :bench,
         "bench.decode": :bench,
