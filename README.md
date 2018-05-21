@@ -1,8 +1,8 @@
-[![Hex.pm](https://img.shields.io/hexpm/v/jaxon.svg)](https://hex.pm/packages/jaxon)
+
+
+# Jaxon :zap: [![Inline docs](http://inch-ci.org/github/boudra/jaxon.svg)](http://inch-ci.org/github/boudra/jaxon) [![Hex.pm](https://img.shields.io/hexpm/v/jaxon.svg)](https://hex.pm/packages/jaxon)
 
 ------------------------------------
-
-# Jaxon :zap:
 
 **Jaxon** is the [fastest JSON parser](#benchmarks), that can stream any [JSON document](#streaming) without holding it all in memory.
 
