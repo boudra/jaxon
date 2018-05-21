@@ -47,6 +47,7 @@ defmodule JaxonTest do
 
   test "strings" do
     assert decode!(~s("hello")) == "hello"
+    assert decode!(~s("")) == ""
 
     assert decode!(~s("\\\n")) == "\n"
     assert decode!(~s("\\\t")) == "\t"
