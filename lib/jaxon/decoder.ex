@@ -2,38 +2,24 @@ defmodule Jaxon.Decoder do
   @moduledoc ~S"""
   ## Example
 
-  Create a new decoder and add your JSON data:
+  Call `decode/1` get a list of decoded events:
+
+  *Note that keys are treated as the same as strings*
 
   ```
-  decoder =
-    Jaxon.Decoder.new()
-    |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  ```
-
-  Call `decode/1` on the decoder to consume the events one by one:
-
-  ```
-  iex> decoder = Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.Decoder.decode(decoder)
-  :start_object
-  ```
-
-  Or call `consume/1` to read all the events in a list:
-
-  ```
-  iex> decoder = Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.Decoder.consume(decoder)
-  {:ok, [
+  iex> Jaxon.Decoder.decode("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
+  [
    :start_object,
-   {:key, "jaxon"},
+   {:string, "jaxon"},
    {:string, "rocks"},
-   {:key, "array"},
+   {:string, "array"},
    :start_array,
    {:integer, 1},
    {:integer, 2},
    :end_array,
-   :end_object
-  ]}
+   :end_object,
+   :end
+  ]
   ```
   """
 
@@ -42,17 +28,15 @@ defmodule Jaxon.Decoder do
           | :end_object
           | :start_array
           | :end_array
-          | {:key, binary}
           | {:string, binary}
           | {:integer, integer}
           | {:decimal, float}
           | {:boolean, boolean}
           | nil
           | {:incomplete, binary}
+          | {:yield, [event], binary}
+          | {:error, binary}
           | :end
-          | :error
-
-  @type decoder :: reference()
 
   @on_load :load_nifs
 
@@ -68,72 +52,90 @@ defmodule Jaxon.Decoder do
       :start_array,
       :end_array,
       :key,
-      :colon,
-      :comma,
       :string,
+      :decimal,
       :integer,
       :boolean,
       nil,
+      true,
+      false,
       :error,
+      :yield,
+      :ok,
       :incomplete,
-      :syntax_error,
       :end
     ])
   end
 
-  @doc ~S"""
-  Get a single event from the decoder, must call `update_decoder/2` with your data beforehand.
-
-  ## Example
-
-  iex> Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\"}") |> Jaxon.Decoder.decode()
-  :start_object
-  """
-
-  @spec decode(decoder) :: event
-  def decode(_) do
+  @spec decode_nif(binary) :: [event]
+  defp decode_nif(_) do
     raise "NIF not compiled"
   end
 
-  @spec update(decoder, binary) :: decoder
-  def update(_, _) do
-    raise "NIF not compiled"
-  end
+  @spec decode(binary) :: [event]
+  def decode(binary) do
+    case decode_nif(binary) do
+      {:yield, events, tail} ->
+        # IO.puts("suspended")
+        events ++ decode(tail)
 
-  @spec new() :: decoder
-  def new() do
-    raise "NIF not compiled"
-  end
-
-  @spec decode_binary(binary) :: [event]
-  def decode_binary(_) do
-    raise "NIF not compiled"
-  end
-
-  @doc ~S"""
-  Helper function that calls `decode/1` until there are no more events.
-
-  ## Example
-
-  iex> Jaxon.Decoder.new() |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\"}") |> Jaxon.Decoder.consume()
-  {:ok, [:start_object, {:key, "jaxon"}, {:string, "rocks"}, :end_object]}
-  """
-
-  @spec consume(decoder, [event()]) ::
-          {{:incomplete, binary}, [event]} | {:ok, [event]} | {:end, [event]}
-  def consume(decoder, acc \\ []) do
-    case decode(decoder) do
-      event = {:incomplete, _} ->
-        {event, acc}
-
-      {:error, context} ->
-        {:error, context}
-
-      :end ->
-        {:ok, acc}
-
-      event ->
-        consume(decoder, acc ++ [event])
+      events ->
+        events
     end
+  end
+
+  def events_to_term(events) do
+    events_to_value(events)
+  end
+
+  defp events_to_value([:start_object | events]) do
+    events_to_object(events, %{})
+  end
+
+  defp events_to_value([:start_array | events]) do
+    events_to_array(events, [])
+  end
+
+  defp events_to_value([{event, value} | events])
+       when event in [:string, :decimal, :integer, :boolean] do
+    {:ok, value, events}
+  end
+
+  defp events_to_value([{:incomplete, {:decimal, value}, _}]) do
+    {:ok, value, []}
+  end
+
+  defp events_to_value([{:incomplete, {:integer, value}, _}]) do
+    {:ok, value, []}
+  end
+
+  defp events_to_value([{:incomplete, _} | _]) do
+    {:error, "incomplete json"}
+  end
+
+  defp events_to_value([nil | events]) do
+    {:ok, nil, events}
+  end
+
+  defp events_to_array([:end_array | events], array) do
+    {:ok, array, events}
+  end
+
+  defp events_to_array(events, array) do
+    case events_to_value(events) do
+      {:ok, value, rest} ->
+        events_to_array(rest, array ++ [value])
+    end
+  end
+
+  defp events_to_object([{:string, key} | events], object) do
+    case events_to_value(events) do
+      {:ok, value, rest} ->
+        events_to_object(rest, Map.put(object, key, value))
+    end
+  end
+
+  defp events_to_object([:end_object | events], object) do
+    {:ok, object, events}
   end
 end

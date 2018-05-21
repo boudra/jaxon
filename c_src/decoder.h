@@ -19,6 +19,8 @@ typedef enum {
 
     SYNTAX_ERROR,
     INCOMPLETE,
+    INCOMPLETE_INTEGER,
+    INCOMPLETE_DECIMAL,
     END
 } json_event_type_t;
 
@@ -43,6 +45,7 @@ typedef union {
 typedef struct {
     json_event_type_t type;
     json_event_value_t value;
+    json_event_value_t secondary_value;
 } json_event_t;
 
 typedef struct {
@@ -50,8 +53,6 @@ typedef struct {
     unsigned char* cursor;
     unsigned char* last_token;
     size_t buffer_length;
-    json_event_type_t last_event_type;
-    unsigned int pair_count;
 } decoder_t;
 
 void make_decoder(decoder_t* d);
@@ -95,6 +96,12 @@ static inline const char* event_type_to_string(json_event_type_t type) {
 
         case INCOMPLETE:
             return "incomplete";
+
+        case INCOMPLETE_DECIMAL:
+            return "incomplete decimal";
+
+        case INCOMPLETE_INTEGER:
+            return "incomplete integer";
 
         case END:
             return "end";

@@ -4,107 +4,64 @@
 
 # Jaxon
 
-**Jaxon** is an efficient and simple SAX-based JSON parser for Elixir, it's main goal is to be able to parse **JSON data of any size** with a **very small memory** footprint.
+**Jaxon** can parse **terabytes of JSON** with a **very small memory** footprint, as fast as possible.
 
 [Online documentation](https://hexdocs.pm/jaxon/)
-
-## :muscle:   Features
-
-* **Event based parsing:** Parses data as it comes, no need to hold everything in memory, perfect for consuming large JSON streams of any size
-* **Pausable partial parsing:** Pass a portion of your JSON and then resume parsing when you have the rest
-* **No schema restrictions:** It only decodes JSON to Erlang terms
-
-
-## :running:  To do
-
-* **Unicode support in strings**
-* **Benchmarking**
-* **JSON encoding?**
 
 ## :rocket:  Installation
 
 ```elixir
 def deps do
-  [
-    {:jaxon, "~> 0.1.0"} # or {:jaxon, git: "https://github.com/boudra/jaxon.git", ref: "master"}
-  ]
+  [{:jaxon, "~> 1.0.0"}]
 end
 ```
 
 ## :thinking:  How to use it
 
-### Decode a binary into events
+### Decode a JSON binary
 
 ```elixir
-decoder =
-    Jaxon.Decoder.new()
-    |> Jaxon.Decoder.update("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-
-# every decode/1 call with return a different parsing event
-iex> Jaxon.Decoder.decode(decoder)
-
-# For the passed binary, the events will be:
-
-iex> Jaxon.Decoder.consume(decoder)
-[
-:start_object,
-{:key, "jaxon"},
-{:string, "rocks"},
-{:key, "array"},
-:start_array,
-{:integer, 1},
-{:integer, 2},
-:end_array,
-:end_object,
-:end
-]
+iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
+%{"array" => [1, 2], "jaxon" => "rocks"}
 ```
 
-### Partial decoding
-
-This is very useful when you're streaming JSON from the network or disk.
-
 ```elixir
-iex> d = Jaxon.make_decoder()
-iex> d = Jaxon.update_decoder(d, "{\"whoo")
-
-iex> d = Jaxon.decode(d)
-:start_object
-
-iex> {:incomplete, rest} = Jaxon.decode(d)
-{:incomplete, "\"whoo"}
-
-iex> d = Jaxon.update_decoder(d, rest <> "ps\":\":)\"}")
-iex> Jaxon.decode(d)
-{:key, "whoops"}
-
-iex> Jaxon.decode(d)
-{:string, ":)"}
-
-iex> Jaxon.decode(d)
-:end_object
-
-iex> Jaxon.decode(d)
-:end
+iex> Jaxon.decode(~s({"jaxon":"rocks","array":[1,2]}))
+{:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
 ```
 
-### Possible events returned
+### JSON path querying
 
+Query a binary stream using JSON path expressions:
 
 ```elixir
-:start_object
-:end_object
-:start_array
-:end_array
-{:key, binary}
-{:string, binary}
-{:integer, integer}
-{:decimal, float}
-{:boolean, boolean}
-nil
-{:incomplete, binary}
-:end
-:error
+iex> Jaxon.Stream.query([~s({"jaxon":"rocks","array":[1,2]})], "$.jaxon") |> Enum.to_list()
+["rocks"]
+```
+
+Query a large file without holding the whole file in memory:
+
+```elixir
+"large_file.json"
+|> File.stream!()
+|> Jaxon.Stream.query("$.users.id")
+|> Enum.to_list()
+```
+
+### Event decoder
+
+Jaxon's core decoder is written in C and all it does is receive a binary and it returns a list of events, like:
+
+```elixir
+iex> Jaxon.Decoder.decode(~s({"key":2}))
+[:start_object, {:string, "key"}, {:integer, 2}, :end_object, :end]
+```
+
+Which means that it can also parse a list of JSON tokens:
+
+```elixir
+iex> Jaxon.Decoder.decode(~s("this is a string" "another string"))
+[{:string, "this is a string"}, {:string, "another string"}, :end]
 ```
 
 ## License

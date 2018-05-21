@@ -1,69 +1,37 @@
-defmodule JaxonReaderTest do
+defmodule JaxonEventStreamTest do
   use ExUnit.Case
   doctest Jaxon.Stream
+  alias Jaxon.Stream
 
-  test "reader" do
-    result =
-      """
-      {"id":0,"name":"john"}
-      {"id":2,"pets":["cat","dog"]}
-      {}
-      """
-      |> String.split("\n", trim: true)
-      |> Jaxon.Stream.decode([
-        "$.id",
-        "$.name"
-      ])
-      |> Enum.to_list()
-
-    assert [[0, "john"], [2, nil]] == result
-  end
-
-  test "array reader" do
-    result =
-      """
-      [ { "name": "john", "age": 36 }, { "name": "mike", "age": 22 } ]
-      """
-      |> String.split("\n", trim: true)
-      |> Jaxon.Stream.decode([
-        "$.*.name",
-        "$.*.age"
-      ])
-      |> Enum.to_list()
-
-    assert [["john", 36], ["mike", 22]] == result
-  end
-
-  test "repeat fields" do
-    result =
-      """
-      [ { "name": "john", "age": 36, "items": [1,2] }, { "name": "mike", "age": 22, "items": [3]} ]
-      """
-      |> String.split("\n", trim: true)
-      |> Jaxon.Stream.decode([
-        "$.*.name",
-        "$.*.age",
-        "$.*.items.*"
-      ])
-      |> Enum.to_list()
-
-    assert [["john", 36, 1], [nil, nil, 2], ["mike", 22, 3]] == result
-  end
-
-  test "errors" do
-    stream =
-      """
+  @json_stream [
+    """
+    {
+      "numbers": [1,2],
+      "person": {
+        "name": "Keanu Reeves",
+        "movies": [
+          { "name": "Speed" },
+          { "name": "The Matrix" }
+        ]
       }
-      """
-      |> String.split("\n", trim: true)
-      |> Jaxon.Stream.decode([
-        "$"
-      ])
+    }
+    """
+  ]
 
-    assert_raise Jaxon.ParseError,
-                 "Failed to parse your JSON data, check the syntax near `}`",
-                 fn ->
-                   Enum.to_list(stream)
-                 end
+  def query(stream, query) do
+    stream
+    |> Stream.query(query)
+    |> Enum.to_list()
+  end
+
+  test "queries" do
+    assert [1] == query(@json_stream, "$.numbers[0]")
+    assert [2] == query(@json_stream, "$.numbers[1]")
+    assert [[1, 2]] == query(@json_stream, "$.numbers")
+    assert [1, 2] == query(@json_stream, "$.numbers[*]")
+    assert ["Keanu Reeves"] == query(@json_stream, "$.person.name")
+    assert [%{"name" => "The Matrix"}] == query(@json_stream, "$.person.movies[1]")
+    assert ["Speed"] == query(@json_stream, "$.person.movies[0].name")
+    assert ["Speed", "The Matrix"] == query(@json_stream, "$.person.movies[*].name")
   end
 end

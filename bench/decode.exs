@@ -1,12 +1,11 @@
 decode_jobs = %{
-  "Jaxon" => fn {json, _} -> Jaxon.decode!(json) end,
-  "Jason" => fn {json, _} -> Jason.decode!(json) end,
-  "Poison" => fn {json, _} -> Poison.decode!(json) end,
-  "JSX" => fn {json, _} -> JSX.decode!(json, [:strict]) end,
-  "Tiny" => fn {json, _} -> Tiny.decode!(json) end,
-  "jsone" => fn {json, _} -> :jsone.decode(json) end,
-  "jiffy" => fn {json, _} -> :jiffy.decode(json, [:return_maps, :use_nil]) end,
-  "binary_to_term/1" => fn {_, etf} -> :erlang.binary_to_term(etf) end
+  "Jaxon" => fn json -> Jaxon.decode!(json) end,
+  "jiffy" => fn json -> :jiffy.decode(json, [:return_maps, :use_nil]) end
+  # "Jason" => fn json -> Jason.decode!(json) end
+  # "Poison" => fn json -> Poison.decode!(json) end
+  # "JSX" => fn json -> JSX.decode!(json, [:strict]) end,
+  # "Tiny" => fn json -> Tiny.decode!(json) end,
+  # "jsone" => fn json -> :jsone.decode(json) end
 }
 
 decode_inputs = [
@@ -29,27 +28,21 @@ read_data = fn name ->
     |> String.replace(~r/([^\w]|-|_)+/, "-")
     |> String.trim("-")
 
-  json = File.read!(Path.expand("data/#{file}.json", __DIR__))
-  etf = :erlang.term_to_binary(Jason.decode!(json))
-
-  {json, etf}
+  File.read!(Path.expand("data/#{file}.json", __DIR__))
 end
 
 inputs = for name <- decode_inputs, into: %{}, do: {name, read_data.(name)}
 
 Benchee.run(
   decode_jobs,
-  parallel: 4,
-  warmup: 5,
-  time: 30,
+  parallel: 1,
+  warmup: 0,
+  time: 5,
   inputs: inputs,
   formatters: [
-    &Benchee.Formatters.HTML.output/1,
     &Benchee.Formatters.Console.output/1
   ],
   formatter_options: [
-    html: [
-      file: Path.expand("output/decode.html", __DIR__)
-    ]
+    console: %{comparison: true, extended_statistics: true}
   ]
 )

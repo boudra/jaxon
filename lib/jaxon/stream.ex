@@ -1,15 +1,30 @@
 defmodule Jaxon.Stream do
-  alias Jaxon.{CallbackDecoder, Path}
+  alias Jaxon.{Decoder, Path}
 
-  @behaviour CallbackDecoder
+  @doc """
 
-  @spec decode(Stream.t(), [Path.json_path()]) :: Stream.t()
-  def decode(bin_stream, queries) do
-    decoder = Jaxon.Decoder.new()
+  Query all values of an array:
+  ```
+  iex> ~s({ "numbers": [1,2] }) |> List.wrap() |> Jaxon.Stream.query("$.numbers[*]") |> Enum.to_list()
+  [1, 2]
+  ```
 
-    queries =
-      queries
-      |> Enum.map(&Path.parse!(&1))
+
+  Query an object property:
+  ```
+  iex> ~s({ "person": {"name": "Jose"} }) |> List.wrap() |> Jaxon.Stream.query("$.person.name") |> Enum.to_list()
+  ["Jose"]
+  ```
+  """
+
+  def query(bin_stream, path) do
+    reduce_query(bin_stream, path, [], fn value, acc ->
+      acc ++ [value]
+    end)
+  end
+
+  def query_multiple(bin_stream, queries) do
+    queries = Enum.map(queries, &Path.parse!(&1))
 
     root =
       queries
@@ -27,128 +42,113 @@ defmodule Jaxon.Stream do
         end
       end)
 
-    initial_state = {decoder, [], {root, queries, [], nil}, ""}
+    queries = Enum.map(queries, &(&1 -- root))
+
+    query(bin_stream, root)
+    |> Stream.map(fn record ->
+      Enum.map(queries, fn query ->
+        access(record, query, [])
+      end)
+    end)
+  end
+
+  def reduce_query(bin_stream, path, initial, reducer) do
+    query =
+      if is_list(path) do
+        path
+      else
+        Path.parse!(path)
+      end
+
+    initial_fun = fn events ->
+      events_to_value(events, {[], [:root], initial, query, reducer})
+    end
 
     bin_stream
-    |> Stream.transform(
-      fn -> initial_state end,
-      fn chunk, {decoder, path, state, rest} ->
-        binary = rest <> chunk
+    |> Stream.transform({initial_fun, ""}, fn chunk, {fun, rest} ->
+      chunk = rest <> chunk
 
-        case CallbackDecoder.decode(binary, decoder, __MODULE__, {path, state}) do
-          {:error, path} ->
-            {:halt, {:error, path}}
-
-          {decoder, path, {root, queries, [], record}, rest} ->
-            {[], {decoder, path, {root, queries, [], record}, rest}}
-
-          {decoder, path, {root, queries, results, record}, rest} ->
-            final_results =
-              results
-              |> Enum.flat_map(fn set ->
-                m = Enum.reduce(set, 0, fn e, m -> max(m, length(e)) end)
-
-                set
-                |> Enum.map(&(&1 ++ :lists.duplicate(m - length(&1), nil)))
-                |> transpose
-              end)
-
-            {final_results, {decoder, path, {root, queries, [], record}, rest}}
-        end
-      end,
-      fn
-        {:error, err} -> raise Jaxon.ParseError, message: err
-        acc -> acc
+      Decoder.decode(chunk)
+      |> fun.()
+      |> case do
+        {:incomplete, state, fun, rest} ->
+          {state, {fun, rest}}
       end
+    end)
+  end
+
+  defp events_to_value([:start_object | events], {acc, path, state, query, fun}) do
+    events_to_value(events, {[%{} | acc], [:key | path], state, query, fun})
+  end
+
+  defp events_to_value([:start_array | events], {acc, path, state, query, fun}) do
+    events_to_value(events, {[[] | acc], [0 | path], state, query, fun})
+  end
+
+  defp events_to_value([:end_object | events], {[object | acc], [:key | path], state, query, fun}) do
+    insert_value(object, events, {acc, path, state, query, fun})
+  end
+
+  defp events_to_value([:end_array | events], {[object | acc], [_ | path], state, query, fun}) do
+    insert_value(object, events, {acc, path, state, query, fun})
+  end
+
+  defp events_to_value([{:string, key} | events], {acc, [:key | path], state, query, fun}) do
+    events_to_value(events, {acc, [key | path], state, query, fun})
+  end
+
+  defp events_to_value([{event, value} | events], state)
+       when event in [:string, :decimal, :integer, :boolean] do
+    insert_value(value, events, state)
+  end
+
+  defp events_to_value([nil | events], state) do
+    insert_value(nil, events, state)
+  end
+
+  defp events_to_value([:end], state) do
+    {:incomplete, elem(state, 2), &events_to_value(&1, state), ""}
+  end
+
+  defp events_to_value([{:incomplete, rest}], state) do
+    {:incomplete, elem(state, 2), &events_to_value(&1, state), rest}
+  end
+
+  defp events_to_value(:end_stream, {_, _, state, _, _}) do
+    state
+  end
+
+  defp maybe_call_reducer(value, path, query, state, fun) do
+    if query_exact_match?(query, :lists.reverse(path)) do
+      fun.(value, state)
+    else
+      state
+    end
+  end
+
+  defp insert_value(value, events, {[], path, state, query, fun}) do
+    events_to_value(
+      events,
+      {[value], path, maybe_call_reducer(value, path, query, state, fun), query, fun}
     )
   end
 
-  defp match_query([:all | query], [_ | path]) do
-    match_query(query, path)
+  defp insert_value(value, events, {[parent | acc], full_path = [key | path], state, query, fun})
+       when is_map(parent) do
+    events_to_value(
+      events,
+      {[Map.put(parent, key, value) | acc], [:key | path],
+       maybe_call_reducer(value, full_path, query, state, fun), query, fun}
+    )
   end
 
-  defp match_query([fragment | query], [fragment | path]) do
-    match_query(query, path)
-  end
-
-  defp match_query([], rest) do
-    {:ok, rest}
-  end
-
-  defp match_query(_, _) do
-    nil
-  end
-
-  defp query_exact_match?([:all | query], [_ | path]) do
-    query_exact_match?(query, path)
-  end
-
-  defp query_exact_match?([fragment | query], [fragment | path]) do
-    query_exact_match?(query, path)
-  end
-
-  defp query_exact_match?([], []) do
-    true
-  end
-
-  defp query_exact_match?(_, _) do
-    false
-  end
-
-  def close({root, queries, results, record}, path) do
-    path = [:root | Enum.reverse(path)]
-
-    if query_exact_match?(root, path) do
-      results =
-        results ++
-          [
-            Enum.map(queries, fn q ->
-              {:ok, query} = match_query(root, q)
-              access(record, query, [])
-            end)
-          ]
-
-      {root, queries, results, nil}
-    else
-      {root, queries, results, record}
-    end
-  end
-
-  def insert(state = {root, queries, results, record}, path, value) do
-    reversed_path = [:root | Enum.reverse(path)]
-
-    case match_query(root, reversed_path) do
-      {:ok, rest} ->
-        cond do
-          !is_list(value) && !is_map(value) ->
-            {root, queries, results, do_insert(record, rest, value)}
-            |> close(path)
-
-          true ->
-            {root, queries, results, do_insert(record, rest, value)}
-        end
-
-      nil ->
-        state
-    end
-  end
-
-  defp do_insert(_record, [], value) do
-    value
-  end
-
-  defp do_insert(record, [key], value) when is_integer(key) and is_list(record) do
-    record ++ [value]
-  end
-
-  defp do_insert(record, [key | path], value) when is_list(record) do
-    List.update_at(record, key, &do_insert(&1, path, value))
-  end
-
-  defp do_insert(record, [key | path], value) when is_map(record) do
-    Map.update(record, key, value, fn inner ->
-      do_insert(inner, path, value)
-    end)
+  defp insert_value(value, events, {[parent | acc], full_path = [key | path], state, query, fun})
+       when is_list(parent) do
+    events_to_value(
+      events,
+      {[parent ++ [value] | acc], [key + 1 | path],
+       maybe_call_reducer(value, full_path, query, state, fun), query, fun}
+    )
   end
 
   defp access(record, [], acc) do
@@ -166,7 +166,7 @@ defmodule Jaxon.Stream do
   end
 
   defp access(record, [key | path], acc)
-       when is_list(record) and length(record) > 0 and key >= 0 do
+       when is_list(record) and length(record) > key and key >= 0 do
     access(:lists.nth(key + 1, record), path, acc)
   end
 
@@ -184,10 +184,19 @@ defmodule Jaxon.Stream do
     acc
   end
 
-  defp transpose([[x | xs] | xss]) do
-    [[x | for([h | _] <- xss, do: h)] | transpose([xs | for([_ | t] <- xss, do: t)])]
+  defp query_exact_match?([:all | query], [_ | path]) do
+    query_exact_match?(query, path)
   end
 
-  defp transpose([[] | xss]), do: transpose(xss)
-  defp transpose([]), do: []
+  defp query_exact_match?([fragment | query], [fragment | path]) do
+    query_exact_match?(query, path)
+  end
+
+  defp query_exact_match?([], []) do
+    true
+  end
+
+  defp query_exact_match?(_, _) do
+    false
+  end
 end
