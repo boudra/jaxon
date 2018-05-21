@@ -33,8 +33,16 @@ defmodule JaxonTest do
 
   test "objects" do
     assert decode!(~s({})) == %{}
-    # assert decode!(~s({"number": 2})) == %{"number" => 2}
+    assert decode!(~s({"number": 2})) == %{"number" => 2}
     assert decode!(~s({"nested": {}})) == %{"nested" => %{}}
+    assert decode!(~s({"nested": {"nested": 2}})) == %{"nested" => %{"nested" => 2}}
+  end
+
+  test "arrays" do
+    assert decode!(~s([])) == []
+    assert decode!(~s([5])) == [5]
+    assert decode!(~s([[]])) == [[]]
+    assert decode!(~s([[2,5], 3])) == [[2, 5], 3]
   end
 
   test "strings" do
