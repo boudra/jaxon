@@ -49,6 +49,7 @@ defmodule JaxonTest do
     assert decode!(~s("hello")) == "hello"
     assert decode!(~s("")) == ""
 
+    assert decode!(~s("\\"")) == "\""
     assert decode!(~s("\\\n")) == "\n"
     assert decode!(~s("\\\t")) == "\t"
     assert decode!(~s("\\\r")) == "\r"
@@ -56,6 +57,7 @@ defmodule JaxonTest do
     assert decode!(~s("\\u0065")) == "e"
     assert decode!(~s("\\u00E6")) == "æ"
     assert decode!(~s("\\uD83E\\uDD16")) == "🤖"
+    assert decode!(~s("😸😾")) == "😸😾"
   end
 
   test "benchmark files" do
