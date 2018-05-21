@@ -2,6 +2,7 @@ defmodule JaxonPathTest do
   use ExUnit.Case
   doctest Jaxon.Path
   import Jaxon.Path
+  alias Jaxon.{ParseError}
 
   test "encode" do
     assert encode!([:root, "te.st", 0]) == "$.\"te.st\"[0]"
@@ -18,6 +19,6 @@ defmodule JaxonPathTest do
     assert parse!("$.\"nested\"[0]") == [:root, "nested", 0]
     assert parse!("$.\"nested\".0") == [:root, "nested", "0"]
     assert parse!("$.\"$\".0") == [:root, "$", "0"]
-    assert {:error, "Ending quote not found" <> _} = parse("$.\"nested.0")
+    assert {:error, %ParseError{message: "Ending quote not found" <> _}} = parse("$.\"nested.0")
   end
 end

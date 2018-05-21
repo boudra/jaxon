@@ -1,5 +1,5 @@
 defmodule Jaxon.Path do
-  alias Jaxon.ParseError
+  alias Jaxon.{ParseError, EncodeError}
 
   @moduledoc ~S"""
   Utility module for parsing and encoding JSON path expressions.
@@ -19,14 +19,14 @@ defmodule Jaxon.Path do
 
   ```
   iex> Jaxon.Path.encode([:root, :whoops, "test", 0])
-  {:error, "`:whoops` is not a valid JSON path segment"}
+  {:error, %Jaxon.EncodeError{message: "`:whoops` is not a valid JSON path segment"}}
   ```
   """
   @spec encode(json_path) :: {:ok, String.t()} | {:error, String.t()}
   def encode(path) do
     case do_encode(path) do
       {:error, err} ->
-        {:error, err}
+        {:error, %EncodeError{message: err}}
 
       result ->
         {:ok, result}
@@ -45,19 +45,19 @@ defmodule Jaxon.Path do
 
   ```
   iex> Jaxon.Path.parse("$.test[x]")
-  {:error, "Expected an integer at `x]`"}
+  {:error, %Jaxon.ParseError{message: "Expected an integer at `x]`"}}
   ```
 
   ```
   iex> Jaxon.Path.parse("$.\"test[x]")
-  {:error, "Ending quote not found for string at `\"test[x]`"}
+  {:error, %Jaxon.ParseError{message: "Ending quote not found for string at `\"test[x]`"}}
   ```
   """
   @spec parse(String.t()) :: {:ok, json_path} | {:error, String.t()}
   def parse(bin) do
     case parse_json_path(bin, "", []) do
       {:error, err} ->
-        {:error, err}
+        {:error, %ParseError{message: err}}
 
       result ->
         {:ok, result}
@@ -76,7 +76,7 @@ defmodule Jaxon.Path do
   def parse!(bin) do
     case parse(bin) do
       {:error, err} ->
-        raise ParseError, message: err
+        raise err
 
       {:ok, path} ->
         path
@@ -87,7 +87,7 @@ defmodule Jaxon.Path do
   def encode!(path) do
     case do_encode(path) do
       {:error, err} ->
-        raise ParseError, message: err
+        raise err
 
       result ->
         result
