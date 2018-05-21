@@ -1,4 +1,5 @@
 defmodule Jaxon do
+  @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, String.t()}
   def decode(binary) do
     binary
     |> Jaxon.Parser.parse()
@@ -9,7 +10,8 @@ defmodule Jaxon do
     end
   end
 
-  def decode!(binary) do
+  @spec decode!(String.t()) :: Jaxon.Decoder.json_term()
+  def(decode!(binary)) do
     case decode(binary) do
       {:ok, term} -> term
     end

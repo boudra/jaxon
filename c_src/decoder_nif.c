@@ -132,7 +132,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
     event.type = UNDEFINED;
 
     while(event.type < SYNTAX_ERROR) {
-        if(decoder.cursor < buffer + input.size) {
+        if(decoder.cursor < buffer + input.size && event.type > UNDEFINED) {
             gettimeofday(&now, NULL);
 
             int slice = floor(
@@ -156,7 +156,9 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                     return enif_make_tuple3(
                             env,
                             data->nif_yield,
-                            enif_make_list_from_array(env, event_terms, event_terms_count), binary);
+                            enif_make_list_from_array(env, event_terms, event_terms_count),
+                            binary
+                        );
                 }
                 last = now;
             }
