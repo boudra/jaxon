@@ -1,4 +1,18 @@
 defmodule Jaxon.Decoder do
+  @decoder Application.get_env(:jaxon, :decoder, Jaxon.Decoders.NifDecoder)
+
+  @callback decode(String.t()) :: [Jaxon.Event.t()]
+
+  @type json_term() ::
+          nil
+          | true
+          | false
+          | list
+          | float
+          | integer
+          | String.t()
+          | map
+
   @moduledoc ~S"""
   ## Example
 
@@ -23,67 +37,10 @@ defmodule Jaxon.Decoder do
   ```
   """
 
-  @type event ::
-          :start_object
-          | :end_object
-          | :start_array
-          | :end_array
-          | {:string, binary}
-          | {:integer, integer}
-          | {:decimal, float}
-          | {:boolean, boolean}
-          | nil
-          | {:incomplete, binary}
-          | {:yield, [event], binary}
-          | {:error, binary}
-          | :end
+  @spec decode(String.t()) :: [Jaxon.Event.t()]
+  defdelegate decode(events), to: @decoder
 
-  @on_load :load_nifs
-
-  def load_nifs do
-    nif_filename =
-      :jaxon
-      |> Application.app_dir("priv/decoder")
-      |> to_charlist
-
-    :erlang.load_nif(nif_filename, [
-      :start_object,
-      :end_object,
-      :start_array,
-      :end_array,
-      :key,
-      :string,
-      :decimal,
-      :integer,
-      :boolean,
-      nil,
-      true,
-      false,
-      :error,
-      :yield,
-      :ok,
-      :incomplete,
-      :end
-    ])
-  end
-
-  @spec decode_nif(binary) :: [event]
-  defp decode_nif(_) do
-    raise "NIF not compiled"
-  end
-
-  @spec decode(binary) :: [event]
-  def decode(binary) do
-    case decode_nif(binary) do
-      {:yield, events, tail} ->
-        # IO.puts("suspended")
-        events ++ decode(tail)
-
-      events ->
-        events
-    end
-  end
-
+  @spec events_to_term([Jaxon.Event.t()]) :: json_term()
   def events_to_term(events) do
     events_to_value(events)
   end
