@@ -7,7 +7,7 @@ Roadmap:
 * Make an alternative parser in Elixir, for those who don't want to use NIFs.
 * JSON events to string Encoder.
 
-[hexdocs.pm](https://hexdocs.pm/jaxon/)
+[Online documentation](https://hexdocs.pm/jaxon/)
 
 ------------------------------------
 
@@ -21,14 +21,14 @@ end
 
 ## Simple decoding
 
-```elixir
-iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
-%{"array" => [1, 2], "jaxon" => "rocks"}
-```
+Decode a binary:
 
 ```elixir
 iex> Jaxon.decode(~s({"jaxon":"rocks","array":[1,2]}))
 {:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
+
+iex> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
+%{"array" => [1, 2], "jaxon" => "rocks"}
 ```
 
 ## Streaming
@@ -37,8 +37,8 @@ Query a binary stream using JSON path expressions:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query("$.jaxon") |> Enum.to_list()
-["rocks"]
+iex> stream |> Jaxon.Stream.query("$.array[*]") |> Enum.to_list()
+[1, 2]
 ```
 
 Query a large file without holding the whole file in memory:
@@ -95,7 +95,7 @@ The NIF parser is in C and all it does is take a binary and return a list of JSO
 
 ## Benchmarks
 
-Jaxon (using the NIF parser) is faster than all other mainstream Erlang/Elixir JSON parsers, including: _Jiffy, Poison and Jason_
+Jaxon (using the NIF parser) is faster than all other mainstream Erlang/Elixir JSON parsers, including: *Jiffy, Poison and Jason*
 
 To run the benchmarks, execute:
 
