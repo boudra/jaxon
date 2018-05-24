@@ -3,6 +3,7 @@ defmodule Jaxon.ParseError do
 
   defexception [:message]
 
+  @spec message(t()) :: String.t()
   def message(%{message: msg}) do
     msg
   end
