@@ -15,7 +15,9 @@ Roadmap:
 
 ```elixir
 def deps do
-  [{:jaxon, "~> 1.0"}]
+  [
+    {:jaxon, "~> 1.0"}
+  ]
 end
 ```
 
@@ -95,7 +97,7 @@ The NIF parser is in C and all it does is take a binary and return a list of JSO
 
 ## Benchmarks
 
-Jaxon (using the NIF parser) is faster than all other mainstream Erlang/Elixir JSON parsers, including: *Jiffy, Poison and Jason*
+Jaxon (using the NIF parser) is faster than all other popular Erlang/Elixir JSON parsers, including: **Jiffy, Poison and Jason**
 
 To run the benchmarks, execute:
 

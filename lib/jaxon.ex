@@ -19,6 +19,9 @@ defmodule Jaxon do
     |> case do
       {:ok, term, _} ->
         {:ok, term}
+
+      {:error, err} ->
+        {:error, err}
     end
   end
 
@@ -34,6 +37,7 @@ defmodule Jaxon do
   def(decode!(binary)) do
     case decode(binary) do
       {:ok, term} -> term
+      {:error, err} -> raise err
     end
   end
 end

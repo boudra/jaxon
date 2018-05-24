@@ -2,6 +2,29 @@ defmodule JaxonTest do
   use ExUnit.Case
   import Jaxon
   doctest Jaxon
+  alias Jaxon.{ParseError}
+
+  test "errors" do
+    assert_raise(ParseError, ~r/Incomplete .*/, fn ->
+      decode!(~s("incomplete string))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected end of document/, fn ->
+      decode!(~s({))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected end of document/, fn ->
+      decode!(~s({"hello":))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected closing brace.*/, fn ->
+      decode!(~s({"hello":}))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected end of document.*/, fn ->
+      decode!(~s([))
+    end)
+  end
 
   test "numbers" do
     assert decode!("1494882216.1") == 1_494_882_216.1

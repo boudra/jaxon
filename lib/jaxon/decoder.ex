@@ -1,4 +1,5 @@
 defmodule Jaxon.Decoder do
+  alias Jaxon.{ParseError}
   @moduledoc false
   @type json_term() ::
           nil
@@ -9,7 +10,6 @@ defmodule Jaxon.Decoder do
           | integer
           | String.t()
           | map
-
   @doc """
   Takes a list of events and decodes them into a term.
   """
@@ -39,12 +39,28 @@ defmodule Jaxon.Decoder do
     {:ok, value, []}
   end
 
-  defp events_to_value([{:incomplete, _} | _]) do
-    {:error, "incomplete json"}
+  defp events_to_value([{:incomplete, _}]) do
+    {:error, %ParseError{message: "Incomplete JSON"}}
   end
 
   defp events_to_value([nil | events]) do
     {:ok, nil, events}
+  end
+
+  defp events_to_value([{event, _} | _]) do
+    parse_error(event, [:value])
+  end
+
+  defp events_to_value([event | _]) do
+    parse_error(event, [:value])
+  end
+
+  defp parse_error(got, expected) do
+    {:error,
+     %ParseError{
+       unexpected: got,
+       expected: expected
+     }}
   end
 
   defp events_to_array([:end_array | events], array) do
@@ -55,6 +71,9 @@ defmodule Jaxon.Decoder do
     case events_to_value(events) do
       {:ok, value, rest} ->
         events_to_array(rest, array ++ [value])
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 
@@ -62,10 +81,21 @@ defmodule Jaxon.Decoder do
     case events_to_value(events) do
       {:ok, value, rest} ->
         events_to_object(rest, Map.put(object, key, value))
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 
   defp events_to_object([:end_object | events], object) do
     {:ok, object, events}
+  end
+
+  defp events_to_object([{event, _} | _], _) do
+    parse_error(event, [:key, :end_object])
+  end
+
+  defp events_to_object([event | _], _) do
+    parse_error(event, [:key, :end_object])
   end
 end
