@@ -32,7 +32,7 @@ defmodule Jaxon.Parsers.NifParser do
 
   @spec parse_nif(String.t()) :: [Jaxon.Event.t()]
   defp parse_nif(_) do
-    raise "NIF not compiled"
+    raise "Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled"
   end
 
   @spec parse(String.t()) :: [Jaxon.Event.t()]
