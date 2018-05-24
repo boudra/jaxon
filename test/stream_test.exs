@@ -4,18 +4,19 @@ defmodule JaxonEventStreamTest do
   alias Jaxon.Stream
 
   @json_stream [
-    """
+    ~s(
     {
       "numbers": [1,2],
+      "null": null,
       "person": {
-        "name": "Keanu Reeves",
+        "name": "Keanu ),
+    ~s(Reeves",
         "movies": [
           { "name": "Speed" },
           { "name": "The Matrix" }
         ]
       }
-    }
-    """
+    })
   ]
 
   def query(stream, query) do
@@ -26,6 +27,8 @@ defmodule JaxonEventStreamTest do
 
   test "queries" do
     assert [1] == query(@json_stream, "$.numbers[0]")
+    assert [1] == query(@json_stream, Jaxon.Path.parse!("$.numbers[0]"))
+    assert [nil] == query(@json_stream, "$.null")
     assert [2] == query(@json_stream, "$.numbers[1]")
     assert [[1, 2]] == query(@json_stream, "$.numbers")
     assert [1, 2] == query(@json_stream, "$.numbers[*]")

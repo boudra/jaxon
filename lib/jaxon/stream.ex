@@ -17,42 +17,14 @@ defmodule Jaxon.Stream do
   ```
   """
 
+  @spec query(Stream.t(), Path.t()) :: [Jaxon.Decoder.json_term()]
   def query(bin_stream, path) do
     reduce_query(bin_stream, path, [], fn value, acc ->
       acc ++ [value]
     end)
   end
 
-  def query_multiple(bin_stream, queries) do
-    queries = Enum.map(queries, &Path.parse!(&1))
-
-    root =
-      queries
-      |> List.zip()
-      |> Enum.reduce_while([], fn segment, acc ->
-        segment
-        |> Tuple.to_list()
-        |> Enum.min_max()
-        |> case do
-          {a, a} ->
-            {:cont, acc ++ [a]}
-
-          _ ->
-            {:halt, acc}
-        end
-      end)
-
-    queries = Enum.map(queries, &(&1 -- root))
-
-    query(bin_stream, root)
-    |> Stream.map(fn record ->
-      Enum.map(queries, fn query ->
-        access(record, query, [])
-      end)
-    end)
-  end
-
-  def reduce_query(bin_stream, path, initial, reducer) do
+  defp reduce_query(bin_stream, path, initial, reducer) do
     query =
       if is_list(path) do
         path
@@ -60,20 +32,25 @@ defmodule Jaxon.Stream do
         Path.parse!(path)
       end
 
-    initial_fun = fn events ->
-      events_to_value(events, {[], [:root], initial, query, reducer})
+    initial_fun = fn events, state ->
+      events_to_value(events, {[], [:root], state, query, reducer})
     end
 
     bin_stream
-    |> Stream.transform({initial_fun, ""}, fn chunk, {fun, rest} ->
-      chunk = rest <> chunk
+    |> Stream.concat([:end_stream])
+    |> Stream.transform({initial_fun, ""}, fn
+      :end_stream, {fun, ""} ->
+        {:halt, fun.(:end_stream, initial)}
 
-      Parser.parse(chunk)
-      |> fun.()
-      |> case do
-        {:incomplete, state, fun, rest} ->
-          {state, {fun, rest}}
-      end
+      chunk, {fun, rest} ->
+        chunk = rest <> chunk
+
+        Parser.parse(chunk)
+        |> fun.(initial)
+        |> case do
+          {:incomplete, state, fun, rest} ->
+            {state, {fun, rest}}
+        end
     end)
   end
 
@@ -107,15 +84,22 @@ defmodule Jaxon.Stream do
   end
 
   defp events_to_value([:end], state) do
-    {:incomplete, elem(state, 2), &events_to_value(&1, state), ""}
+    yield("", state)
   end
 
   defp events_to_value([{:incomplete, rest}], state) do
-    {:incomplete, elem(state, 2), &events_to_value(&1, state), rest}
+    yield(rest, state)
   end
 
   defp events_to_value(:end_stream, {_, _, state, _, _}) do
     state
+  end
+
+  defp yield(rest, {acc, path, state, query, fun}) do
+    {:incomplete, state,
+     fn events, state ->
+       events_to_value(events, {acc, path, state, query, fun})
+     end, rest}
   end
 
   defp maybe_call_reducer(value, path, query, state, fun) do
@@ -149,39 +133,6 @@ defmodule Jaxon.Stream do
       {[parent ++ [value] | acc], [key + 1 | path],
        maybe_call_reducer(value, full_path, query, state, fun), query, fun}
     )
-  end
-
-  defp access(record, [], acc) do
-    acc ++ [record]
-  end
-
-  defp access(record, [:root | path], acc) do
-    access(record, path, acc)
-  end
-
-  defp access(record, [:all | path], acc) do
-    Enum.reduce(record, acc, fn inner, acc ->
-      access(inner, path, acc)
-    end)
-  end
-
-  defp access(record, [key | path], acc)
-       when is_list(record) and length(record) > key and key >= 0 do
-    access(:lists.nth(key + 1, record), path, acc)
-  end
-
-  defp access(record, [key | path], acc) when is_map(record) and is_binary(key) do
-    case record do
-      %{^key => inner} ->
-        access(inner, path, acc)
-
-      _ ->
-        acc
-    end
-  end
-
-  defp access(_, _, acc) do
-    acc
   end
 
   defp query_exact_match?([:all | query], [_ | path]) do
