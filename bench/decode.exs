@@ -1,8 +1,8 @@
 decode_jobs = %{
   "Jaxon" => fn json -> Jaxon.decode!(json) end,
   "jiffy" => fn json -> :jiffy.decode(json, [:return_maps, :use_nil]) end,
-  "Jason" => fn json -> Jason.decode!(json) end,
-  "Poison" => fn json -> Poison.decode!(json) end
+  "Jason" => fn json -> Jason.decode!(json) end
+  # "Poison" => fn json -> Poison.decode!(json) end
 }
 
 decode_inputs = [
@@ -34,7 +34,7 @@ Benchee.run(
   decode_jobs,
   parallel: 1,
   warmup: 2,
-  time: 10,
+  time: 5,
   inputs: inputs,
   formatters: [
     &Benchee.Formatters.HTML.output/1,

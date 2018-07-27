@@ -5,15 +5,15 @@ defmodule JaxonTest do
   alias Jaxon.{ParseError}
 
   test "errors" do
-    assert_raise(ParseError, ~r/Incomplete .*/, fn ->
+    assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
       decode!(~s("incomplete string))
     end)
 
-    assert_raise(ParseError, ~r/Unexpected end of document/, fn ->
+    assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
       decode!(~s({))
     end)
 
-    assert_raise(ParseError, ~r/Unexpected end of document/, fn ->
+    assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
       decode!(~s({"hello":))
     end)
 
@@ -21,12 +21,13 @@ defmodule JaxonTest do
       decode!(~s({"hello":}))
     end)
 
-    assert_raise(ParseError, ~r/Unexpected end of document.*/, fn ->
+    assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
       decode!(~s([))
     end)
   end
 
   test "numbers" do
+    assert decode!("1.5e+9999") == 1.5e308
     assert decode!("1494882216.1") == 1_494_882_216.1
     assert decode!("1494882216") == 1_494_882_216
     assert decode!("0") == 0
@@ -73,25 +74,58 @@ defmodule JaxonTest do
     assert decode!(~s("")) == ""
 
     assert decode!(~s("\\"")) == "\""
-    assert decode!(~s("\\\n")) == "\n"
-    assert decode!(~s("\\\t")) == "\t"
-    assert decode!(~s("\\\r")) == "\r"
+    assert decode!(~s("\\n")) == "\n"
+    assert decode!(~s("\\t")) == "\t"
+    assert decode!(~s("\\r")) == "\r"
     assert decode!(~s("\\u0029")) == ")"
     assert decode!(~s("\\u0065")) == "e"
     assert decode!(~s("\\u00E6")) == "æ"
+    assert decode!(~s("\\u00e6")) == "æ"
     assert decode!(~s("\\uD83E\\uDD16")) == "🤖"
+    assert decode!(~s("\\ud83e\\udd16")) == "🤖"
     assert decode!(~s("😸😾")) == "😸😾"
   end
 
-  test "benchmark files" do
-    "bench/data/*.json"
-    |> Path.wildcard()
-    |> Enum.each(fn filename ->
-      :timer.tc(fn ->
-        assert {:ok, _} = decode(File.read!(filename))
-      end)
-    end)
+  "bench/data/*.json"
+  |> Path.wildcard()
+  |> Enum.each(fn filename ->
+    test "parse #{filename}" do
+      assert {:ok, _} = decode(File.read!(unquote(filename)))
+    end
+  end)
+
+  test "partial decode" do
+    {:yield, tail, fun} =
+      ~s({)
+      |> Jaxon.Parser.parse()
+      |> Jaxon.Decoder.events_to_term()
+
+    value =
+      (tail <> ~s("hello":"world"}))
+      |> Jaxon.Parser.parse()
+      |> fun.()
+
+    assert value == {:ok, %{"hello" => "world"}}
   end
+
+  # test "parse performance" do
+  #   data = File.read!("bench/data/govtrack.json")
+  #   iters = 10
+  #
+  #   time =
+  #     Stream.cycle([data])
+  #     |> Stream.take(iters)
+  #     |> Enum.reduce(0, fn json, acc ->
+  #       {time, _} =
+  #         :timer.tc(fn ->
+  #           decode!(json)
+  #         end)
+  #
+  #       acc + time
+  #     end)
+  #
+  #   IO.inspect("took #{time / iters / 1_000}ms")
+  # end
 
   test "escaped vs unescaped utf8" do
     assert decode!(File.read!("bench/data/utf-8-unescaped.json")) ==

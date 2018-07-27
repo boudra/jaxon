@@ -3,6 +3,35 @@ defmodule Jaxon do
   Main Jaxon module.
   """
 
+  defp do_decode(binary, offset, size, fun) do
+    part = :binary.part(binary, offset, min(size, byte_size(binary) - offset))
+
+    events =
+      if offset + size >= byte_size(binary) do
+        Jaxon.Parser.parse(part) ++ [:end_stream]
+      else
+        Jaxon.Parser.parse(part)
+      end
+
+    events
+    |> fun.()
+    |> case do
+      {:yield, tail, fun} ->
+        do_decode(
+          binary,
+          offset + size - byte_size(tail),
+          max(byte_size(tail) * 2, size),
+          fun
+        )
+
+      {:ok, result} ->
+        {:ok, result}
+
+      {:error, err} ->
+        {:error, err}
+    end
+  end
+
   @doc """
   Decode a string.
 
@@ -13,16 +42,7 @@ defmodule Jaxon do
   """
   @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
   def decode(binary) do
-    binary
-    |> Jaxon.Parser.parse()
-    |> Jaxon.Decoder.events_to_term()
-    |> case do
-      {:ok, term, _} ->
-        {:ok, term}
-
-      {:error, err} ->
-        {:error, err}
-    end
+    do_decode(binary, 0, 80 * 1024, &Jaxon.Decoder.events_to_term/1)
   end
 
   @doc """

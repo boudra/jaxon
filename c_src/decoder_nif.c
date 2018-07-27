@@ -15,7 +15,6 @@ typedef struct {
     ERL_NIF_TERM nif_end_object;
     ERL_NIF_TERM nif_start_array;
     ERL_NIF_TERM nif_end_array;
-    ERL_NIF_TERM nif_key;
     ERL_NIF_TERM nif_colon;
     ERL_NIF_TERM nif_comma;
     ERL_NIF_TERM nif_string;
@@ -48,7 +47,10 @@ static int load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info) {
     if(!enif_make_existing_atom(env, "end_array", &(data->nif_end_array), ERL_NIF_LATIN1))
         return 1;
 
-    if(!enif_make_existing_atom(env, "key", &(data->nif_key), ERL_NIF_LATIN1))
+    if(!enif_make_existing_atom(env, "comma", &(data->nif_comma), ERL_NIF_LATIN1))
+        return 1;
+
+    if(!enif_make_existing_atom(env, "colon", &(data->nif_colon), ERL_NIF_LATIN1))
         return 1;
 
     if(!enif_make_existing_atom(env, "string", &(data->nif_string), ERL_NIF_LATIN1))
@@ -104,18 +106,23 @@ static void unload(ErlNifEnv* env, void* priv_data) {
     return;
 }
 
+inline double timespec_to_ms(struct timespec *t) {
+    return ((double)t->tv_sec / 1000.0) + ((double)t->tv_nsec / 1000000.0);
+}
+
 ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     decoder_t decoder;
-    ErlNifBinary input;
+    ErlNifBinary input, input_copy_bin;
     size_t event_terms_count = 0, event_terms_allocated = 8192;
     ERL_NIF_TERM *event_terms = malloc(sizeof(ERL_NIF_TERM) * event_terms_allocated);
     json_event_t event ;
     ERL_NIF_TERM binary, ret, input_copy;
     uint8_t* value;
-    struct timeval start, last, now;
+    struct timespec start, last, now, tmp;
+    int total_slice = 0;
 
-    gettimeofday(&last, NULL);
-    gettimeofday(&start, NULL);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &last);
 
     private_data_t *data = (private_data_t*)enif_priv_data(env);
 
@@ -123,9 +130,11 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
         return enif_make_badarg(env);
     }
 
-    uint8_t* buffer = enif_make_new_binary(env, input.size, &input_copy);
+    uint8_t* buffer = input.data;
+    input_copy = argv[0];
 
-    memcpy(buffer, input.data, input.size);
+    /* clock_gettime(CLOCK_MONOTONIC_RAW, &tmp); */
+    /* printf("init: %f %d\n", timespec_to_ms(&tmp) - timespec_to_ms(&start), input.size); */
 
     update_decoder_buffer(&decoder, buffer, input.size);
 
@@ -133,16 +142,17 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 
     while(event.type < SYNTAX_ERROR) {
         if(decoder.cursor < buffer + input.size && event.type > UNDEFINED) {
-            gettimeofday(&now, NULL);
+            clock_gettime(CLOCK_MONOTONIC_RAW, &now);
 
-            int slice = floor(
-                    (1000000 * (now.tv_sec - last.tv_sec) +
-                     (now.tv_usec - last.tv_usec)) / 10
-                    );
+            double since_last = timespec_to_ms(&now) - timespec_to_ms(&last);
+            int slice = floor(since_last * 100.0);
 
             if (slice > 0) {
                 if(slice < 0) slice = 0;
                 else if(slice > 100) slice = 100;
+
+                /* total_slice += slice; */
+                /* double since_start = timespec_to_ms(&now) - timespec_to_ms(&start); */
 
                 if(enif_consume_timeslice(env, slice)) {
                     binary =
@@ -174,7 +184,18 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 
         switch(event.type) {
             case STRING:
-                binary = enif_make_sub_binary(env, input_copy, event.value.string.buffer - buffer, event.value.string.size);
+                if(event.value.string.escapes > 0) {
+                    ERL_NIF_TERM unescaped_binary;
+                    uint8_t* unescaped =
+                        enif_make_new_binary(env, event.value.string.size, &unescaped_binary);
+
+                    uint8_t* string_end =
+                        unescape_unicode(event.value.string.buffer, unescaped, event.value.string.buffer + event.value.string.size);
+
+                    binary = enif_make_sub_binary(env, unescaped_binary, 0, string_end - unescaped);
+                } else {
+                    binary = enif_make_sub_binary(env, input_copy, event.value.string.buffer - buffer, event.value.string.size);
+                }
                 ret = enif_make_tuple2(env, data->nif_string, binary);
                 break;
 
@@ -194,9 +215,12 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                 ret = enif_make_tuple2(env, data->nif_boolean, event.value.boolean ? data->nif_true : data->nif_false);
                 break;
 
-            case KEY:
-                binary = enif_make_sub_binary(env, input_copy, event.value.string.buffer - buffer, event.value.string.size);
-                ret = enif_make_tuple2(env, data->nif_key, binary);
+            case COMMA:
+                ret = data->nif_comma;
+                break;
+
+            case COLON:
+                ret = data->nif_colon;
                 break;
 
             case INCOMPLETE:
@@ -231,8 +255,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                 break;
 
             case END:
-                ret = data->nif_end;
-                break;
+                continue;
 
             case SYNTAX_ERROR:
                 binary = enif_make_sub_binary(env, input_copy, event.value.string.buffer - buffer, event.value.string.size);

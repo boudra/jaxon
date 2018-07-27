@@ -27,6 +27,7 @@ typedef enum {
 typedef struct {
     uint8_t* buffer;
     size_t size;
+    size_t escapes;
 } string_t;
 
 typedef struct {
@@ -58,6 +59,7 @@ typedef struct {
 void make_decoder(decoder_t* d);
 void update_decoder_buffer(decoder_t* d, unsigned char* buf, size_t length);
 void decode(decoder_t* d, json_event_t* e);
+uint8_t* unescape_unicode(uint8_t*, uint8_t*, uint8_t*);
 
 static inline const char* event_type_to_string(json_event_type_t type) {
     switch (type) {
@@ -117,14 +119,16 @@ static inline const char* event_type_to_string(json_event_type_t type) {
     }
 }
 
-static inline const uint32_t hex_byte_to_u32(const char in) {
-    uint8_t c = 0;
+static inline const int32_t hex_byte_to_i32(const char in) {
+    int8_t c = -1;
     if(in <= '9') {
         c = (in - '0');
-    } else {
+    } else if (in >= 'A' && in <= 'F') {
         c = (in - 'A') + 10;
+    } else if (in >= 'a' && in <= 'f') {
+        c = (in - 'a') + 10;
     }
-    return (uint32_t)c;
+    return (int32_t)c;
 }
 
 static inline const size_t u32_size(const uint32_t in) {

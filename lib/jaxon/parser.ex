@@ -15,14 +15,17 @@ defmodule Jaxon.Parser do
   [
    :start_object,
    {:string, "jaxon"},
+   :colon,
    {:string, "rocks"},
+   :comma,
    {:string, "array"},
+   :colon,
    :start_array,
    {:integer, 1},
+   :comma,
    {:integer, 2},
    :end_array,
-   :end_object,
-   :end
+   :end_object
   ]
   ```
   """

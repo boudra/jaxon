@@ -1,5 +1,5 @@
 defmodule Jaxon.Stream do
-  alias Jaxon.{Path, Parser}
+  alias Jaxon.{Path, Parser, ParseError, Decoder}
 
   @doc """
 
@@ -17,137 +17,176 @@ defmodule Jaxon.Stream do
   ```
   """
 
-  @spec query(Stream.t(), Path.t()) :: [Jaxon.Decoder.json_term()]
+  @spec query(Stream.t(), Path.t()) :: Stream.t()
   def query(bin_stream, path) do
-    reduce_query(bin_stream, path, [], fn value, acc ->
-      acc ++ [value]
-    end)
-  end
-
-  defp reduce_query(bin_stream, path, initial, reducer) do
     query =
-      if is_list(path) do
-        path
-      else
-        Path.parse!(path)
+      if(
+        is_list(path),
+        do: path,
+        else: Path.parse!(path)
+      )
+      |> case do
+        [:root | path] -> path
+        path -> path
       end
 
-    initial_fun = fn events, state ->
-      events_to_value(events, {[], [:root], state, query, reducer})
+    initial_fun = fn events ->
+      events_to_value(query, [], events)
     end
 
     bin_stream
     |> Stream.concat([:end_stream])
-    |> Stream.transform({initial_fun, ""}, fn
-      :end_stream, {fun, ""} ->
-        {:halt, fun.(:end_stream, initial)}
+    |> Stream.transform({"", initial_fun}, fn
+      :end_stream, {"", _} ->
+        {:halt, nil}
 
-      chunk, {fun, rest} ->
-        chunk = rest <> chunk
+      chunk, {tail, fun} ->
+        chunk = tail <> chunk
 
         Parser.parse(chunk)
-        |> fun.(initial)
+        |> fun.()
         |> case do
-          {:incomplete, state, fun, rest} ->
-            {state, {fun, rest}}
+          {:yield, tail, fun} ->
+            {[], {tail, fun}}
+
+          {:ok, records, events} ->
+            {records, {"", initial_fun}}
+
+          {:error, error} ->
+            raise error
         end
     end)
   end
 
-  defp events_to_value([:start_object | events], {acc, path, state, query, fun}) do
-    events_to_value(events, {[%{} | acc], [:key | path], state, query, fun})
+  def add_array_value({:ok, acc, events}, query, _, key) do
+    events_to_array(query, acc, key + 1, events)
   end
 
-  defp events_to_value([:start_array | events], {acc, path, state, query, fun}) do
-    events_to_value(events, {[[] | acc], [0 | path], state, query, fun})
+  def add_array_value({:yield, tail, inner}, query, acc, key) do
+    {:yield, tail, &add_array_value(inner.(&1), query, acc, key)}
   end
 
-  defp events_to_value([:end_object | events], {[object | acc], [:key | path], state, query, fun}) do
-    insert_value(object, events, {acc, path, state, query, fun})
+  def skip_array_value({:ok, _, events}, query, acc, key) do
+    events_to_array(query, acc, key + 1, events)
   end
 
-  defp events_to_value([:end_array | events], {[object | acc], [_ | path], state, query, fun}) do
-    insert_value(object, events, {acc, path, state, query, fun})
+  def skip_array_value({:yield, tail, inner}, query, acc, key) do
+    {:yield, tail, &skip_array_value(inner.(&1), query, acc, key)}
   end
 
-  defp events_to_value([{:string, key} | events], {acc, [:key | path], state, query, fun}) do
-    events_to_value(events, {acc, [key | path], state, query, fun})
+  def events_to_array(query, acc, 0, events) do
+    events_to_array_value(query, acc, 0, events)
   end
 
-  defp events_to_value([{event, value} | events], state)
-       when event in [:string, :decimal, :integer, :boolean] do
-    insert_value(value, events, state)
+  def events_to_array(query, acc, key, [:comma | events]) do
+    events_to_array_value(query, acc, key, events)
   end
 
-  defp events_to_value([nil | events], state) do
-    insert_value(nil, events, state)
+  def events_to_array([_ | query], acc, key, [:end_array | events]) do
+    {:ok, acc, events}
   end
 
-  defp events_to_value([:end], state) do
-    yield("", state)
+  def events_to_array(query, acc, key, []) do
+    {:yield, "", &events_to_array(query, acc, key, &1)}
   end
 
-  defp events_to_value([{:incomplete, rest}], state) do
-    yield(rest, state)
+  def events_to_array(query, acc, key, [event | _]) do
+    {:error, ParseError.unexpected_event(event, [:comma, :end_array])}
   end
 
-  defp events_to_value(:end_stream, {_, _, state, _, _}) do
-    state
+  def events_to_array_value(query = [key | rest_query], acc, key, events) do
+    add_array_value(events_to_value(rest_query, acc, events), query, acc, key)
   end
 
-  defp yield(rest, {acc, path, state, query, fun}) do
-    {:incomplete, state,
-     fn events, state ->
-       events_to_value(events, {acc, path, state, query, fun})
-     end, rest}
+  def events_to_array_value(query = [:all | rest_query], acc, key, events) do
+    add_array_value(events_to_value(rest_query, acc, events), query, acc, key)
   end
 
-  defp maybe_call_reducer(value, path, query, state, fun) do
-    if query_exact_match?(query, :lists.reverse(path)) do
-      fun.(value, state)
-    else
-      state
+  def events_to_array_value(query, acc, key, events) do
+    skip_array_value(Decoder.events_to_value(events), query, acc, key)
+  end
+
+  def append_value({:ok, value, rest}, acc) do
+    {:ok, acc ++ [value], rest}
+  end
+
+  def append_value({:yield, tail, inner}, acc) do
+    {:yield, tail, &append_value(inner.(&1), acc)}
+  end
+
+  def append_value(other, acc) do
+    other
+  end
+
+  def events_to_value([], acc, events) do
+    append_value(Decoder.events_to_value(events), acc)
+  end
+
+  def events_to_value(query, acc, []) do
+    {:yield, "", &events_to_value(query, acc, &1)}
+  end
+
+  def events_to_value(query, acc, [:start_array | events]) do
+    events_to_array(query, acc, 0, events)
+  end
+
+  def events_to_value(query, acc, [:start_object | events]) do
+    events_to_object(query, acc, events)
+  end
+
+  def events_to_object(query, acc, [:end_object | events]) do
+    {:ok, acc, events}
+  end
+
+  def events_to_object(query, acc, [:comma | events]) do
+    events_to_object(query, acc, events)
+  end
+
+  def events_to_object(query, acc, []) do
+    {:yield, "", &events_to_object(query, acc, &1)}
+  end
+
+  def events_to_object(query, acc, [{:incomplete, tail}]) do
+    {:yield, tail, &events_to_object(query, acc, &1)}
+  end
+
+  def events_to_object(query, acc, [{:string, key}]) do
+    {:yield, "", &events_to_object(query, acc, [{:string, key} | &1])}
+  end
+
+  def append_object_value({:ok, acc, events}, query, _) do
+    events_to_object(query, acc, events)
+  end
+
+  def append_object_value({:yield, tail, inner}, query, acc) do
+    {:yield, tail, &append_object_value(inner.(&1), query, acc)}
+  end
+
+  def append_object_value(other, _, _) do
+    other
+  end
+
+  def events_to_object([key | query], acc, [{:string, key} | events]) do
+    with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
+      append_object_value(events_to_value(query, acc, events), query, acc)
     end
   end
 
-  defp insert_value(value, events, {[], path, state, query, fun}) do
-    events_to_value(
-      events,
-      {[value], path, maybe_call_reducer(value, path, query, state, fun), query, fun}
-    )
+  def skip_object_value({:ok, _, events}, query, acc) do
+    events_to_object(query, acc, events)
   end
 
-  defp insert_value(value, events, {[parent | acc], full_path = [key | path], state, query, fun})
-       when is_map(parent) do
-    events_to_value(
-      events,
-      {[Map.put(parent, key, value) | acc], [:key | path],
-       maybe_call_reducer(value, full_path, query, state, fun), query, fun}
-    )
+  def skip_object_value({:yield, tail, inner}, query, acc) do
+    {:yield, tail, &skip_object_value(inner.(&1), query, acc)}
   end
 
-  defp insert_value(value, events, {[parent | acc], full_path = [key | path], state, query, fun})
-       when is_list(parent) do
-    events_to_value(
-      events,
-      {[parent ++ [value] | acc], [key + 1 | path],
-       maybe_call_reducer(value, full_path, query, state, fun), query, fun}
-    )
+  def skip_object_value(other, _, _) do
+    other
   end
 
-  defp query_exact_match?([:all | query], [_ | path]) do
-    query_exact_match?(query, path)
-  end
-
-  defp query_exact_match?([fragment | query], [fragment | path]) do
-    query_exact_match?(query, path)
-  end
-
-  defp query_exact_match?([], []) do
-    true
-  end
-
-  defp query_exact_match?(_, _) do
-    false
+  def events_to_object(query, acc, [{:string, key} | events]) do
+    with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
+      skip_object_value(Decoder.events_to_value(events), query, acc)
+    end
   end
 end

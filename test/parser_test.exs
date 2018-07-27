@@ -8,31 +8,39 @@ defmodule ParseTest do
      [
        :start_object,
        {:string, "name"},
+       :colon,
        {:string, "john"},
+       :comma,
        {:string, "test"},
+       :colon,
        :start_object,
        {:string, "number"},
+       :colon,
        {:decimal, 5.1},
        :end_object,
+       :comma,
        {:string, "tags"},
+       :colon,
        :start_array,
        nil,
+       :comma,
        {:boolean, true},
+       :comma,
        {:boolean, true},
+       :comma,
        {:integer, 1},
        :end_array,
-       :end_object,
-       :end
+       :end_object
      ]},
     {~s("string"),
      [
-       {:string, "string"},
-       :end
+       {:string, "string"}
      ]},
     {~s({"key":"va),
      [
        :start_object,
        {:string, "key"},
+       :colon,
        {:incomplete, "\"va"}
      ]},
     {~s("hello" "hello" 1.5 true),
@@ -40,14 +48,12 @@ defmodule ParseTest do
        {:string, "hello"},
        {:string, "hello"},
        {:decimal, 1.5},
-       {:boolean, true},
-       :end
+       {:boolean, true}
      ]},
     {~s(}}),
      [
        :end_object,
-       :end_object,
-       :end
+       :end_object
      ]}
   ]
 

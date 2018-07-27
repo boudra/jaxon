@@ -17,6 +17,16 @@ uint8_t* skip_whitespace(uint8_t* buf, uint8_t* limit) {
     return buf;
 }
 
+void syntax_error(decoder_t* d, json_event_t* e) {
+    const size_t context_length = 30;
+    uint8_t* context = max(d->cursor - context_length, d->buffer);
+
+    e->type = SYNTAX_ERROR;
+    e->value.string.buffer = context;
+    e->value.string.size = min(d->buffer + d->buffer_length, context + context_length) - context;
+}
+
+
 void make_decoder(decoder_t* d) {
     d->buffer = NULL;
     d->cursor = NULL;
@@ -40,18 +50,34 @@ void parse_number(decoder_t* d, json_event_t* e) {
         frac_sign = 1;
         buf += 1;
     } else if (*buf == '+') {
-        buf += 1;
+        syntax_error(d, e);
+        return;
+    }
+
+    if(*buf == '0' && buf + 1 < limit && is_digit(*(buf+1))) {
+        syntax_error(d, e);
+        return;
+    }
+
+    if(!is_digit(*buf)) {
+        syntax_error(d, e);
+        return;
     }
 
     while(buf < limit) {
         if(is_digit(*buf)) {
             frac = (frac * 10) + (*buf - '0');
-        } else if(*buf == '.') {
+        } else if(*buf == '.' && decimal_point == NULL) {
             decimal_point = buf;
         } else {
             break;
         }
         buf++;
+    }
+
+    if(*buf == '.' || !is_digit(*(buf - 1))) {
+        syntax_error(d, e);
+        return;
     }
 
     if(decimal_point) {
@@ -70,6 +96,11 @@ void parse_number(decoder_t* d, json_event_t* e) {
             buf += 1;
         } else if(*buf == '+'){
             buf += 1;
+        }
+
+        if(!is_digit(*buf)) {
+            syntax_error(d, e);
+            return;
         }
 
         while(buf < limit) {
@@ -99,6 +130,11 @@ done:
         e->value.string.size = buf - d->last_token;
     } else {
         long int abs_exp = labs(exp + frac_exp);
+
+        if(abs_exp > 307) {
+            abs_exp = 307;
+        }
+
         double final_exp = pow(10.0, abs_exp);
 
         if(frac_exp == 0 && exp >= 0) {
@@ -130,118 +166,193 @@ done:
     }
 }
 
-uint8_t* parse_string(uint8_t** buffer, uint8_t* limit) {
-    uint8_t* buf = &(*buffer)[0];
-    while (*buf != '"' && buf < limit) {
-        if(*buf == '\\' && (buf + 1) < limit) {
-            switch(*(++buf)) {
-                case '\"':
-                case '\\':
-                case '/':
-                    **buffer = *buf;
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+uint8_t* unescape_unicode(uint8_t* buf, uint8_t* buffer, uint8_t* limit) {
+    while (buf < limit) {
+        switch(*buf) {
+            case '\\':
+                if((buf + 1) < limit) {
+                    switch(*(++buf)) {
+                        case '\"':
+                        case '\\':
+                        case '/':
+                            *buffer = *buf;
+                            ++buffer;
+                            ++buf;
+                            continue;
 
-                case 'n':
-                    **buffer = '\n';
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+                        case 'n':
+                            *buffer = '\n';
+                            ++buffer;
+                            ++buf;
+                            continue;
 
-                case 'r':
-                    **buffer = '\r';
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+                        case 'r':
+                            *buffer = '\r';
+                            ++buffer;
+                            ++buf;
+                            continue;
 
-                case 't':
-                    **buffer = '\n';
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+                        case 't':
+                            *buffer = '\t';
+                            ++buffer;
+                            ++buf;
+                            continue;
 
-                case 'f':
-                    **buffer = '\f';
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+                        case 'f':
+                            *buffer = '\f';
+                            ++buffer;
+                            ++buf;
+                            continue;
 
-                case 'b':
-                    **buffer = '\b';
-                    ++(*buffer);
-                    ++buf;
-                    continue;
+                        case 'b':
+                            *buffer = '\b';
+                            ++buffer;
+                            ++buf;
+                            continue;
 
 
-                case 'u':
-                    if(buf + 4 < limit) {
-                        buf++;
-                        size_t size = 0;
-                        uint32_t c =
-                            (hex_byte_to_u32(buf[0]) << 12) +
-                            (hex_byte_to_u32(buf[1]) << 8) +
-                            (hex_byte_to_u32(buf[2]) << 4) +
-                            (hex_byte_to_u32(buf[3]) << 0);
+                        case 'u':
+                            if(buf + 5 <= limit) {
+                                buf++;
+                                int32_t r = -1;
+                                uint32_t c = 0;
 
-                        buf += 4;
+                                if((r = hex_byte_to_i32(buf[0])) >= 0) {
+                                    c += r << 12;
+                                }
 
-                        if(c >= 0xD800 && c < 0xDC00 && buf + 6 < limit) {
-                            buf += 2;
-                            size += 2;
+                                if((r = hex_byte_to_i32(buf[1])) >= 0) {
+                                    c += r << 8;
+                                }
 
-                            c = ((c & 0x3ff) << 10) + (
-                                    (hex_byte_to_u32(buf[0]) << 12) +
-                                    (hex_byte_to_u32(buf[1]) << 8) +
-                                    (hex_byte_to_u32(buf[2]) << 4) +
-                                    (hex_byte_to_u32(buf[3]) << 0) & 0x3ff
-                                    ) + 0x10000;
-                            buf += 4;
-                        }
+                                if((r = hex_byte_to_i32(buf[2])) >= 0) {
+                                    c += r << 4;
+                                }
 
-                        size = u32_to_utf8(c, *buffer);
+                                if((r = hex_byte_to_i32(buf[3])) >= 0) {
+                                    c += r << 0;
+                                }
 
-                        (*buffer) += size;
+                                buf += 4;
+
+                                if(c >= 0xD800 && c < 0xDC00 && buf + 6 <= limit) {
+                                    buf += 2;
+
+                                    c = ((c & 0x3ff) << 10) + (
+                                            (hex_byte_to_i32(buf[0]) << 12) +
+                                            (hex_byte_to_i32(buf[1]) << 8) +
+                                            (hex_byte_to_i32(buf[2]) << 4) +
+                                            (hex_byte_to_i32(buf[3]) << 0) & 0x3ff
+                                            ) + 0x10000;
+
+                                    buf += 4;
+                                }
+
+                                buffer += u32_to_utf8(c, buffer);
+                            } else {
+                                return buffer;
+                            }
+                            continue;
+
+                        default:
+                            return buffer;
+
                     }
-                    continue;
-
-                default:
-                    break;
-
-            }
+                }
+                break;
         }
-        *(*buffer) = *buf;
-        (*buffer)++;
+        *buffer = *buf;
+        buffer++;
         buf++;
     }
-    return buf;
+    return buffer;
 }
 
-int parse_constant(uint8_t** constant, const char* find, uint8_t* limit) {
-    while(*constant < limit &&
-          **constant == *find) {
-        ++*constant;
-        ++find;
+uint8_t* parse_string(uint8_t* buffer, uint8_t* limit, size_t* escapes) {
+    uint8_t* buf = buffer;
+
+    while (*buf != '"' && buf < limit) {
+        switch(*buf) {
+            case '\t':
+            case '\n':
+            case '\0':
+                return buf;
+
+            case '\\':
+                (*escapes)++;
+
+                if((buf + 1) < limit) {
+                    switch(*(++buf)) {
+                        case '\"':
+                        case '\\':
+                        case '/':
+                        case 'n':
+                        case 'r':
+                        case 't':
+                        case 'f':
+                        case 'b':
+                            ++buf;
+                            continue;
+
+                        case 'u':
+                            if(buf + 5 < limit) {
+                                buf++;
+                                int32_t r = -1;
+                                uint32_t c = 0;
+
+                                if((r = hex_byte_to_i32(buf[0])) >= 0) {
+                                    c += r << 12;
+                                } else {
+                                    return buf;
+                                }
+
+                                if((r = hex_byte_to_i32(buf[1])) >= 0) {
+                                    c += r << 8;
+                                } else {
+                                    return buf;
+                                }
+
+                                if((r = hex_byte_to_i32(buf[2])) >= 0) {
+                                    c += r << 4;
+                                } else {
+                                    return buf;
+                                }
+
+                                if((r = hex_byte_to_i32(buf[3])) >= 0) {
+                                    c += r << 0;
+                                } else {
+                                    return buf;
+                                }
+
+                                buf += 4;
+
+                                if(c >= 0xD800 && c < 0xDC00 && buf + 6 < limit) {
+                                    buf += 6;
+                                }
+
+                                continue;
+                            } else {
+                                return buf;
+                            }
+                            break;
+
+                        default:
+                            return buf;
+                    }
+                }
+                break;
+        }
+        ++buf;
     }
 
-    return (*find == '\0');
-}
+    return buf;
 
-void syntax_error(decoder_t* d, json_event_t* e) {
-    const size_t context_length = 30;
-    uint8_t* context = max(d->cursor - context_length, d->buffer);
-
-    e->type = SYNTAX_ERROR;
-    e->value.string.buffer = context;
-    e->value.string.size = min(d->buffer + d->buffer_length, context + context_length) - context;
 }
 
 void decode(decoder_t* d, json_event_t* e) {
     uint8_t* limit = d->buffer + d->buffer_length;
     d->cursor = skip_whitespace(d->cursor, limit);
     d->last_token = d->cursor;
-
-    /* printf("buffer: `%.*s`\n", min((int)(limit - d->cursor), 30), d->cursor); */
 
     if(d->cursor == limit) {
         e->type = END;
@@ -261,8 +372,8 @@ void decode(decoder_t* d, json_event_t* e) {
             break;
 
         case ':':
+            e->type = COLON;
             d->cursor++;
-            decode(d, e);
             break;
 
         case '[':
@@ -276,8 +387,8 @@ void decode(decoder_t* d, json_event_t* e) {
             break;
 
         case ',':
+            e->type = COMMA;
             d->cursor++;
-            decode(d, e);
             break;
 
         case '-':
@@ -296,73 +407,70 @@ void decode(decoder_t* d, json_event_t* e) {
             break;
 
         case 'n':
-            {
-                uint8_t* constant_end = d->cursor;
-
-                if(parse_constant(&constant_end, "null", limit)) {
+            if(d->cursor + 4 <= limit) {
+                if(memcmp(d->cursor, "null", 4) == 0) {
                     e->type = NIL;
-                    d->cursor = constant_end;
-                } else if(constant_end == limit) {
-                    e->type = INCOMPLETE;
-                    e->value.string.buffer = d->last_token;
-                    e->value.string.size = constant_end - d->last_token;
+                    d->cursor = d->cursor + 4;
                 } else {
                     syntax_error(d, e);
                 }
+            } else {
+                e->type = INCOMPLETE;
+                e->value.string.buffer = d->last_token;
+                e->value.string.size = limit - d->last_token;
             }
-
             break;
 
         case 't':
-            {
-                uint8_t* constant_end = d->cursor;
-
-                if(parse_constant(&constant_end, "true", limit)) {
+            if(d->cursor + 4 <= limit) {
+                if(memcmp(d->cursor, "true", 4) == 0) {
                     e->type = BOOLEAN;
                     e->value.boolean = 1;
-                    d->cursor = constant_end;
-                } else if(constant_end == limit) {
-                    e->type = INCOMPLETE;
-                    e->value.string.buffer = d->last_token;
-                    e->value.string.size = constant_end - d->last_token;
+                    d->cursor = d->cursor + 4;
                 } else {
                     syntax_error(d, e);
                 }
+            } else {
+                e->type = INCOMPLETE;
+                e->value.string.buffer = d->last_token;
+                e->value.string.size = limit - d->last_token;
             }
             break;
 
         case 'f':
-            {
-                uint8_t* constant_end = d->cursor;
-
-                if(parse_constant(&constant_end, "false", limit)) {
+            if(d->cursor + 5 <= limit) {
+                if(memcmp(d->cursor, "false", 5) == 0) {
                     e->type = BOOLEAN;
-                    e->value.boolean = 0;
-                    d->cursor = constant_end;
-                } else if(constant_end == limit) {
-                    e->type = INCOMPLETE;
-                    e->value.string.buffer = d->last_token;
-                    e->value.string.size = constant_end - d->last_token;
+                    e->value.boolean = 1;
+                    d->cursor = d->cursor + 5;
                 } else {
                     syntax_error(d, e);
                 }
+            } else {
+                e->type = INCOMPLETE;
+                e->value.string.buffer = d->last_token;
+                e->value.string.size = limit - d->last_token;
             }
             break;
 
         case '"':
             {
+                size_t escapes = 0;
                 uint8_t* string_end = ++d->cursor;
-                uint8_t* cursor = parse_string(&string_end, limit);
+                uint8_t* cursor = parse_string(string_end, limit, &escapes);
 
                 if(cursor == limit) {
                     e->type = INCOMPLETE;
                     e->value.string.buffer = d->last_token;
                     e->value.string.size = cursor - d->last_token;
-                } else {
+                } else if(*cursor == '\"') {
                     e->type = STRING;
                     e->value.string.buffer = d->cursor;
-                    e->value.string.size = string_end - d->cursor;
+                    e->value.string.size = cursor - d->cursor;
+                    e->value.string.escapes = escapes;
                     d->cursor = ++cursor;
+                } else {
+                    syntax_error(d, e);
                 }
 
                 break;

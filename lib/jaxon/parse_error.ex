@@ -3,6 +3,18 @@ defmodule Jaxon.ParseError do
 
   defexception [:message, :unexpected, :expected]
 
+  defp event_to_pretty_name({:incomplete, {event, _}, _}) do
+    event_to_pretty_name(event)
+  end
+
+  defp event_to_pretty_name({event, _}) do
+    event_to_pretty_name(event)
+  end
+
+  defp event_to_pretty_name(:integer) do
+    "number"
+  end
+
   defp event_to_pretty_name(:value) do
     "string, number, object, array"
   end
@@ -19,8 +31,16 @@ defmodule Jaxon.ParseError do
     "a closing bracket"
   end
 
-  defp event_to_pretty_name(:end) do
-    "end of document"
+  defp event_to_pretty_name(:comma) do
+    "comma"
+  end
+
+  defp event_to_pretty_name(:colon) do
+    "colon"
+  end
+
+  defp event_to_pretty_name(:end_stream) do
+    "end of stream"
   end
 
   @spec message(t()) :: String.t()
@@ -42,5 +62,12 @@ defmodule Jaxon.ParseError do
       end
 
     "Unexpected #{event_to_pretty_name(unexpected)}, expected a #{expected} instead."
+  end
+
+  def unexpected_event(got, expected) do
+    %__MODULE__{
+      unexpected: got,
+      expected: expected
+    }
   end
 end
