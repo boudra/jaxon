@@ -33,7 +33,7 @@ defmodule JaxonEventStreamTest do
 
   def query(stream, query) do
     stream
-    |> Stream.query(query)
+    |> Stream.query(Jaxon.Path.parse!(query))
     |> Enum.to_list()
   end
 
@@ -42,7 +42,6 @@ defmodule JaxonEventStreamTest do
       stream = Util.chunk_binary(@json_stream, chunk_size)
 
       assert [1] == query(stream, "$.numbers[0]")
-      assert [1] == query(stream, Jaxon.Path.parse!("$.numbers[0]"))
       assert [nil] == query(stream, "$.null")
       assert [2] == query(stream, "$.numbers[1]")
       assert [[1, 2]] == query(stream, "$.numbers")
@@ -58,7 +57,7 @@ defmodule JaxonEventStreamTest do
     result =
       [@json_stream]
       |> Elixir.Stream.cycle()
-      |> Stream.query("$.numbers[*]")
+      |> Stream.query([:root, "numbers", :all])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
 
@@ -69,7 +68,7 @@ defmodule JaxonEventStreamTest do
     result =
       ["42\n"]
       |> Elixir.Stream.cycle()
-      |> Stream.query("$")
+      |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
 
@@ -78,7 +77,7 @@ defmodule JaxonEventStreamTest do
     result =
       [~s({"key":true}\n)]
       |> Elixir.Stream.cycle()
-      |> Stream.query("$")
+      |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
 

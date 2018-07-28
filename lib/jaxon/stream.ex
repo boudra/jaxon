@@ -18,18 +18,11 @@ defmodule Jaxon.Stream do
   """
 
   @spec query(Stream.t(), Path.t()) :: Stream.t()
-  def query(bin_stream, path) do
-    query =
-      if(
-        is_list(path),
-        do: path,
-        else: Path.parse!(path)
-      )
-      |> case do
-        [:root | path] -> path
-        path -> path
-      end
+  def query(bin_stream, [:root | rest]) do
+    query(bin_stream, rest)
+  end
 
+  def query(bin_stream, query) do
     initial_fun = fn events ->
       query_value(query, [], events)
     end
@@ -49,7 +42,7 @@ defmodule Jaxon.Stream do
           {:yield, tail, fun} ->
             {[], {tail, fun}}
 
-          {:ok, records, events} ->
+          {:ok, records, _events} ->
             {records, {"", initial_fun}}
 
           {:error, error} ->
@@ -82,7 +75,7 @@ defmodule Jaxon.Stream do
     {:yield, tail, &append_value(inner.(&1), acc)}
   end
 
-  defp append_value(other, acc) do
+  defp append_value(other, _acc) do
     other
   end
 
@@ -110,7 +103,7 @@ defmodule Jaxon.Stream do
     query_array_value(query, acc, key, events)
   end
 
-  defp query_array([_ | query], acc, key, [:end_array | events]) do
+  defp query_array(_query, acc, _key, [:end_array | events]) do
     {:ok, acc, events}
   end
 
@@ -118,7 +111,7 @@ defmodule Jaxon.Stream do
     {:yield, "", &query_array(query, acc, key, &1)}
   end
 
-  defp query_array(query, acc, key, [event | _]) do
+  defp query_array(_query, _acc, _key, [event | _]) do
     {:error, ParseError.unexpected_event(event, [:comma, :end_array])}
   end
 
@@ -158,7 +151,7 @@ defmodule Jaxon.Stream do
     other
   end
 
-  defp query_object(query, acc, [:end_object | events]) do
+  defp query_object(_query, acc, [:end_object | events]) do
     {:ok, acc, events}
   end
 
@@ -184,7 +177,7 @@ defmodule Jaxon.Stream do
     end
   end
 
-  defp query_object(query, acc, [{:string, key} | events]) do
+  defp query_object(query, acc, [{:string, _key} | events]) do
     with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
       skip_object_value(Decoder.events_to_value(events), query, acc)
     end
