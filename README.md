@@ -107,7 +107,7 @@ The NIF parser is in C and all it does is take a binary and return a list of JSO
 
 ## Benchmarks
 
-Jaxon (using the NIF parser) performance is similar and often faster than _jiffy_ and _jason_.
+Jaxon (using the NIF parser) performance is similar and often faster than **jiffy** and **jason**.
 
 To run the benchmarks, execute:
 
