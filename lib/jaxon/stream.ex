@@ -5,14 +5,14 @@ defmodule Jaxon.Stream do
 
   Query all values of an array:
   ```
-  iex> ~s({ "numbers": [1,2] }) |> List.wrap() |> Jaxon.Stream.query("$.numbers[*]") |> Enum.to_list()
+  iex> ~s({ "numbers": [1,2] }) |> List.wrap() |> Jaxon.Stream.query([:root, "numbers", :all]) |> Enum.to_list()
   [1, 2]
   ```
 
 
   Query an object property:
   ```
-  iex> ~s({ "person": {"name": "Jose"} }) |> List.wrap() |> Jaxon.Stream.query("$.person.name") |> Enum.to_list()
+  iex> ~s({ "person": {"name": "Jose"} }) |> List.wrap() |> Jaxon.Stream.query([:root, "person", "name"]) |> Enum.to_list()
   ["Jose"]
   ```
   """
