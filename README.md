@@ -1,15 +1,15 @@
 # Jaxon :zap: [![Hex.pm](https://img.shields.io/hexpm/v/jaxon.svg)](https://hex.pm/packages/jaxon) [![Build Status](https://travis-ci.org/boudra/jaxon.svg?branch=master)](https://travis-ci.org/boudra/jaxon) [![Inline docs](http://inch-ci.org/github/boudra/jaxon.svg)](http://inch-ci.org/github/boudra/jaxon) [![Coverage Status](https://coveralls.io/repos/github/boudra/jaxon/badge.svg)](https://coveralls.io/github/boudra/jaxon)
 
-**Jaxon** is the [fastest JSON parser](#benchmarks), that can stream any [JSON document](#streaming) without holding it all in memory.
+**Jaxon** is the [fastest JSON parser](#benchmarks) that can stream any [JSON document](#streaming) without holding it all in memory.
 
 Roadmap:
 
-* Make an alternative parser in Elixir, for those who don't want to use NIFs.
-* JSON events to string Encoder.
+- Make an alternative parser in Elixir, for those who don't want to use NIFs.
+- JSON events to string Encoder.
 
 [Online documentation](https://hexdocs.pm/jaxon/)
 
-------------------------------------
+---
 
 ## Installation
 
@@ -35,11 +35,19 @@ iex> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
 
 ## Streaming
 
-Query a binary stream using JSON path expressions:
+Query a binary JSON stream:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query("$.array[*]") |> Enum.to_list()
+iex> stream |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
+[1, 2]
+```
+
+Query a binary JSON stream using JSON path expressions:
+
+```elixir
+iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
+iex> stream |> Jaxon.Stream.query(Jaxon.Path.decode!("$.array[*]")) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -48,7 +56,7 @@ Query a large file without holding the whole file in memory:
 ```elixir
 "large_file.json"
 |> File.stream!()
-|> Jaxon.Stream.query("$.users.id")
+|> Jaxon.Stream.query([:root, "users", :all, "id"])
 |> Enum.to_list()
 ```
 
@@ -81,7 +89,7 @@ The parser takes a binary and returns a list of events:
 
 ```elixir
 iex> Jaxon.Parser.parse(~s({"key":2}))
-[:start_object, {:string, "key"}, {:integer, 2}, :end_object, :end]
+[:start_object, {:string, "key"}, :colon, {:integer, 2}, :end_object, :end]
 ```
 
 Which means that it can also parse a list of JSON tokens, event if the string is not a valid JSON representation:
@@ -93,11 +101,11 @@ iex> Jaxon.Parser.parse(~s("this is a string" "another string"))
 
 ## Nif parser
 
-The NIF parser is in C and all it does is take a binary and return a list of JSON events, the NIF respects the Erlang scheduler and tries to run for a maximum of one millisecond, yielding to the VM for another call if we run over the limit.
+The NIF parser is in C and all it does is take a binary and return a list of JSON events, the NIF respects the Erlang scheduler and tries to run for a maximum of one millisecond, yielding to the VM for another call if it runs over the limit.
 
 ## Benchmarks
 
-Jaxon (using the NIF parser) is faster than all other popular Erlang/Elixir JSON parsers, including: **Jiffy, Poison and Jason**
+Jaxon (using the NIF parser) performance is similar and often faster than _jiffy_ and _jason_.
 
 To run the benchmarks, execute:
 
