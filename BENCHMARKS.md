@@ -1,3 +1,4 @@
+```
 Operating System: macOS"
 CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz
 Number of Available Cores: 8
@@ -142,3 +143,4 @@ Jaxon        20.39 K
 jiffy        15.31 K - 1.33x slower
 Jason         5.44 K - 3.75x slower
 Poison        3.03 K - 6.73x slower
+```
