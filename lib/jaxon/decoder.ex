@@ -10,6 +10,7 @@ defmodule Jaxon.Decoder do
           | integer
           | String.t()
           | map
+          | [json_term()]
   @doc """
   Takes a list of events and decodes them into a term.
   """
