@@ -40,6 +40,7 @@ defmodule JaxonEventStreamTest do
   test "queries with partial parsing" do
     Enum.each([1, 2, 4, 8, 16, 20, 50], fn chunk_size ->
       stream = Util.chunk_binary(@json_stream, chunk_size)
+
       assert [1] == query(stream, "$.numbers[0]")
       assert [1] == query(stream, Jaxon.Path.parse!("$.numbers[0]"))
       assert [nil] == query(stream, "$.null")
@@ -62,5 +63,25 @@ defmodule JaxonEventStreamTest do
       |> Enum.to_list()
 
     assert Enum.take(Elixir.Stream.cycle([1, 2]), 30) == result
+  end
+
+  test "single values" do
+    result =
+      ["42\n"]
+      |> Elixir.Stream.cycle()
+      |> Stream.query("$")
+      |> Elixir.Stream.take(30)
+      |> Enum.to_list()
+
+    assert Enum.take(Elixir.Stream.cycle([42]), 30) == result
+
+    result =
+      [~s({"key":true}\n)]
+      |> Elixir.Stream.cycle()
+      |> Stream.query("$")
+      |> Elixir.Stream.take(30)
+      |> Enum.to_list()
+
+    assert Enum.take(Elixir.Stream.cycle([%{"key" => true}]), 30) == result
   end
 end
