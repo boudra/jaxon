@@ -1,131 +1,63 @@
 defmodule Jaxon do
-  @moduledoc ~S"""
-  ## Example
-
-  Create a new decoder and add your JSON data:
-
-  ```
-  decoder =
-    Jaxon.make_decoder()
-    |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  ```
-
-  Call `decode/1` on the decoder to consume the events one by one:
-
-  ```
-  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.decode(decoder)
-  :start_object
-  ```
-
-  Or call `consume/1` to read all the events in a list:
-
-  ```
-  iex> decoder = Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  iex> Jaxon.consume(decoder)
-  [
-   :start_object,
-   {:key, "jaxon"},
-   {:string, "rocks"},
-   {:key, "array"},
-   :start_array,
-   {:integer, 1},
-   {:integer, 2},
-   :end_array,
-   :end_object,
-   :end
-  ]
-  ```
+  @moduledoc """
+  Main Jaxon module.
   """
 
-  @type event ::
-          :start_object
-          | :end_object
-          | :start_array
-          | :end_array
-          | {:key, binary}
-          | {:string, binary}
-          | {:integer, integer}
-          | {:decimal, float}
-          | {:boolean, boolean}
-          | nil
-          | {:incomplete, binary}
-          | :end
-          | :error
+  defp do_decode(binary, offset, size, fun) do
+    part = :binary.part(binary, offset, min(size, byte_size(binary) - offset))
 
-  @type decoder :: reference()
+    events =
+      if offset + size >= byte_size(binary) do
+        Jaxon.Parser.parse(part) ++ [:end_stream]
+      else
+        Jaxon.Parser.parse(part)
+      end
 
-  @on_load :load_nifs
+    events
+    |> fun.()
+    |> case do
+      {:yield, tail, fun} ->
+        do_decode(
+          binary,
+          offset + size - byte_size(tail),
+          max(byte_size(tail) * 2, size),
+          fun
+        )
 
-  def load_nifs do
-    nif_filename =
-      :jaxon
-      |> Application.app_dir("priv/decoder")
-      |> to_charlist
+      {:ok, result} ->
+        {:ok, result}
 
-    :erlang.load_nif(nif_filename, [
-      :start_object,
-      :end_object,
-      :start_array,
-      :end_array,
-      :key,
-      :colon,
-      :comma,
-      :string,
-      :integer,
-      :boolean,
-      nil,
-      :error,
-      :incomplete,
-      :syntax_error,
-      :end
-    ])
+      {:error, err} ->
+        {:error, err}
+    end
   end
 
-  @doc ~S"""
-  Get a single event from the decoder, must call `update_decoder/2` with your data beforehand.
+  @doc """
+  Decode a string.
 
-  ## Example
-
-  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.decode()
-  :start_object
+  ```elixir
+  iex> Jaxon.decode(~s({"jaxon":"rocks","array":[1,2]}))
+  {:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
+  ```
   """
-
-  @spec decode(decoder) :: event
-  def decode(_) do
-    raise "NIF not compiled"
+  @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
+  def decode(binary) do
+    do_decode(binary, 0, 80 * 1024, &Jaxon.Decoder.events_to_term/1)
   end
 
-  @spec update_decoder(decoder, binary) :: decoder
-  def update_decoder(_, _) do
-    raise "NIF not compiled"
-  end
+  @doc """
+  Decode a string, throws if there's an error.
 
-  @spec make_decoder() :: decoder
-  def make_decoder() do
-    raise "NIF not compiled"
-  end
-
-  @doc ~S"""
-  Helper function that calls `decode/1` until there are no more events.
-
-  ## Example
-
-  iex> Jaxon.make_decoder() |> Jaxon.update_decoder("{\"jaxon\":\"rocks\"}") |> Jaxon.consume()
-  [:start_object, {:key, "jaxon"}, {:string, "rocks"}, :end_object, :end]
+  ```elixir
+  iex(1)> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
+  %{"array" => [1, 2], "jaxon" => "rocks"}
+  ```
   """
-
-  @spec consume(decoder) :: [event]
-  def consume(decoder) do
-    case Jaxon.decode(decoder) do
-      event = {:incomplete, _} ->
-        [event]
-
-      event when event in [:end, :error, :ok] ->
-        [event]
-
-      event ->
-        [event | consume(decoder)]
+  @spec decode!(String.t()) :: Jaxon.Decoder.json_term() | no_return()
+  def(decode!(binary)) do
+    case decode(binary) do
+      {:ok, term} -> term
+      {:error, err} -> raise err
     end
   end
 end

@@ -1,0 +1,20 @@
+language: elixir
+elixir:
+  - 1.6.5
+otp_release:
+  - 19.3
+  - 20.3
+before_script:
+  - MIX_ENV=test mix compile --warnings-as-errors
+script:
+  - mix format --check-formatted --dry-run
+  - MIX_ENV=test mix coveralls.travis
+after_script:
+  - MIX_ENV=docs mix deps.get
+  - MIX_ENV=docs mix inch.report
+sudo: required
+dist: trusty
+cache:
+  directories:
+    - _build
+    - deps
