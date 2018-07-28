@@ -87,14 +87,13 @@ nil
 {:error, binary}
 :colon
 :comma
-:end
 ```
 
-Which means that it can also parse a list of JSON tokens, event if the string is not a valid JSON representation:
+Which means that it can also parse a list of JSON tokens, even if the string is not a valid JSON representation:
 
 ```elixir
 iex> Jaxon.Parser.parse(~s("this is a string" "another string"))
-[{:string, "this is a string"}, {:string, "another string"}, :end]
+[{:string, "this is a string"}, {:string, "another string"}]
 ```
 
 This makes it very flexible when decoding files and lets us use different implementations for parsers, at the moment the default parser is written in C as a NIF. It can be changed in the config like this:
