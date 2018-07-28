@@ -67,11 +67,11 @@ defmodule Jaxon.Decoder do
     {:ok, value, [:end_stream]}
   end
 
-  def events_to_value([{:incomplete, {:decimal, value}, tail}]) do
+  def events_to_value([{:incomplete, {:decimal, _}, tail}]) do
     {:yield, tail, &events_to_value(&1)}
   end
 
-  def events_to_value([{:incomplete, {:integer, value}, tail}]) do
+  def events_to_value([{:incomplete, {:integer, _}, tail}]) do
     {:yield, tail, &events_to_value(&1)}
   end
 

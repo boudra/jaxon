@@ -48,7 +48,7 @@ defmodule Jaxon.ParseError do
     msg
   end
 
-  def message(x = %{unexpected: unexpected, expected: expected}) do
+  def message(%{unexpected: unexpected, expected: expected}) do
     expected =
       expected
       |> Enum.map(&event_to_pretty_name/1)
