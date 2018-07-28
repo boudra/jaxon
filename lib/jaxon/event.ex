@@ -12,5 +12,7 @@ defmodule Jaxon.Event do
           | {:incomplete, binary}
           | {:yield, [__MODULE__.t()], binary}
           | {:error, binary}
+          | :colon
+          | :comma
           | :end
 end

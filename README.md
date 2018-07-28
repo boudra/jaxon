@@ -78,6 +78,8 @@ Everything that Jaxon does is based on parsed JSON events like these:
 nil
 {:incomplete, binary}
 {:error, binary}
+:colon
+:comma
 :end
 ```
 
