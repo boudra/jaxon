@@ -9,7 +9,7 @@ endif
 
 ifeq ($(UNAME), Linux)
 	CC := gcc
-	CFLAGS := -shared -fpic
+	CFLAGS := -shared -fpic -D_POSIX_C_SOURCE=199309L
 endif
 
 all: priv/decoder.so
