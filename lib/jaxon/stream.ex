@@ -28,26 +28,24 @@ defmodule Jaxon.Stream do
     end
 
     bin_stream
-    |> Stream.concat([:end_stream])
-    |> Stream.transform({"", initial_fun}, fn
-      :end_stream, {"", _} ->
-        {:halt, nil}
+    |> Stream.transform({"", initial_fun}, fn chunk, {tail, fun} ->
+      chunk = tail <> chunk
 
-      chunk, {tail, fun} ->
-        chunk = tail <> chunk
+      Parser.parse(chunk)
+      |> fun.()
+      |> case do
+        {:yield, tail, fun} when is_binary(tail) ->
+          {[], {tail, fun}}
 
-        Parser.parse(chunk)
-        |> fun.()
-        |> case do
-          {:yield, tail, fun} ->
-            {[], {tail, fun}}
+        {:yield, records, fun} ->
+          {records, {"", fun}}
 
-          {:ok, records, _events} ->
-            {records, {"", initial_fun}}
+        {:ok, records, _events} ->
+          {records, {"", initial_fun}}
 
-          {:error, error} ->
-            raise error
-        end
+        {:error, error} ->
+          raise error
+      end
     end)
   end
 
@@ -69,6 +67,10 @@ defmodule Jaxon.Stream do
 
   defp append_value({:ok, value, rest}, acc) do
     {:ok, acc ++ [value], rest}
+  end
+
+  defp append_value({:yield, "", inner}, acc) do
+    {:yield, acc, &append_value(inner.(&1), [])}
   end
 
   defp append_value({:yield, tail, inner}, acc) do
@@ -160,7 +162,7 @@ defmodule Jaxon.Stream do
   end
 
   defp query_object(query, acc, []) do
-    {:yield, "", &query_object(query, acc, &1)}
+    {:yield, acc, &query_object(query, [], &1)}
   end
 
   defp query_object(query, acc, [{:incomplete, tail}]) do

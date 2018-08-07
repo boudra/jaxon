@@ -83,4 +83,13 @@ defmodule JaxonEventStreamTest do
 
     assert Enum.take(Elixir.Stream.cycle([%{"key" => true}]), 30) == result
   end
+
+  test "it doesn't error when incomplete JSON is streamed" do
+    result =
+      [~s([{"numbers":[1,2],"key":"hello")]
+      |> Stream.query([:root, :all, "key"])
+      |> Enum.to_list()
+
+    assert result == ["hello"]
+  end
 end
