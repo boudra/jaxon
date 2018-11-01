@@ -64,6 +64,15 @@ defmodule JaxonEventStreamTest do
     assert Enum.take(Elixir.Stream.cycle([1, 2]), 30) == result
   end
 
+  test "multiple JSON doucuments in a stream chunk" do
+    result =
+      ["#{@json_stream}\n#{@json_stream}"]
+      |> Stream.query([:root, "numbers", :all])
+      |> Enum.to_list()
+
+    assert [1, 2, 1, 2] == result
+  end
+
   test "single values" do
     result =
       ["42\n"]

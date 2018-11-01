@@ -31,22 +31,31 @@ defmodule Jaxon.Stream do
     |> Stream.transform({"", initial_fun}, fn chunk, {tail, fun} ->
       chunk = tail <> chunk
 
-      Parser.parse(chunk)
-      |> fun.()
-      |> case do
-        {:yield, tail, fun} when is_binary(tail) ->
-          {[], {tail, fun}}
-
-        {:yield, records, fun} ->
-          {records, {"", fun}}
-
-        {:ok, records, _events} ->
-          {records, {"", initial_fun}}
-
-        {:error, error} ->
-          raise error
-      end
+      chunk
+      |> Parser.parse()
+      |> call_decode_fun([], initial_fun, fun)
     end)
+  end
+
+  defp call_decode_fun(events, records, initial_fun, fun) do
+    events
+    |> fun.()
+    |> case do
+      {:yield, tail, fun} when is_binary(tail) ->
+        {records, {tail, fun}}
+
+      {:yield, new_records, fun} ->
+        {records ++ new_records, {"", fun}}
+
+      {:ok, new_records, []} ->
+        {records ++ new_records, {"", initial_fun}}
+
+      {:ok, new_records, events} ->
+        call_decode_fun(events, records ++ new_records, initial_fun, initial_fun)
+
+      {:error, error} ->
+        raise error
+    end
   end
 
   def query_value([], acc, events) do
