@@ -10,6 +10,12 @@
 #include <time.h>
 #include <sys/time.h>
 
+#ifdef __MACH__
+    #include <mach/clock.h>
+    #include <mach/mach.h>
+#endif
+
+
 typedef struct {
     ERL_NIF_TERM nif_start_object;
     ERL_NIF_TERM nif_end_object;
@@ -110,6 +116,33 @@ inline double timespec_to_ms(struct timespec *t) {
     return ((double)t->tv_sec / 1000.0) + ((double)t->tv_nsec / 1000000.0);
 }
 
+/**
+ * get_currect_utc_time:
+ *
+ * This function hides the difference between getting the UTC time
+ * on a MACH based platform or not. MACH doesn't have `clock_gettime`
+ * function that's why it must be implemented.
+ *
+ * Based on https://github.com/balabit/syslog-ng/blob/fb94f1a5e562295341c691b63b9a63bd0b4ebb55/lib/timeutils.c
+ **/
+struct timespec
+get_current_utc_time(void)
+{
+  struct timespec timestamp;
+#ifdef __MACH__
+  clock_serv_t clock_server;
+  mach_timespec_t mach_timestamp;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &clock_server);
+  clock_get_time(clock_server, &mach_timestamp);
+  mach_port_deallocate(mach_task_self(), clock_server);
+  timestamp.tv_sec = mach_timestamp.tv_sec;
+  timestamp.tv_nsec = mach_timestamp.tv_nsec;
+#else
+  clock_gettime(CLOCK_MONOTONIC_RAW, &timestamp);
+#endif
+  return timestamp;
+}
+
 ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     decoder_t decoder;
     ErlNifBinary input, input_copy_bin;
@@ -121,8 +154,8 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
     struct timespec start, last, now, tmp;
     int total_slice = 0;
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-    clock_gettime(CLOCK_MONOTONIC_RAW, &last);
+    start = get_current_utc_time();
+    last = get_current_utc_time();
 
     private_data_t *data = (private_data_t*)enif_priv_data(env);
 
@@ -142,7 +175,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 
     while(event.type < SYNTAX_ERROR) {
         if(decoder.cursor < buffer + input.size && event.type > UNDEFINED) {
-            clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+            now = get_current_utc_time();
 
             double since_last = timespec_to_ms(&now) - timespec_to_ms(&last);
             int slice = floor(since_last * 100.0);
