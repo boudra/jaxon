@@ -5,7 +5,7 @@ defmodule Jaxon.MixProject do
     [
       app: :jaxon,
       name: "Jaxon",
-      version: "1.0.1",
+      version: "1.0.2",
       elixir: "~> 1.6",
       compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -34,7 +34,7 @@ defmodule Jaxon.MixProject do
   defp package() do
     [
       name: "jaxon",
-      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md", "Makefile", "c_src/*.[ch]"],
       maintainers: ["Mohamed Boudra"],
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/boudra/jaxon"}
