@@ -74,7 +74,11 @@ defmodule ParseTest do
     {~s(5.),
      [
        {:incomplete, "5."}
-     ]}
+     ]},
+     {~s("\\u00),
+     [
+       {:incomplete, ~s("\\u00)}
+     ]},
   ]
 
   test "parser tests" do
