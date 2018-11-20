@@ -75,10 +75,16 @@ void parse_number(decoder_t* d, json_event_t* e) {
         buf++;
     }
 
-    if(*buf == '.' || !is_digit(*(buf - 1))) {
+    if(buf < limit && *(buf - 1) == '.' && !is_digit(*buf)) {
         syntax_error(d, e);
         return;
     }
+
+    if(*(buf - 1) == '.' && (buf - 1) == decimal_point) {
+        buf--;
+        goto done;
+    }
+
 
     if(decimal_point) {
         frac_exp = -(buf - decimal_point - 1);
@@ -127,7 +133,7 @@ done:
         *buf == '-' || *buf == '+')) {
         e->type = INCOMPLETE;
         e->value.string.buffer = d->last_token;
-        e->value.string.size = buf - d->last_token;
+        e->value.string.size = (buf+1) - d->last_token;
     } else {
         long int abs_exp = labs(exp + frac_exp);
 

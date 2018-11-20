@@ -54,10 +54,30 @@ defmodule ParseTest do
      [
        :end_object,
        :end_object
+     ]},
+    {~s(5e ),
+     [
+       {:error, "5e "}
+     ]},
+    {~s(5e),
+     [
+       {:incomplete, "5e"}
+     ]},
+    {~s(5..),
+     [
+       {:error, "5.."}
+     ]},
+    {~s(5. ),
+     [
+       {:error, "5. "}
+     ]},
+    {~s(5.),
+     [
+       {:incomplete, "5."}
      ]}
   ]
 
-  test "decoder tests" do
+  test "parser tests" do
     Enum.each(@tests, fn {json, events} ->
       assert Parser.parse(json) == events
     end)
