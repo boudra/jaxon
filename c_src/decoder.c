@@ -338,8 +338,9 @@ uint8_t* parse_string(uint8_t* buffer, uint8_t* limit, size_t* escapes) {
 
                                 continue;
                             } else {
-                                return buf;
+                                return limit;
                             }
+
                             break;
 
                         default:
