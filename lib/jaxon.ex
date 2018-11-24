@@ -3,6 +3,8 @@ defmodule Jaxon do
   Main Jaxon module.
   """
 
+  @decode_chunk_size Application.get_env(:jaxon, :decode_chunk_size, 80 * 1024)
+
   defp do_decode(binary, offset, size, fun) do
     part = :binary.part(binary, offset, min(size, byte_size(binary) - offset))
 
@@ -42,7 +44,7 @@ defmodule Jaxon do
   """
   @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
   def decode(binary) do
-    do_decode(binary, 0, 80 * 1024, &Jaxon.Decoder.events_to_term/1)
+    do_decode(binary, 0, @decode_chunk_size, &Jaxon.Decoder.events_to_term/1)
   end
 
   @doc """
