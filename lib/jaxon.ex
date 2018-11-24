@@ -43,6 +43,11 @@ defmodule Jaxon do
   ```
   """
   @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
+  def decode(binary) when byte_size(binary) <= @decode_chunk_size do
+    (Jaxon.Parser.parse(binary) ++ [:end_stream])
+    |> Jaxon.Decoder.events_to_term()
+  end
+
   def decode(binary) do
     do_decode(binary, 0, @decode_chunk_size, &Jaxon.Decoder.events_to_term/1)
   end
