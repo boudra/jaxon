@@ -43,6 +43,10 @@ defmodule Jaxon.ParseError do
     "end of stream"
   end
 
+  defp event_to_pretty_name(event) do
+    to_string(event)
+  end
+
   @spec message(t()) :: String.t()
   def message(%{message: msg}) when is_binary(msg) do
     msg
