@@ -24,6 +24,8 @@ defmodule JaxonEventStreamTest do
       "null": null,
       "person": {
         "name": "Keanu Reeves",
+        "decimal": 0.2,
+        "unicode": "\u0029",
         "movies": [
           { "name": "Speed" },
           { "name": "The Matrix" }
@@ -38,7 +40,8 @@ defmodule JaxonEventStreamTest do
   end
 
   test "queries with partial parsing" do
-    Enum.each([1, 2, 4, 8, 16, 20, 50], fn chunk_size ->
+    1..String.length(@json_stream)
+    |> Enum.each(fn chunk_size ->
       stream = Util.chunk_binary(@json_stream, chunk_size)
 
       assert [1] == query(stream, "$.numbers[0]")
