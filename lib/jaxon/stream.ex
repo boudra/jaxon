@@ -126,12 +126,12 @@ defmodule Jaxon.Stream do
     {:yield, "", &query_array(query, acc, key, &1)}
   end
 
-  defp query_array(_query, _acc, _key, [event | _]) do
-    {:error, ParseError.unexpected_event(event, [:comma, :end_array])}
-  end
-
   defp query_array(_query, _acc, _key, [event = {:error, _} | _]) do
     event
+  end
+
+  defp query_array(_query, _acc, _key, [event | _]) do
+    {:error, ParseError.unexpected_event(event, [:comma, :end_array])}
   end
 
   defp query_array_value(query = [key | rest_query], acc, key, events) do
