@@ -74,6 +74,10 @@ defmodule Jaxon.Stream do
     query_object(query, acc, events)
   end
 
+  def query_value(query, acc, [:comma | events]) do
+    query_value(query, acc, events)
+  end
+
   defp append_value({:ok, value, rest}, acc) do
     {:ok, acc ++ [value], rest}
   end
@@ -124,6 +128,10 @@ defmodule Jaxon.Stream do
 
   defp query_array(_query, _acc, _key, [event | _]) do
     {:error, ParseError.unexpected_event(event, [:comma, :end_array])}
+  end
+
+  defp query_array(_query, _acc, _key, [event = {:error, _} | _]) do
+    event
   end
 
   defp query_array_value(query = [key | rest_query], acc, key, events) do
@@ -192,5 +200,13 @@ defmodule Jaxon.Stream do
     with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
       skip_object_value(Decoder.events_to_value(events), query, acc)
     end
+  end
+
+  defp query_object(_query, _acc, [event = {:error, _} | _events]) do
+    event
+  end
+
+  defp query_object(_query, _acc, [event | _events]) do
+    {:error, ParseError.unexpected_event(event, [:key, :end_object])}
   end
 end
