@@ -116,46 +116,42 @@ inline double timespec_to_ms(struct timespec *t) {
     return ((double)t->tv_sec / 1000.0) + ((double)t->tv_nsec / 1000000.0);
 }
 
-/**
- * get_currect_utc_time:
- *
- * This function hides the difference between getting the UTC time
- * on a MACH based platform or not. MACH doesn't have `clock_gettime`
- * function that's why it must be implemented.
- *
- * Based on https://github.com/balabit/syslog-ng/blob/fb94f1a5e562295341c691b63b9a63bd0b4ebb55/lib/timeutils.c
- **/
-struct timespec
-get_current_utc_time(void)
-{
-  struct timespec timestamp;
-#ifdef __MACH__
-  clock_serv_t clock_server;
+void get_current_monotic_time(struct timespec* timestamp) {
+/* clock_gettime is only supported from OS X 10.12 (Sierra) */
+#if __MACH__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+  static clock_serv_t clock_server;
+  static int clock_server_initialised = 0;
+
   mach_timespec_t mach_timestamp;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &clock_server);
+
+  if(!clock_server_initialised) {
+      host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock_server);
+      clock_server_initialised = 1;
+  }
+
   clock_get_time(clock_server, &mach_timestamp);
-  mach_port_deallocate(mach_task_self(), clock_server);
-  timestamp.tv_sec = mach_timestamp.tv_sec;
-  timestamp.tv_nsec = mach_timestamp.tv_nsec;
+
+  timestamp->tv_sec = mach_timestamp.tv_sec;
+  timestamp->tv_nsec = mach_timestamp.tv_nsec;
 #else
-  clock_gettime(CLOCK_MONOTONIC_RAW, &timestamp);
+  clock_gettime(CLOCK_MONOTONIC_RAW, timestamp);
 #endif
-  return timestamp;
 }
 
 ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    struct timespec start, last, now, tmp;
     decoder_t decoder;
     ErlNifBinary input, input_copy_bin;
     size_t event_terms_count = 0, event_terms_allocated = 8192;
-    ERL_NIF_TERM *event_terms = malloc(sizeof(ERL_NIF_TERM) * event_terms_allocated);
+    ERL_NIF_TERM stack_terms[event_terms_allocated];
+    ERL_NIF_TERM *event_terms = &stack_terms[0];
     json_event_t event ;
     ERL_NIF_TERM binary, ret, input_copy;
     uint8_t* value;
-    struct timespec start, last, now, tmp;
     int total_slice = 0;
 
-    start = get_current_utc_time();
-    last = get_current_utc_time();
+    get_current_monotic_time(&start);
+    get_current_monotic_time(&last);
 
     private_data_t *data = (private_data_t*)enif_priv_data(env);
 
@@ -175,42 +171,40 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 
     while(event.type < SYNTAX_ERROR) {
         if(decoder.cursor < buffer + input.size && event.type > UNDEFINED) {
-            now = get_current_utc_time();
+            get_current_monotic_time(&now);
 
-            double since_last = timespec_to_ms(&now) - timespec_to_ms(&last);
-            int slice = floor(since_last * 100.0);
+            double since_start = timespec_to_ms(&now) - timespec_to_ms(&start);
 
-            if (slice > 0) {
-                if(slice < 0) slice = 0;
-                else if(slice > 100) slice = 100;
-
-                /* total_slice += slice; */
-                /* double since_start = timespec_to_ms(&now) - timespec_to_ms(&start); */
-
-                if(enif_consume_timeslice(env, slice)) {
-                    binary =
-                        enif_make_sub_binary(
+            if(since_start > 1.0) {
+                binary =
+                    enif_make_sub_binary(
                             env,
                             input_copy,
                             (decoder.cursor - buffer),
                             (buffer + input.size) - decoder.cursor
-                        );
+                            );
 
-                    return enif_make_tuple3(
-                            env,
-                            data->nif_yield,
-                            enif_make_list_from_array(env, event_terms, event_terms_count),
-                            binary
+                return enif_make_tuple3(
+                        env,
+                        data->nif_yield,
+                        enif_make_list_from_array(env, event_terms, event_terms_count),
+                        binary
                         );
-                }
-                last = now;
             }
         }
 
         if(event_terms_count == event_terms_allocated) {
             event_terms_allocated *= 2;
-            event_terms =
-                realloc(event_terms, sizeof(ERL_NIF_TERM) * event_terms_allocated);
+
+            if(event_terms == &stack_terms[0]) {
+                event_terms =
+                    malloc(sizeof(ERL_NIF_TERM) * event_terms_allocated);
+
+                memcpy(event_terms, &stack_terms[0], sizeof(stack_terms));
+            } else {
+                event_terms =
+                    realloc(event_terms, sizeof(ERL_NIF_TERM) * event_terms_allocated);
+            }
         }
 
         decode(&decoder, &event);
