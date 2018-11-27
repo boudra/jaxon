@@ -78,6 +78,14 @@ defmodule Jaxon.Stream do
     query_value(query, acc, events)
   end
 
+  def query_value(_query, _acc, [error = {:error, _} | _events]) do
+    error
+  end
+
+  def query_value(_query, _acc, [event | _events]) do
+    {:error, ParseError.unexpected_event(event, [:value])}
+  end
+
   defp append_value({:ok, value, rest}, acc) do
     {:ok, acc ++ [value], rest}
   end
