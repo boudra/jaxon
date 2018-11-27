@@ -53,6 +53,9 @@ defmodule Jaxon.Stream do
       {:ok, new_records, events} ->
         call_decode_fun(events, records ++ new_records, initial_fun, initial_fun)
 
+      {:error, error} when is_binary(error) ->
+        raise ParseError.syntax_error(error)
+
       {:error, error} ->
         raise error
     end

@@ -104,4 +104,12 @@ defmodule JaxonEventStreamTest do
 
     assert result == ["hello"]
   end
+
+  test "stream syntax error" do
+    assert_raise Jaxon.ParseError, fn ->
+      [~s(wrong)]
+      |> Stream.query([:root, "key"])
+      |> Enum.to_list()
+    end
+  end
 end

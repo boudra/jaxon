@@ -78,4 +78,10 @@ defmodule Jaxon.ParseError do
       expected: expected
     }
   end
+
+  def syntax_error(context) do
+    %__MODULE__{
+      message: "Syntax error at `#{inspect(context)}`"
+    }
+  end
 end
