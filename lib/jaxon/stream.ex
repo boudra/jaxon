@@ -113,12 +113,20 @@ defmodule Jaxon.Stream do
     {:yield, tail, &add_array_value(inner.(&1), query, acc, key)}
   end
 
+  defp add_array_value(other, _query, _acc, _key) do
+    other
+  end
+
   defp skip_array_value({:ok, _, events}, query, acc, key) do
     query_array(query, acc, key + 1, events)
   end
 
   defp skip_array_value({:yield, tail, inner}, query, acc, key) do
     {:yield, tail, &skip_array_value(inner.(&1), query, acc, key)}
+  end
+
+  defp skip_array_value(other, _query, _acc, _key) do
+    other
   end
 
   defp query_array(query, acc, 0, events) do
