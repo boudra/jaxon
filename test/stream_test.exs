@@ -21,6 +21,10 @@ defmodule JaxonEventStreamTest do
   @json_stream ~s(
     {
       "numbers": [1,2],
+      "empty_array": [],
+      "empty_object": {},
+      "bool1": true,
+      "bool2": false,
       "null": null,
       "person": {
         "name": "Keanu Reeves",

@@ -121,13 +121,13 @@ defmodule Jaxon.Decoder do
     |> add_value_to_array(array)
   end
 
+  defp events_to_array([], array) do
+    {:yield, "", &events_to_array(&1, array)}
+  end
+
   defp events_to_array(events, array = []) do
     events_to_value(events)
     |> add_value_to_array(array)
-  end
-
-  defp events_to_array([], array) do
-    {:yield, "", &events_to_array(&1, array)}
   end
 
   defp events_to_array([event | _], _) do
