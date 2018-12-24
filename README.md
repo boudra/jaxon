@@ -10,6 +10,7 @@ Roadmap:
 - JSON events to string Encoder.
 
 [Online documentation](https://hexdocs.pm/jaxon/)
+[Introduction to Jaxon](https://moboudra.com/intro-to-jaxon-json-parser-for-elixir/)
 
 ---
 
