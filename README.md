@@ -9,8 +9,8 @@ Roadmap:
 - Make an alternative parser in Elixir, for those who don't want to use NIFs.
 - JSON events to string Encoder.
 
-[Online documentation](https://hexdocs.pm/jaxon/)
-[Introduction to Jaxon](https://moboudra.com/intro-to-jaxon-json-parser-for-elixir/)
+- [Online documentation](https://hexdocs.pm/jaxon/)
+- [Introduction to Jaxon](https://moboudra.com/intro-to-jaxon-json-parser-for-elixir/)
 
 ---
 
