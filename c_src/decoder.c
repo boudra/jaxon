@@ -448,7 +448,7 @@ void decode(decoder_t* d, json_event_t* e) {
             if(d->cursor + 5 <= limit) {
                 if(memcmp(d->cursor, "false", 5) == 0) {
                     e->type = BOOLEAN;
-                    e->value.boolean = 1;
+                    e->value.boolean = 0;
                     d->cursor = d->cursor + 5;
                 } else {
                     syntax_error(d, e);
