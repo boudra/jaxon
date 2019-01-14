@@ -55,6 +55,11 @@ defmodule JaxonTest do
     assert decode!("-99.99e99 ") == -99.99e99
   end
 
+  test "booleans" do
+    assert decode!(~s(true)) == true
+    assert decode!(~s(false)) == false
+  end
+
   test "objects" do
     assert decode!(~s({})) == %{}
     assert decode!(~s({"number": 2})) == %{"number" => 2}
