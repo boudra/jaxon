@@ -5,7 +5,7 @@ defmodule Jaxon.MixProject do
     [
       app: :jaxon,
       name: "Jaxon",
-      version: "1.0.8",
+      version: "1.0.9",
       elixir: "~> 1.6",
       compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
