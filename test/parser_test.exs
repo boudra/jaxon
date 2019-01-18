@@ -4,7 +4,7 @@ defmodule ParseTest do
   doctest Parser
 
   @tests [
-    {~s({ "name": "john", "test": {"number": 5.1}, "tags":[null,true,true,1]}),
+    {~s({ "name": "john", "test": {"number": 5.1}, "tags":[null,true,false,1]}),
      [
        :start_object,
        {:string, "name"},
@@ -26,7 +26,7 @@ defmodule ParseTest do
        :comma,
        {:boolean, true},
        :comma,
-       {:boolean, true},
+       {:boolean, false},
        :comma,
        {:integer, 1},
        :end_array,
