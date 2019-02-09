@@ -54,6 +54,10 @@ void parse_number(decoder_t* d, json_event_t* e) {
         return;
     }
 
+    if(buf == limit) {
+        goto done;
+    }
+
     if(*buf == '0' && buf + 1 < limit && is_digit(*(buf+1))) {
         syntax_error(d, e);
         return;
