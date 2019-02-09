@@ -52,6 +52,10 @@ defmodule Jaxon.ParseError do
     msg
   end
 
+  def message(%{unexpected: {:error, context}}) do
+    "Syntax error at `#{context}`"
+  end
+
   def message(%{unexpected: unexpected, expected: []}) do
     "Unexpected #{event_to_pretty_name(unexpected)}"
   end
