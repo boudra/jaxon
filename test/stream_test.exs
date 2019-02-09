@@ -20,7 +20,7 @@ defmodule JaxonEventStreamTest do
 
   @json_stream ~s(
     {
-      "numbers": [1,2],
+      "numbers": [1,2,-1],
       "empty_array": [],
       "empty_object": {},
       "bool1": true,
@@ -51,8 +51,8 @@ defmodule JaxonEventStreamTest do
       assert [1] == query(stream, "$.numbers[0]")
       assert [nil] == query(stream, "$.null")
       assert [2] == query(stream, "$.numbers[1]")
-      assert [[1, 2]] == query(stream, "$.numbers")
-      assert [1, 2] == query(stream, "$.numbers[*]")
+      assert [[1, 2, -1]] == query(stream, "$.numbers")
+      assert [1, 2, -1] == query(stream, "$.numbers[*]")
       assert ["Keanu Reeves"] == query(stream, "$.person.name")
       assert [%{"name" => "The Matrix"}] == query(stream, "$.person.movies[1]")
       assert ["Speed"] == query(stream, "$.person.movies[0].name")
@@ -68,7 +68,7 @@ defmodule JaxonEventStreamTest do
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
 
-    assert Enum.take(Elixir.Stream.cycle([1, 2]), 30) == result
+    assert Enum.take(Elixir.Stream.cycle([1, 2, -1]), 30) == result
   end
 
   test "multiple JSON doucuments in a stream chunk" do
@@ -77,7 +77,7 @@ defmodule JaxonEventStreamTest do
       |> Stream.query([:root, "numbers", :all])
       |> Enum.to_list()
 
-    assert [1, 2, 1, 2] == result
+    assert [1, 2, -1, 1, 2, -1] == result
   end
 
   test "single values" do
