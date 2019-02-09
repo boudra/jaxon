@@ -5,7 +5,7 @@ defmodule Jaxon.MixProject do
     [
       app: :jaxon,
       name: "Jaxon",
-      version: "1.0.9",
+      version: "1.0.10",
       elixir: "~> 1.6",
       compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -15,7 +15,6 @@ defmodule Jaxon.MixProject do
       preferred_cli_env: [
         "bench.encode": :bench,
         "bench.decode": :bench,
-        docs: :docs,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
@@ -58,11 +57,11 @@ defmodule Jaxon.MixProject do
     [
       {:benchee, "~> 0.8", only: :bench},
       {:benchee_html, "~> 0.1", only: :bench},
-      {:poison, "~> 3.0", only: [:bench, :docs]},
+      {:poison, "~> 3.0", only: [:bench, :dev]},
       {:jason, "~> 1.0", only: :bench},
       {:jiffy, "~> 0.14", only: :bench},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:inch_ex, "~> 0.5", only: :docs},
+      {:inch_ex, "~> 0.5", only: :dev},
       {:elixir_make, "~> 0.4", runtime: false},
       {:excoveralls, "~> 0.8", only: :test}
     ]
