@@ -11,7 +11,7 @@ defmodule JaxonPathTest do
     assert encode!([:root, :all]) == "$[*]"
     assert encode!([:root, :all, :all]) == "$[*][*]"
     assert encode!([:root, "$", :all]) == "$.\"$\"[*]"
-    assert encode!([:root, "", :all]) == "$[*]"
+    assert encode!([:root, "", :all]) == ~s($.""[*])
 
     assert_raise(EncodeError, "`:whoops` is not a valid JSON path segment", fn ->
       encode!([:root, :whoops, "test", 0])
@@ -26,6 +26,7 @@ defmodule JaxonPathTest do
     assert parse!("$.\"nested\"[0]") == [:root, "nested", 0]
     assert parse!("$.\"nested\".0") == [:root, "nested", "0"]
     assert parse!("$.\"$\".0") == [:root, "$", "0"]
+    assert parse!(~s($.""[0])) == [:root, "", 0]
 
     assert_raise(ParseError, ~r/Ending quote not found.*/, fn ->
       parse!("$.\"nested.0")
