@@ -63,6 +63,7 @@ defmodule JaxonTest do
   test "objects" do
     assert decode!(~s({})) == %{}
     assert decode!(~s({"number": 2})) == %{"number" => 2}
+    assert decode!(~s({"": 2})) == %{"" => 2}
     assert decode!(~s({"nested": {}})) == %{"nested" => %{}}
     assert decode!(~s({"nested": {"nested": 2}})) == %{"nested" => %{"nested" => 2}}
   end

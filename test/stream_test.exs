@@ -24,6 +24,7 @@ defmodule JaxonEventStreamTest do
       "empty_array": [],
       "empty_object": {},
       "bool1": true,
+      "": "empty",
       "bool2": false,
       "null": null,
       "person": {
@@ -49,6 +50,7 @@ defmodule JaxonEventStreamTest do
       stream = Util.chunk_binary(@json_stream, chunk_size)
 
       assert [1] == query(stream, "$.numbers[0]")
+      assert ["empty"] == query(stream, ~s($.""))
       assert [nil] == query(stream, "$.null")
       assert [2] == query(stream, "$.numbers[1]")
       assert [[1, 2, -1]] == query(stream, "$.numbers")

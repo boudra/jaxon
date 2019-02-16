@@ -210,6 +210,10 @@ defmodule Jaxon.Path do
     "[#{i}]"
   end
 
+  defp do_encode_segment("") do
+    ~s("")
+  end
+
   defp do_encode_segment(s) when is_binary(s) do
     if(String.contains?(s, ["*", "$", "]", "[", ".", "\""])) do
       "\"#{String.replace(s, "\"", "\\\"")}\""
