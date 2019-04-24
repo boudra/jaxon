@@ -1,5 +1,6 @@
 defmodule Jaxon.Stream do
   alias Jaxon.{Path, Parser, ParseError, Decoder}
+  alias Jaxon.Decoders.SkipDecoder
 
   @doc """
 
@@ -16,6 +17,11 @@ defmodule Jaxon.Stream do
   ["Jose"]
   ```
   """
+
+  @spec values(Stream.t()) :: Stream.t()
+  def values(bin_stream) do
+    Jaxon.Decoders.ValuesDecoder.stream(bin_stream)
+  end
 
   @spec query(Stream.t(), Path.t()) :: Stream.t()
   def query(bin_stream, [:root | rest]) do
@@ -73,6 +79,10 @@ defmodule Jaxon.Stream do
     query_array(query, acc, 0, events)
   end
 
+  def query_value([:all | query], acc, events = [:start_object | _]) do
+    skip_value(SkipDecoder.events_to_value(events), query, acc)
+  end
+
   def query_value(query, acc, [:start_object | events]) do
     query_object(query, acc, events)
   end
@@ -87,6 +97,19 @@ defmodule Jaxon.Stream do
 
   def query_value(_query, _acc, [event | _events]) do
     {:error, ParseError.unexpected_event(event, [:value])}
+  end
+
+
+  defp skip_value({:ok, events}, query, acc) do
+    query_value(query, acc, events)
+  end
+
+  defp skip_value({:yield, tail, inner}, query, acc) do
+    {:yield, tail, &skip_value(inner.(&1), query, acc)}
+  end
+
+  defp skip_value(other, _, _) do
+    other
   end
 
   defp append_value({:ok, value, rest}, acc) do
@@ -117,7 +140,7 @@ defmodule Jaxon.Stream do
     other
   end
 
-  defp skip_array_value({:ok, _, events}, query, acc, key) do
+  defp skip_array_value({:ok, events}, query, acc, key) do
     query_array(query, acc, key + 1, events)
   end
 
@@ -162,7 +185,7 @@ defmodule Jaxon.Stream do
   end
 
   defp query_array_value(query, acc, key, events) do
-    skip_array_value(Decoder.events_to_value(events), query, acc, key)
+    skip_array_value(SkipDecoder.events_to_value(events), query, acc, key)
   end
 
   defp append_object_value({:ok, acc, events}, query, _) do
@@ -177,7 +200,7 @@ defmodule Jaxon.Stream do
     other
   end
 
-  defp skip_object_value({:ok, _, events}, query, acc) do
+  defp skip_object_value({:ok, events}, query, acc) do
     query_object(query, acc, events)
   end
 
@@ -217,7 +240,7 @@ defmodule Jaxon.Stream do
 
   defp query_object(query, acc, [{:string, _key} | events]) do
     with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
-      skip_object_value(Decoder.events_to_value(events), query, acc)
+      skip_object_value(SkipDecoder.events_to_value(events), query, acc)
     end
   end
 
