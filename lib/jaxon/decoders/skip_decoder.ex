@@ -9,7 +9,7 @@ defmodule Jaxon.Decoders.SkipDecoder do
     events_to_array(events)
   end
 
-  def events_to_value([{event, value} | events])
+  def events_to_value([{event, _} | events])
   when event in [:string, :decimal, :integer, :boolean] do
     {:ok, events}
   end
@@ -18,11 +18,11 @@ defmodule Jaxon.Decoders.SkipDecoder do
     {:ok, events}
   end
 
-  def events_to_value([{:incomplete, {:decimal, value}, _}, :end_stream]) do
+  def events_to_value([{:incomplete, {:decimal, _}, _}, :end_stream]) do
     {:ok, [:end_stream]}
   end
 
-  def events_to_value([{:incomplete, {:integer, value}, _}, :end_stream]) do
+  def events_to_value([{:incomplete, {:integer, _}, _}, :end_stream]) do
     {:ok, [:end_stream]}
   end
 
@@ -125,7 +125,7 @@ defmodule Jaxon.Decoders.SkipDecoder do
     {:yield, "", &events_to_object_key_value([{:string, key} | &1])}
   end
 
-  defp events_to_object_key_value([{:string, key} | rest]) do
+  defp events_to_object_key_value([{:string, _} | rest]) do
     with {:ok, rest} <- events_expect(rest, :colon) do
       add_value_to_object(events_to_value(rest))
     end
@@ -153,9 +153,5 @@ defmodule Jaxon.Decoders.SkipDecoder do
 
   defp events_to_object(events) do
     events_to_object_key_value(events)
-  end
-
-  defp events_to_object([event | _]) do
-    parse_error(event, [:key, :end_object, :comma])
   end
 end
