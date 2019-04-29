@@ -74,6 +74,8 @@ defmodule Jaxon.Stream do
   end
 
   def query_value(query, acc, [:start_object | events]) do
+    IO.puts("query #{inspect(query)}")
+    IO.puts("acc #{inspect(acc)}")
     query_object(query, acc, events)
   end
 
