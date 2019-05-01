@@ -209,6 +209,15 @@ defmodule Jaxon.Stream do
     {:yield, "", &query_object(query, acc, [{:string, key} | &1])}
   end
 
+  defp query_object(query = [:all | rest_query], acc, [{:string, key} | events]) do
+    with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
+      new_key = [{:string, "object_key_id"}, :colon, {:string, key}]
+      [start_object | rest] = events
+      events = [start_object] ++ new_key ++ rest
+      append_object_value(query_value(rest_query, acc, events), query, acc)
+    end
+  end
+
   defp query_object([key | query], acc, [{:string, key} | events]) do
     with {:ok, events, acc} <- Decoder.events_expect(events, :colon, acc) do
       append_object_value(query_value(query, acc, events), query, acc)
