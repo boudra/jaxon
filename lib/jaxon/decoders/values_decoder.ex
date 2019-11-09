@@ -26,7 +26,7 @@ defmodule Jaxon.Decoders.ValuesDecoder do
     do_stream_value(events, [], [])
   end
 
-  def do_resume_stream_values(events, fun, acc) do
+  defp do_resume_stream_values(events, fun, acc) do
     events
     |> fun.()
     |> case do
@@ -194,15 +194,15 @@ defmodule Jaxon.Decoders.ValuesDecoder do
 
   # Helpers
 
-  def events_expect([event | events], event) do
+  defp events_expect([event | events], event) do
     {:ok, events}
   end
 
-  def events_expect([{event, _} | _], expected) do
+  defp events_expect([{event, _} | _], expected) do
     {:error, ParseError.unexpected_event(event, [expected])}
   end
 
-  def events_expect([event | _], expected) do
+  defp events_expect([event | _], expected) do
     {:error, ParseError.unexpected_event(event, [expected])}
   end
 end

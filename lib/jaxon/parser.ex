@@ -32,4 +32,7 @@ defmodule Jaxon.Parser do
 
   @spec parse(String.t()) :: [Jaxon.Event.t()]
   defdelegate parse(events), to: @parser
+
+  @spec parse(String.t(), [Jaxon.Event.t()]) :: [Jaxon.Event.t()]
+  defdelegate parse(events, tail), to: @parser
 end

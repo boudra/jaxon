@@ -37,9 +37,11 @@ defmodule Jaxon.Stream do
     |> Stream.transform({"", initial_fun}, fn chunk, {tail, fun} ->
       chunk = tail <> chunk
 
-      chunk
-      |> Parser.parse()
-      |> call_decode_fun([], initial_fun, fun)
+      events =
+        chunk
+        |> Parser.parse()
+
+      call_decode_fun(events, [], initial_fun, fun)
     end)
   end
 
@@ -48,16 +50,16 @@ defmodule Jaxon.Stream do
     |> fun.()
     |> case do
       {:yield, tail, fun} when is_binary(tail) ->
-        {records, {tail, fun}}
+        {:lists.reverse(records), {tail, fun}}
 
       {:yield, new_records, fun} ->
-        {records ++ new_records, {"", fun}}
+        {:lists.reverse(new_records ++ records), {"", fun}}
 
       {:ok, new_records, []} ->
-        {records ++ new_records, {"", initial_fun}}
+        {:lists.reverse(new_records ++ records), {"", initial_fun}}
 
       {:ok, new_records, events} ->
-        call_decode_fun(events, records ++ new_records, initial_fun, initial_fun)
+        call_decode_fun(events, new_records ++ records, initial_fun, initial_fun)
 
       {:error, error} when is_binary(error) ->
         raise ParseError.syntax_error(error)
@@ -113,7 +115,7 @@ defmodule Jaxon.Stream do
   end
 
   defp append_value({:ok, value, rest}, acc) do
-    {:ok, acc ++ [value], rest}
+    {:ok, [value | acc], rest}
   end
 
   defp append_value({:yield, "", inner}, acc) do

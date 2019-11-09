@@ -44,7 +44,7 @@ defmodule Jaxon.Decoder do
   end
 
   def events_to_value([:start_object | events]) do
-    events_to_object(events, %{})
+    events_to_object(events, [])
   end
 
   def events_to_value([:start_array | events]) do
@@ -100,6 +100,7 @@ defmodule Jaxon.Decoder do
      }}
   end
 
+  @compile {:inline, events_expect: 3}
   def events_expect([event | events], event, state) do
     {:ok, events, state}
   end
@@ -113,7 +114,7 @@ defmodule Jaxon.Decoder do
   end
 
   defp events_to_array([:end_array | events], array) do
-    {:ok, array, events}
+    {:ok, :lists.reverse(array), events}
   end
 
   defp events_to_array([:comma | events], array = [_ | _]) do
@@ -135,7 +136,7 @@ defmodule Jaxon.Decoder do
   end
 
   defp add_value_to_array({:ok, value, rest}, array) do
-    events_to_array(rest, array ++ [value])
+    events_to_array(rest, [value | array])
   end
 
   defp add_value_to_array(t = {:yield, _, inner}, array) do
@@ -149,7 +150,7 @@ defmodule Jaxon.Decoder do
   end
 
   defp add_value_to_object({:ok, value, rest}, key, object) do
-    events_to_object(rest, Map.put(object, key, value))
+    events_to_object(rest, [{key, value} | object])
   end
 
   defp add_value_to_object(t = {:yield, _, inner}, key, object) do
@@ -184,23 +185,19 @@ defmodule Jaxon.Decoder do
     parse_error(event, [:key])
   end
 
-  defp events_to_object([:comma | events], object) when map_size(object) > 0 do
+  defp events_to_object([:comma | events], object = [_|_]) do
     events_to_object_key_value(events, object)
   end
 
   defp events_to_object([:end_object | events], object) do
-    {:ok, object, events}
+    {:ok, :maps.from_list(object), events}
   end
 
   defp events_to_object([], object) do
     {:yield, "", &events_to_object(&1, object)}
   end
 
-  defp events_to_object(events, object = %{}) do
+  defp events_to_object(events, object) do
     events_to_object_key_value(events, object)
-  end
-
-  defp events_to_object([event | _], _) do
-    parse_error(event, [:key, :end_object, :comma])
   end
 end

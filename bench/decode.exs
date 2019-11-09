@@ -15,7 +15,8 @@ decode_inputs = [
   "JSON Generator (Pretty)",
   "UTF-8 escaped",
   "UTF-8 unescaped",
-  "Issue 90"
+  "Issue 90",
+  "Yelp Photos"
 ]
 
 read_data = fn name ->
@@ -34,7 +35,7 @@ Benchee.run(
   decode_jobs,
   parallel: 1,
   warmup: 2,
-  time: 5,
+  time: 4,
   inputs: inputs,
   formatters: [
     &Benchee.Formatters.HTML.output/1,

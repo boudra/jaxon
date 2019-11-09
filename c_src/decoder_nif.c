@@ -142,7 +142,8 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
     struct timespec start, last, now, tmp;
     decoder_t decoder;
     ErlNifBinary input, input_copy_bin;
-    size_t event_terms_count = 0, event_terms_allocated = 8192;
+    size_t event_terms_allocated = 4096;
+    size_t event_terms_index = event_terms_allocated;
     ERL_NIF_TERM stack_terms[event_terms_allocated];
     ERL_NIF_TERM *event_terms = &stack_terms[0];
     json_event_t event ;
@@ -175,6 +176,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
 
             double since_start = timespec_to_ms(&now) - timespec_to_ms(&start);
 
+
             if(since_start > 1.0) {
                 binary =
                     enif_make_sub_binary(
@@ -187,24 +189,27 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                 return enif_make_tuple3(
                         env,
                         data->nif_yield,
-                        enif_make_list_from_array(env, event_terms, event_terms_count),
+                        enif_make_list_from_array(env, &stack_terms[event_terms_index], event_terms_allocated - event_terms_index),
                         binary
                         );
             }
         }
 
-        if(event_terms_count == event_terms_allocated) {
-            event_terms_allocated *= 2;
+        if(event_terms_index == 0) {
+            binary =
+                enif_make_sub_binary(
+                        env,
+                        input_copy,
+                        (decoder.cursor - buffer),
+                        (buffer + input.size) - decoder.cursor
+                        );
 
-            if(event_terms == &stack_terms[0]) {
-                event_terms =
-                    malloc(sizeof(ERL_NIF_TERM) * event_terms_allocated);
-
-                memcpy(event_terms, &stack_terms[0], sizeof(stack_terms));
-            } else {
-                event_terms =
-                    realloc(event_terms, sizeof(ERL_NIF_TERM) * event_terms_allocated);
-            }
+            return enif_make_tuple3(
+                    env,
+                    data->nif_yield,
+                    enif_make_list_from_array(env, &stack_terms[event_terms_index], event_terms_allocated - event_terms_index),
+                    binary
+                    );
         }
 
         decode(&decoder, &event);
@@ -216,7 +221,7 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                     uint8_t* unescaped =
                         enif_make_new_binary(env, event.value.string.size, &unescaped_binary);
 
-                    uint8_t* string_end =
+                    const uint8_t* string_end =
                         unescape_unicode(event.value.string.buffer, unescaped, event.value.string.buffer + event.value.string.size);
 
                     binary = enif_make_sub_binary(env, unescaped_binary, 0, string_end - unescaped);
@@ -294,10 +299,10 @@ ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
                 break;
         }
 
-        event_terms[event_terms_count++] = ret;
+        event_terms[--event_terms_index] = ret;
     }
 
-    return enif_make_list_from_array(env, event_terms, event_terms_count);
+    return enif_make_list_from_array(env, &stack_terms[event_terms_index], event_terms_allocated - event_terms_index);
 }
 
 static ErlNifFunc nif_exports[] = {
