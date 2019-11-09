@@ -118,4 +118,5 @@ defmodule JaxonEventStreamTest do
       |> Enum.to_list()
     end
   end
+
 end

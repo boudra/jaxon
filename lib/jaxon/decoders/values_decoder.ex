@@ -37,7 +37,7 @@ defmodule Jaxon.Decoders.ValuesDecoder do
         do_resume_stream_values(events, &initial_fun/1, acc ++ values)
 
       {:yield, values, tail, fun} ->
-        {values, {tail, fun}}
+        {acc ++ values, {tail, fun}}
 
       {:error, error} when is_binary(error) ->
         raise ParseError.syntax_error(error)
