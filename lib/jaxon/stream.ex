@@ -101,7 +101,6 @@ defmodule Jaxon.Stream do
     {:error, ParseError.unexpected_event(event, [:value])}
   end
 
-
   defp skip_value({:ok, events}, query, acc) do
     query_value(query, acc, events)
   end

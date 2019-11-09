@@ -185,7 +185,7 @@ defmodule Jaxon.Decoder do
     parse_error(event, [:key])
   end
 
-  defp events_to_object([:comma | events], object = [_|_]) do
+  defp events_to_object([:comma | events], object = [_ | _]) do
     events_to_object_key_value(events, object)
   end
 

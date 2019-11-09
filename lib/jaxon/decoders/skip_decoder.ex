@@ -10,7 +10,7 @@ defmodule Jaxon.Decoders.SkipDecoder do
   end
 
   def events_to_value([{event, _} | events])
-  when event in [:string, :decimal, :integer, :boolean] do
+      when event in [:string, :decimal, :integer, :boolean] do
     {:ok, events}
   end
 
@@ -52,10 +52,10 @@ defmodule Jaxon.Decoders.SkipDecoder do
 
   defp parse_error(got, expected) do
     {:error,
-      %ParseError{
-        unexpected: got,
-        expected: expected
-      }}
+     %ParseError{
+       unexpected: got,
+       expected: expected
+     }}
   end
 
   def events_expect([event | events], event) do

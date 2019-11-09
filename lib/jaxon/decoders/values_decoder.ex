@@ -31,13 +31,13 @@ defmodule Jaxon.Decoders.ValuesDecoder do
     |> fun.()
     |> case do
       {:ok, values, []} ->
-        {acc ++ values, {"", &initial_fun/1}}
+        {:lists.reverse(values ++ acc), {"", &initial_fun/1}}
 
       {:ok, values, events} ->
-        do_resume_stream_values(events, &initial_fun/1, acc ++ values)
+        do_resume_stream_values(events, &initial_fun/1, values ++ acc)
 
       {:yield, values, tail, fun} ->
-        {acc ++ values, {tail, fun}}
+        {:lists.reverse(values ++ acc), {tail, fun}}
 
       {:error, error} when is_binary(error) ->
         raise ParseError.syntax_error(error)
@@ -48,28 +48,28 @@ defmodule Jaxon.Decoders.ValuesDecoder do
   end
 
   defp do_stream_value([:start_object | events], path, acc) do
-    events_to_object(events, path, acc ++ [{path, :start_object}])
+    events_to_object(events, path, [{path, :start_object} | acc])
   end
 
   defp do_stream_value([:start_array | events], path, acc) do
-    events_to_array(events, 0, path, acc ++ [{path, :start_array}])
+    events_to_array(events, 0, path, [{path, :start_array} | acc])
   end
 
   defp do_stream_value([{event, value} | events], path, acc)
        when event in [:string, :decimal, :integer, :boolean] do
-    {:ok, acc ++ [{path, value}], events}
+    {:ok, [{path, value} | acc], events}
   end
 
   defp do_stream_value([nil | events], path, acc) do
-    {:ok, acc ++ [{path, nil}], events}
+    {:ok, [{path, nil} | acc], events}
   end
 
   defp do_stream_value([{:incomplete, {:decimal, value}, _}, :end_stream], [], acc) do
-    {:ok, acc ++ [{[], value}], []}
+    {:ok, [{[], value} | acc], []}
   end
 
   defp do_stream_value([{:incomplete, {:integer, value}, _}, :end_stream], [], acc) do
-    {:ok, acc ++ [{[], value}], []}
+    {:ok, [{[], value} | acc], []}
   end
 
   defp do_stream_value([{:incomplete, {:decimal, _}, tail}], path, acc) do
@@ -151,7 +151,7 @@ defmodule Jaxon.Decoders.ValuesDecoder do
   end
 
   defp events_to_object([:end_object | events], path, acc) do
-    {:ok, acc ++ [{path, :end}], events}
+    {:ok, [{path, :end} | acc], events}
   end
 
   defp events_to_object([], path, acc) do
@@ -181,7 +181,7 @@ defmodule Jaxon.Decoders.ValuesDecoder do
   end
 
   defp events_to_array([:end_array | events], _, path, acc) do
-    {:ok, acc ++ [{path, :end}], events}
+    {:ok, [{path, :end} | acc], events}
   end
 
   defp events_to_array([], index, path, acc) do
