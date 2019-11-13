@@ -29,6 +29,9 @@ defmodule Jaxon.Stream do
   @spec query(event_stream(), [Path.t()]) :: term_stream()
   defdelegate query(event_stream, query), to: Decoders.Query
 
+  @spec values(event_stream()) :: term_stream()
+  defdelegate values(event_stream), to: Decoders.Values
+
   @doc """
   Transform a binary stream into a stream of events.
 
