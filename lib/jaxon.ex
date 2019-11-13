@@ -3,6 +3,17 @@ defmodule Jaxon do
   Main Jaxon module.
   """
 
+  @type json_term() ::
+          nil
+          | true
+          | false
+          | list
+          | float
+          | integer
+          | String.t()
+          | map
+          | [json_term()]
+
   @doc """
   Decode a string.
 
@@ -13,9 +24,9 @@ defmodule Jaxon do
   """
   @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
   def decode(binary) do
-    binary
-    |> Jaxon.Parser.parse([:end_stream])
-    |> Jaxon.Decoder.events_to_term()
+    with {:ok, events} <- Jaxon.Parser.parse(binary, allow_incomplete: false) do
+      Jaxon.Decoders.Value.decode(events)
+    end
   end
 
   @doc """
@@ -27,7 +38,7 @@ defmodule Jaxon do
   ```
   """
   @spec decode!(String.t()) :: Jaxon.Decoder.json_term() | no_return()
-  def(decode!(binary)) do
+  def decode!(binary) do
     case decode(binary) do
       {:ok, term} -> term
       {:error, err} -> raise err

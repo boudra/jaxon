@@ -51,12 +51,31 @@ defmodule Jaxon.Parsers.NifParser do
     end
   end
 
-  @spec parse(String.t()) :: [Jaxon.Event.t()]
-  def parse(binary) do
-    do_parse(binary, []) |> :lists.reverse()
-  end
+  def parse(binary, opts) do
+    allow_incomplete = Keyword.get(opts, :allow_incomplete, true)
 
-  def parse(binary, tail) do
-    do_parse(binary, []) |> :lists.reverse(tail)
+    case {allow_incomplete, do_parse(binary, [])} do
+      {true, [{:incomplete, tail} | events]} ->
+        {:incomplete, :lists.reverse(events), tail}
+
+      {true, [{:incomplete, _, tail} | events]} ->
+        {:incomplete, :lists.reverse(events), tail}
+
+      {false, [{:incomplete, event, _} | events]} ->
+        {:ok, :lists.reverse(events, [event])}
+
+      {false, [err = {:incomplete, _} | _]} ->
+        {:error,
+         %Jaxon.ParseError{
+           unexpected: err,
+           expected: [:string]
+         }}
+
+      {_, [err = {:error, _} | _]} ->
+        {:error, %Jaxon.ParseError{unexpected: err}}
+
+      {_, events} ->
+        {:ok, :lists.reverse(events)}
+    end
   end
 end

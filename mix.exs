@@ -60,6 +60,7 @@ defmodule Jaxon.MixProject do
       {:poison, ">= 0.0.0", only: [:bench, :dev]},
       {:jason, ">= 0.0.0", only: :bench},
       {:jiffy, ">= 0.0.0", only: :bench},
+      {:flow, ">= 0.0.0", only: [:bench, :test]},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:inch_ex, "~> 0.5", only: :dev},
       {:elixir_make, "~> 0.4", runtime: false},

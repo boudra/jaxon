@@ -40,6 +40,7 @@ defmodule JaxonEventStreamTest do
 
   def query(stream, query) do
     stream
+    |> Stream.from_enumerable()
     |> Stream.query(Jaxon.Path.parse!(query))
     |> Enum.to_list()
   end
@@ -66,6 +67,7 @@ defmodule JaxonEventStreamTest do
     result =
       [@json_stream]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "numbers", :all])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -76,6 +78,7 @@ defmodule JaxonEventStreamTest do
   test "multiple JSON doucuments in a stream chunk" do
     result =
       ["#{@json_stream}\n#{@json_stream}"]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "numbers", :all])
       |> Enum.to_list()
 
@@ -86,6 +89,7 @@ defmodule JaxonEventStreamTest do
     result =
       ["42\n"]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -95,6 +99,7 @@ defmodule JaxonEventStreamTest do
     result =
       [~s({"key":true}\n)]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -105,6 +110,7 @@ defmodule JaxonEventStreamTest do
   test "it doesn't error when incomplete JSON is streamed" do
     result =
       [~s([{"numbers":[1,2],"key":"hello")]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, :all, "key"])
       |> Enum.to_list()
 
@@ -114,8 +120,17 @@ defmodule JaxonEventStreamTest do
   test "stream syntax error" do
     assert_raise Jaxon.ParseError, fn ->
       [~s(wrong)]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "key"])
       |> Enum.to_list()
     end
+  end
+
+  test "query stream" do
+    Util.chunk_binary(@json_stream, 4)
+    |> Jaxon.Stream.from_enumerable()
+    |> Jaxon.Stream.query([:root, "numbers", 2])
+    |> Enum.to_list()
+    |> IO.inspect()
   end
 end

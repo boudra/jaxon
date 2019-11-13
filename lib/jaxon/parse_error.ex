@@ -7,6 +7,10 @@ defmodule Jaxon.ParseError do
     event_to_pretty_name(event)
   end
 
+  defp event_to_pretty_name({:incomplete, str}) do
+    "incomplete string `#{String.slice(str, 0..15)}`"
+  end
+
   defp event_to_pretty_name({event, _}) do
     event_to_pretty_name(event)
   end
