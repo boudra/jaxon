@@ -60,7 +60,7 @@ defmodule Jaxon.Stream do
     end)
   end
 
-  @spec from_binary(String.t()) :: event_stream()
+  @spec from_binary(String.t()) :: event_stream() | no_return()
   def from_binary(bin) do
     case Parser.parse(bin, allow_incomplete: false) do
       {:ok, events} ->
