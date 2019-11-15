@@ -31,16 +31,12 @@ defmodule Jaxon.Parsers.NifParser do
     ])
   end
 
-  @spec parse_nif(String.t()) :: [Jaxon.Event.t()]
+  @spec parse_nif(String.t()) :: [Jaxon.Event.t()] | {:yield, [Jaxon.Event.t()], String.t()} | no_return()
   defp parse_nif(_) do
-    raise "Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled"
+    :erlang.nif_error("Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled")
   end
 
-  #  :start_array, start object
-  #  "business_id" 2
-  #
-  # 2 business object arrray
-
+  @spec do_parse(String.t(), [Jaxon.Event.t()]) :: [Jaxon.Event.t()]
   defp do_parse(binary, acc) do
     case parse_nif(binary) do
       {:yield, events, tail} ->

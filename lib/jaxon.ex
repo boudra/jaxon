@@ -22,7 +22,7 @@ defmodule Jaxon do
   {:ok, %{"array" => [1, 2], "jaxon" => "rocks"}}
   ```
   """
-  @spec decode(String.t()) :: {:ok, Jaxon.Decoder.json_term()} | {:error, %Jaxon.ParseError{}}
+  @spec decode(String.t()) :: {:ok, Jaxon.json_term()} | {:error, %Jaxon.ParseError{}}
   def decode(binary) do
     with {:ok, events} <- Jaxon.Parser.parse(binary, allow_incomplete: false) do
       Jaxon.Decoders.Value.decode(events)
@@ -37,7 +37,7 @@ defmodule Jaxon do
   %{"array" => [1, 2], "jaxon" => "rocks"}
   ```
   """
-  @spec decode!(String.t()) :: Jaxon.Decoder.json_term() | no_return()
+  @spec decode!(String.t()) :: Jaxon.json_term() | no_return()
   def decode!(binary) do
     case decode(binary) do
       {:ok, term} -> term
