@@ -17,13 +17,13 @@ defmodule Jaxon.Decoders.Values do
     |> fun.()
     |> case do
       {:ok, values, []} ->
-        {:lists.reverse(values ++ acc), {"", &initial_fun/1}}
+        {:lists.reverse(values ++ acc), &initial_fun/1}
 
       {:ok, values, events} ->
         do_resume_stream_values(events, &initial_fun/1, values ++ acc)
 
-      {:yield, values, tail, fun} ->
-        {:lists.reverse(values ++ acc), {tail, fun}}
+      {:yield, values, fun} ->
+        {:lists.reverse(values ++ acc), fun}
 
       {:error, error} when is_binary(error) ->
         raise ParseError.syntax_error(error)
@@ -50,32 +50,8 @@ defmodule Jaxon.Decoders.Values do
     {:ok, [{path, nil} | acc], events}
   end
 
-  defp do_stream_value([{:incomplete, {:decimal, value}, _}, :end_stream], [], acc) do
-    {:ok, [{[], value} | acc], []}
-  end
-
-  defp do_stream_value([{:incomplete, {:integer, value}, _}, :end_stream], [], acc) do
-    {:ok, [{[], value} | acc], []}
-  end
-
-  defp do_stream_value([{:incomplete, {:decimal, _}, tail}], path, acc) do
-    {:yield, acc, tail, &do_stream_value(&1, path, [])}
-  end
-
-  defp do_stream_value([{:incomplete, {:integer, _}, tail}], path, acc) do
-    {:yield, acc, tail, &do_stream_value(&1, path, [])}
-  end
-
-  defp do_stream_value([{:incomplete, tail}], path, acc) do
-    {:yield, acc, tail, &do_stream_value(&1, path, [])}
-  end
-
-  defp do_stream_value([:end_stream], _, acc) do
-    {:ok, acc, []}
-  end
-
   defp do_stream_value([], path, acc) do
-    {:yield, acc, "", &do_stream_value(&1, path, [])}
+    {:yield, acc, &do_stream_value(&1, path, [])}
   end
 
   defp do_stream_value([{:incomplete, _}, :end_stream], _, _) do
@@ -92,20 +68,16 @@ defmodule Jaxon.Decoders.Values do
     events_to_object(rest, path, acc)
   end
 
-  defp add_value_to_object({:yield, acc, tail, inner}, path) do
-    {:yield, acc, tail, &add_value_to_object(inner.(&1), path)}
+  defp add_value_to_object({:yield, acc, inner}, path) do
+    {:yield, acc, &add_value_to_object(inner.(&1), path)}
   end
 
   defp add_value_to_object(result, _) do
     result
   end
 
-  defp events_to_object_key_value([{:incomplete, tail}], path, acc) do
-    {:yield, acc, tail, &events_to_object_key_value(&1, path, [])}
-  end
-
   defp events_to_object_key_value([{:string, key}], path, acc) do
-    {:yield, acc, "", &events_to_object_key_value([{:string, key} | &1], path, [])}
+    {:yield, acc, &events_to_object_key_value([{:string, key} | &1], path, [])}
   end
 
   defp events_to_object_key_value([{:string, key} | rest], path, acc) do
@@ -117,7 +89,7 @@ defmodule Jaxon.Decoders.Values do
   end
 
   defp events_to_object_key_value([], path, acc) do
-    {:yield, acc, "", &events_to_object_key_value(&1, path, [])}
+    {:yield, acc, &events_to_object_key_value(&1, path, [])}
   end
 
   defp events_to_object_key_value([event | _], _, _) do
@@ -141,7 +113,7 @@ defmodule Jaxon.Decoders.Values do
   end
 
   defp events_to_object([], path, acc) do
-    {:yield, acc, "", &events_to_object(&1, path, [])}
+    {:yield, acc, &events_to_object(&1, path, [])}
   end
 
   defp events_to_object([event | _], _, _) do
@@ -154,8 +126,8 @@ defmodule Jaxon.Decoders.Values do
     events_to_array(rest, index, path, acc)
   end
 
-  defp add_value_to_array({:yield, acc, tail, inner}, index, path) do
-    {:yield, acc, tail, &add_value_to_array(inner.(&1), index, path)}
+  defp add_value_to_array({:yield, acc, inner}, index, path) do
+    {:yield, acc, &add_value_to_array(inner.(&1), index, path)}
   end
 
   defp add_value_to_array(result, _, _) do
@@ -171,7 +143,7 @@ defmodule Jaxon.Decoders.Values do
   end
 
   defp events_to_array([], index, path, acc) do
-    {:yield, acc, "", &events_to_array(&1, index, path, [])}
+    {:yield, acc, &events_to_array(&1, index, path, [])}
   end
 
   defp events_to_array(events, index, path, acc) do

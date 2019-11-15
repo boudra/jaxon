@@ -131,6 +131,47 @@ defmodule JaxonEventStreamTest do
     |> Jaxon.Stream.from_enumerable()
     |> Jaxon.Stream.query([:root, "numbers", 2])
     |> Enum.to_list()
-    |> IO.inspect()
+  end
+
+  test "value stream" do
+    expected = [
+      {[], :start_object},
+      {["numbers"], :start_array},
+      {["numbers", 0], 1},
+      {["numbers", 1], 2},
+      {["numbers", 2], -1},
+      {["numbers"], :end},
+      {["empty_array"], :start_array},
+      {["empty_array"], :end},
+      {["empty_object"], :start_object},
+      {["empty_object"], :end},
+      {["bool1"], true},
+      {[""], "empty"},
+      {["bool2"], false},
+      {["null"], nil},
+      {["person"], :start_object},
+      {["person", "name"], "Keanu Reeves"},
+      {["person", "decimal"], 0.2},
+      {["person", "unicode"], ")"},
+      {["person", "movies"], :start_array},
+      {["person", "movies", 0], :start_object},
+      {["person", "movies", 0, "name"], "Speed"},
+      {["person", "movies", 0], :end},
+      {["person", "movies", 1], :start_object},
+      {["person", "movies", 1, "name"], "The Matrix"},
+      {["person", "movies", 1], :end},
+      {["person", "movies"], :end},
+      {["person"], :end},
+      {[], :end}
+    ]
+
+    result =
+      @json_stream
+      |> Util.chunk_binary(20)
+      |> Jaxon.Stream.from_enumerable()
+      |> Jaxon.Stream.values()
+      |> Enum.to_list()
+
+    assert result == expected
   end
 end
