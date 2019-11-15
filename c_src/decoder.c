@@ -321,10 +321,6 @@ const uint8_t* parse_string(const uint8_t* buffer, const uint8_t* limit, size_t*
     static const uint8_t tokens[] __attribute__((aligned(16))) = "\t\n\\\"\0";
     int found = 0;
 
-    // hello
-    // 0
-    // 5
-
     while (buf < limit) {
         buf = find_char(buf, limit, tokens, sizeof(tokens), &found);
 
