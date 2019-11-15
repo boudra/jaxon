@@ -4,7 +4,7 @@ defmodule Jaxon.Decoders.Values do
   def values(event_stream) do
     event_stream
     |> Stream.transform(&initial_fun/1, fn events, fun ->
-        do_resume_stream_values(events, fun, [])
+      do_resume_stream_values(events, fun, [])
     end)
   end
 

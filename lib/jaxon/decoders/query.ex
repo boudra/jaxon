@@ -314,7 +314,7 @@ defmodule Jaxon.Decoders.Query do
     end
   end
 
-  #---- SKIP VALUE
+  # ---- SKIP VALUE
 
   defp skip([:end_object | e], [@skip | stack], path, acc, query) do
     skip(e, stack, path, acc, query)
