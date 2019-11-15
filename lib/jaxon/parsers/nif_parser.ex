@@ -31,7 +31,8 @@ defmodule Jaxon.Parsers.NifParser do
     ])
   end
 
-  @spec parse_nif(String.t()) :: [Jaxon.Event.t()] | {:yield, [Jaxon.Event.t()], String.t()} | no_return()
+  @spec parse_nif(String.t()) ::
+          [Jaxon.Event.t()] | {:yield, [Jaxon.Event.t()], String.t()} | no_return()
   defp parse_nif(_) do
     :erlang.nif_error("Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled")
   end
