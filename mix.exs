@@ -58,11 +58,12 @@ defmodule Jaxon.MixProject do
       {:benchee, "~> 0.8", only: :bench},
       {:benchee_html, "~> 0.1", only: :bench},
       {:poison, ">= 0.0.0", only: [:bench, :dev]},
-      {:jason, ">= 0.0.0", only: :bench},
+      {:jason, ">= 0.0.0", only: [:bench, :dev, :test]},
       {:jiffy, ">= 0.0.0", only: :bench},
       {:flow, ">= 0.0.0", only: [:bench, :test]},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:inch_ex, "~> 0.5", only: :dev},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
+      {:inch_ex, github: "rrrene/inch_ex", only: [:dev, :test]},
       {:elixir_make, "~> 0.4", runtime: false},
       {:excoveralls, "~> 0.8", only: :test}
     ]
