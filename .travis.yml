@@ -12,12 +12,6 @@ matrix:
       elixir: 1.8
     - otp_release: 21.3
       elixir: 1.7
-    - otp_release: 20.3
-      elixir: 1.6
-    - otp_release: 19.3
-      elixir: 1.5
-    - otp_release: 19.0
-      elixir: 1.4
 install:
   - mix local.rebar --force
   - mix local.hex --force
