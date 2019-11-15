@@ -18,14 +18,14 @@ matrix:
       elixir: 1.5
     - otp_release: 19.0
       elixir: 1.4
-before_script:
-  - MIX_ENV=test mix compile --warnings-as-errors
 install:
+  - mix local.rebar --force
   - mix local.hex --force
   - mix deps.get
 env:
   - MIX_ENV=test
 script:
+  - mix compile --warnings-as-errors
   - mix format --check-formatted --dry-run
   - mix coveralls.travis
   - mix dialyzer --halt-exit-status
