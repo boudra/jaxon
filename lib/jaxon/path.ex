@@ -233,44 +233,4 @@ defmodule Jaxon.Path do
   defp do_encode([h | t]) do
     append_segment(do_encode_segment(h), do_encode(t))
   end
-
-  def exact_match?([:root | expr], path) do
-    exact_match?(expr, path)
-  end
-
-  def exact_match?([:all | expr], [key | path]) when is_integer(key) do
-    exact_match?(expr, path)
-  end
-
-  def exact_match?([key | expr], [key | path]) do
-    exact_match?(expr, path)
-  end
-
-  def exact_match?([], []) do
-    true
-  end
-
-  def exact_match?(_, _) do
-    false
-  end
-
-  def partial_match?([:root | expr], path) do
-    partial_match?(expr, path)
-  end
-
-  def partial_match?([:all | expr], [key | path]) when is_integer(key) do
-    partial_match?(expr, path)
-  end
-
-  def partial_match?([key | expr], [key | path]) do
-    partial_match?(expr, path)
-  end
-
-  def partial_match?([], _) do
-    true
-  end
-
-  def partial_match?(_, _) do
-    false
-  end
 end
