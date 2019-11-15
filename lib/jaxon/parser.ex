@@ -33,6 +33,17 @@ defmodule Jaxon.Parser do
    :end_object
   ]}
   ```
+
+  ```
+  iex> Jaxon.Parser.parse(~s(2, 3  true null "incomplete string))
+  {:incomplete, [
+   {:integer, 2},
+   :comma,
+   {:integer, 3},
+   {:boolean, true},
+    nil,
+  ], "\"incomplete string"}
+  ```
   """
 
   @spec parse(String.t(), Keyword.t()) :: parse_return()
