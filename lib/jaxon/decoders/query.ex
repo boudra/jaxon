@@ -12,6 +12,10 @@ defmodule Jaxon.Decoders.Query do
   @skip 8
   @skip_value 9
 
+  def query(_event_stream, []) do
+    raise(ArgumentError, "Empty query given")
+  end
+
   def query(event_stream, query) do
     event_stream
     |> Stream.transform({[], [], [:root], {[], query}}, fn events, {tail, stack, path, query} ->

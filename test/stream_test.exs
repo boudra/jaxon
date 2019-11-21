@@ -174,4 +174,13 @@ defmodule JaxonEventStreamTest do
 
     assert result == expected
   end
+
+  test "empty query" do
+    assert_raise(ArgumentError, fn ->
+      @json_stream
+      |> Jaxon.Stream.from_binary()
+      |> Jaxon.Stream.query([])
+      |> Enum.to_list()
+    end)
+  end
 end
