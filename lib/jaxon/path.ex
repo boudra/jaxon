@@ -15,6 +15,11 @@ defmodule Jaxon.Path do
   {:ok, "$.test[0]"}
   ```
 
+  ```
+  iex> Jaxon.Path.encode([:root, "with space", "other", "more space", 0])
+  {:ok, "$[with space].other[more space][0]"}
+  ```
+
   How to handle encode errors:
 
   ```
@@ -42,11 +47,6 @@ defmodule Jaxon.Path do
   ```
 
   How to handle parse errors;
-
-  ```
-  iex> Jaxon.Path.parse("$.test[x]")
-  {:error, %Jaxon.ParseError{message: "Expected an integer at `x]`"}}
-  ```
 
   ```
   iex> Jaxon.Path.parse("$.\"test[x]")
@@ -126,6 +126,22 @@ defmodule Jaxon.Path do
     parse_string(rest, <<str::binary, c>>)
   end
 
+  defp parse_bracket_string(<<?\\, ?], rest::binary>>, str) do
+    parse_bracket_string(rest, <<str::binary, ?]>>)
+  end
+
+  defp parse_bracket_string(<<?], rest::binary>>, str) do
+    {str, rest}
+  end
+
+  defp parse_bracket_string("", _) do
+    ""
+  end
+
+  defp parse_bracket_string(<<c, rest::binary>>, str) do
+    parse_bracket_string(rest, <<str::binary, c>>)
+  end
+
   defp parse_json_path(<<?\\, ?., rest::binary>>, cur, acc) do
     parse_json_path(rest, <<cur::binary, ?.>>, acc)
   end
@@ -138,13 +154,19 @@ defmodule Jaxon.Path do
     [:all | parse_json_path(rest, "", acc)]
   end
 
-  defp parse_json_path(<<?[, rest::binary>>, "", acc) do
+  defp parse_json_path(bin = <<?[, rest::binary>>, "", acc) do
     case Integer.parse(rest) do
       {i, <<?], rest::binary>>} ->
         [i | parse_json_path(rest, "", acc)]
 
       _ ->
-        {:error, "Expected an integer at `#{String.slice(rest, 0, 10)}`"}
+        case parse_bracket_string(rest, "") do
+          {key, rest} ->
+            [key | parse_json_path(rest, "", acc)]
+
+          _ ->
+            {:error, "Ending bracket not found for string at `#{String.slice(bin, 0, 10)}`"}
+        end
     end
   end
 
@@ -211,12 +233,17 @@ defmodule Jaxon.Path do
   end
 
   defp do_encode_segment("") do
-    ~s("")
+    ~s([])
   end
 
   defp do_encode_segment(s) when is_binary(s) do
-    if(String.contains?(s, ["*", "$", "]", "[", ".", "\""])) do
-      "\"#{String.replace(s, "\"", "\\\"")}\""
+    if(String.contains?(s, ["*", "$", "]", "[", ".", "\"", " "])) do
+      safe_str =
+        s
+        |> String.replace("[", "\\[")
+        |> String.replace("]", "\\]")
+
+      "[#{safe_str}]"
     else
       s
     end

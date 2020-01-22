@@ -5,13 +5,13 @@ defmodule JaxonPathTest do
   alias Jaxon.{ParseError, EncodeError}
 
   test "encode" do
-    assert encode!([:root, "te.st", 0]) == "$.\"te.st\"[0]"
+    assert encode!([:root, "te.st", 0]) == "$[te.st][0]"
     assert encode!([:root, "test", "0"]) == "$.test.0"
     assert encode!([:root, "test", :all]) == "$.test[*]"
     assert encode!([:root, :all]) == "$[*]"
     assert encode!([:root, :all, :all]) == "$[*][*]"
-    assert encode!([:root, "$", :all]) == "$.\"$\"[*]"
-    assert encode!([:root, "", :all]) == ~s($.""[*])
+    assert encode!([:root, "$", :all]) == "$[$][*]"
+    assert encode!([:root, "", :all]) == ~s($[][*])
 
     assert_raise(EncodeError, "`:whoops` is not a valid JSON path segment", fn ->
       encode!([:root, :whoops, "test", 0])
@@ -21,6 +21,7 @@ defmodule JaxonPathTest do
   test "parse" do
     assert parse!("$.nested.object[2]") == [:root, "nested", "object", 2]
     assert parse!("$.\"nested\"") == [:root, "nested"]
+    assert parse!("$[with spaces]") == [:root, "with spaces"]
     assert parse!("$.nes\\.ted") == [:root, "nes.ted"]
     assert parse!("$.\"nes\\\"ted\"") == [:root, "nes\"ted"]
     assert parse!("$.\"nested\"[0]") == [:root, "nested", 0]
@@ -32,8 +33,8 @@ defmodule JaxonPathTest do
       parse!("$.\"nested.0")
     end)
 
-    assert_raise(ParseError, ~r/Expected an integer.*/, fn ->
-      parse!("$.nested[hello]")
+    assert_raise(ParseError, ~r/Ending bracket not found.*/, fn ->
+      parse!("$.nested[hello")
     end)
   end
 end
