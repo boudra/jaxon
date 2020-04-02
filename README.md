@@ -46,7 +46,7 @@ Query a binary JSON stream:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.from_eumerable() |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_enumerable() |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -54,7 +54,7 @@ Query a binary JSON stream using JSON path expressions:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.from_eumerable() |> Jaxon.Stream.query(Jaxon.Path.parse!("$.array[*]")) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_enumerable() |> Jaxon.Stream.query(Jaxon.Path.parse!("$.array[*]")) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -63,7 +63,7 @@ Query a large file without holding the whole file in memory:
 ```elixir
 "large_file.json"
 |> File.stream!()
-|> Jaxon.Stream.from_eumerable()
+|> Jaxon.Stream.from_enumerable()
 |> Jaxon.Stream.query([:root, "users", :all, "id"])
 |> Enum.to_list()
 ```

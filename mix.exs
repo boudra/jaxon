@@ -60,7 +60,7 @@ defmodule Jaxon.MixProject do
       {:poison, ">= 0.0.0", only: [:bench]},
       {:jason, ">= 0.0.0", only: [:bench, :test, :docs]},
       {:jiffy, ">= 0.0.0", only: :bench},
-      {:ex_doc, ">= 0.0.0", only: :docs},
+      {:ex_doc, ">= 0.0.0", only: [:docs, :dev]},
       {:dialyxir, "~> 1.0.0-rc.7", only: [:test, :dev], runtime: false},
       {:inch_ex, github: "rrrene/inch_ex", only: [:docs, :test]},
       {:elixir_make, "~> 0.4", runtime: false},
