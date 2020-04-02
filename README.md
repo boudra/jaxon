@@ -52,7 +52,7 @@ Query a binary JSON stream using JSON path expressions:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query(Jaxon.Path.decode!("$.array[*]")) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.query(Jaxon.Path.parse!("$.array[*]")) |> Enum.to_list()
 [1, 2]
 ```
 
