@@ -38,7 +38,7 @@ Benchee.run(
   time: 4,
   inputs: inputs,
   formatters: [
-    {Benchee.Formatters.HTML, file: "output/decode.html"},
+    {Benchee.Formatters.HTML, file: "benchmark_results/decode.html"},
     Benchee.Formatters.Console
   ]
 )

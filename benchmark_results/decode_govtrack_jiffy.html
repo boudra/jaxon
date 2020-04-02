@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    GovTrack
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          <a name="run_time" href="#run_time">jiffy Run Time</a>
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+            <i
+              class="benchee-help-icon icon-question-circle-o"
+              title="Graphs showing the individual run time distribution for jiffy.
+  Run Times Histogram shows the distribution of occurrences of specific run times in buckets.
+  Raw Run Times shows all individual recorded run times in the order they were recorded in."
+            ></i>
+          </a>
+        </h2>
+
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left">jiffy</td>
+        
+        
+          <td>11.73</td>
+          <td>85.22 ms</td>
+          <td>±9.80%</td>
+          <td>83.04 ms</td>
+          <td>83.04 ms</td>
+          <td>75.07 ms</td>
+          <td>108.68 ms</td>
+        
+        <td>47</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-times-histogram" class="plot"></div>
+        </section>
+        <section class="benchee-plot-container">
+          <div id="raw-run-times" class="plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenario = {"name":"jiffy","job_name":"jiffy","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":9359759.132878363,"average":85218872.34042554,"ips":11.734489937924547,"maximum":1.08679e8,"median":8.3041e7,"minimum":7.5071e7,"mode":8.3041e7,"percentiles":{"50":8.3041e7,"99":1.08679e8},"relative_less":0.8901680006338415,"relative_more":1.1233834504138016,"sample_size":47,"std_dev":8348976.762654736,"std_dev_ips":1.1496395237661818,"std_dev_ratio":0.09797098381333787},"samples":[7.5071e7,7.9448e7,8.203e7,7.8444e7,7.7157e7,7.9246e7,7.746e7,7.703e7,7.7595e7,8.6882e7,9.4348e7,7.7832e7,7.7453e7,7.8407e7,7.731e7,7.8653e7,8.3041e7,8.261e7,7.8577e7,7.8626e7,8.043e7,7.8512e7,8.8166e7,9.5854e7,8.4106e7,8.2402e7,8.4202e7,8.3041e7,8.4591e7,8.5852e7,1.00953e8,8.4734e7,9.6109e7,8.1617e7,8.3742e7,8.4898e7,8.3095e7,9.1161e7,8.244e7,8.4915e7,8.7479e7,8.5758e7,1.01129e8,1.08679e8,1.04268e8,9.5823e7,1.04111e8]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null};
+
+      var inputHeadline = " (GovTrack)"
+
+      
+        drawRunTimeHistogram(scenario, inputHeadline);
+        drawRawRunTimeChart(scenario, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

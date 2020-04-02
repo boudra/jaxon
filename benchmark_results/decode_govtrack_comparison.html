@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    GovTrack
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          Run Time Comparison
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#comparison">
+            <i
+            class="benchee-help-icon icon-question-circle-o"
+            title="Comparisons of the different benchmarking jobs. For Iterations per Second higher is better, the black whiskers denote standard deviation. otherwise it is runtime so lower is better. The Box Plot shows a distribution of run times with the median and outliers."
+            ></i>
+          </a>
+        </h2>
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_govtrack_jaxon.html">Jaxon</a></td>
+        
+        
+          <td>13.18</td>
+          <td>75.86 ms</td>
+          <td>±7.25%</td>
+          <td>74.54 ms</td>
+          <td>74.87 ms</td>
+          <td>70.77 ms</td>
+          <td>104.00 ms</td>
+        
+        <td>53</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_govtrack_jiffy.html">jiffy</a></td>
+        
+        
+          <td>11.73</td>
+          <td>85.22 ms</td>
+          <td>±9.80%</td>
+          <td>83.04 ms</td>
+          <td>83.04 ms</td>
+          <td>75.07 ms</td>
+          <td>108.68 ms</td>
+        
+        <td>47</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_govtrack_jason.html">Jason</a></td>
+        
+        
+          <td>8.03</td>
+          <td>124.47 ms</td>
+          <td>±2.79%</td>
+          <td>124.55 ms</td>
+          <td>none</td>
+          <td>117.26 ms</td>
+          <td>131.95 ms</td>
+        
+        <td>33</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_govtrack_poison.html">Poison</a></td>
+        
+        
+          <td>3.98</td>
+          <td>250.99 ms</td>
+          <td>±1.84%</td>
+          <td>249.49 ms</td>
+          <td>none</td>
+          <td>245.54 ms</td>
+          <td>262.96 ms</td>
+        
+        <td>16</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="ips-comparison" class="job-count-4 plot"></div>
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-time-box-plot" class="job-count-4 plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenarios     = [{"name":"Jaxon","job_name":"Jaxon","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":null,"average":75859113.20754717,"ips":13.182331795311715,"maximum":1.04001e8,"median":7.4536e7,"minimum":7.0771e7,"mode":7.4874e7,"percentiles":{"50":7.4536e7,"99":1.04001e8},"relative_less":null,"relative_more":null,"sample_size":53,"std_dev":5497971.796176567,"std_dev_ips":0.9554038447585599,"std_dev_ratio":0.07247608841846542},"samples":[1.04001e8,8.4128e7,8.0782e7,9.7792e7,7.5354e7,7.8466e7,7.5716e7,7.637e7,7.7018e7,7.6681e7,7.643e7,7.4362e7,7.5734e7,7.5193e7,7.4874e7,7.4656e7,7.3959e7,7.3049e7,7.1248e7,7.2154e7,7.3211e7,7.4223e7,7.4257e7,7.4059e7,7.4506e7,7.4275e7,7.3622e7,7.7266e7,7.7816e7,7.6472e7,7.6227e7,7.3935e7,7.4874e7,7.3961e7,7.5017e7,7.4675e7,7.3802e7,7.5654e7,7.2595e7,7.0771e7,7.4536e7,7.5879e7,7.5516e7,7.454e7,7.3176e7,7.1826e7,7.253e7,7.3201e7,7.3564e7,7.4502e7,7.4238e7,7.4114e7,7.3726e7]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"jiffy","job_name":"jiffy","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":9359759.132878363,"average":85218872.34042554,"ips":11.734489937924547,"maximum":1.08679e8,"median":8.3041e7,"minimum":7.5071e7,"mode":8.3041e7,"percentiles":{"50":8.3041e7,"99":1.08679e8},"relative_less":0.8901680006338415,"relative_more":1.1233834504138016,"sample_size":47,"std_dev":8348976.762654736,"std_dev_ips":1.1496395237661818,"std_dev_ratio":0.09797098381333787},"samples":[7.5071e7,7.9448e7,8.203e7,7.8444e7,7.7157e7,7.9246e7,7.746e7,7.703e7,7.7595e7,8.6882e7,9.4348e7,7.7832e7,7.7453e7,7.8407e7,7.731e7,7.8653e7,8.3041e7,8.261e7,7.8577e7,7.8626e7,8.043e7,7.8512e7,8.8166e7,9.5854e7,8.4106e7,8.2402e7,8.4202e7,8.3041e7,8.4591e7,8.5852e7,1.00953e8,8.4734e7,9.6109e7,8.1617e7,8.3742e7,8.4898e7,8.3095e7,9.1161e7,8.244e7,8.4915e7,8.7479e7,8.5758e7,1.01129e8,1.08679e8,1.04268e8,9.5823e7,1.04111e8]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"Jason","job_name":"Jason","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":48612925.974271014,"average":124472039.18181819,"ips":8.033932813933296,"maximum":131951913.0,"median":124546918.0,"minimum":117255923.0,"mode":null,"percentiles":{"50":124546918.0,"99":131951913.0},"relative_less":0.6094470188339939,"relative_more":1.6408317197337676,"sample_size":33,"std_dev":3471700.7641678615,"std_dev_ips":0.22407771956450456,"std_dev_ratio":0.02789141068940548},"samples":[126575917.0,130592914.0,122871919.0,128733915.0,121827919.0,125342918.0,120671920.0,124553918.0,118900922.0,124399918.0,120576920.0,126950917.0,123613918.0,129768915.0,122036919.0,124413918.0,117255923.0,118969922.0,127284916.0,123273918.0,123975919.0,124546918.0,131951913.0,127715916.0,125884917.0,127780915.0,126668917.0,126520917.0,124867917.0,123243919.0,120059921.0,124759918.0,120980920.0]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"Poison","job_name":"Poison","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":175128761.7924528,"average":250987875.0,"ips":3.984256211579942,"maximum":2.62965e8,"median":2.4949e8,"minimum":2.45543e8,"mode":null,"percentiles":{"50":2.4949e8,"99":2.62965e8},"relative_less":0.3022421430021158,"relative_more":3.3086054448502225,"sample_size":16,"std_dev":4623119.406850747,"std_dev_ips":0.07338877311750962,"std_dev_ratio":0.018419692213620865},"samples":[2.48893e8,2.51246e8,2.47101e8,2.50708e8,2.45543e8,2.62965e8,2.49268e8,2.56163e8,2.45783e8,2.50222e8,2.48916e8,2.56145e8,2.56021e8,2.49194e8,2.49712e8,2.47926e8]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null}];
+      var inputHeadline = " (GovTrack)";
+
+      
+        drawIpsComparisonChart(scenarios, inputHeadline);
+        drawRunTimeComparisonBoxPlot(scenarios, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    Issue 90
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          <a name="run_time" href="#run_time">Jaxon Run Time</a>
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+            <i
+              class="benchee-help-icon icon-question-circle-o"
+              title="Graphs showing the individual run time distribution for Jaxon.
+  Run Times Histogram shows the distribution of occurrences of specific run times in buckets.
+  Raw Run Times shows all individual recorded run times in the order they were recorded in."
+            ></i>
+          </a>
+        </h2>
+
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left">Jaxon</td>
+        
+        
+          <td>146.38</td>
+          <td>6.83 ms</td>
+          <td>±4.87%</td>
+          <td>6.82 ms</td>
+          <td>6.79 ms</td>
+          <td>6.19 ms</td>
+          <td>8.20 ms</td>
+        
+        <td>586</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-times-histogram" class="plot"></div>
+        </section>
+        <section class="benchee-plot-container">
+          <div id="raw-run-times" class="plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenario = {"name":"Jaxon","job_name":"Jaxon","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":null,"average":6831696.245733788,"ips":146.37653139576767,"maximum":8.199e6,"median":6.8205e6,"minimum":6.188e6,"mode":6.793e6,"percentiles":{"50":6.8205e6,"99":7707070.0},"relative_less":null,"relative_more":null,"sample_size":586,"std_dev":332794.6928297159,"std_dev_ips":7.130488688479664,"std_dev_ratio":0.048713332803333766},"samples":[7.67e6,6.83e6,6.285e6,7.187e6,7.753e6,7.092e6,6.371e6,6.568e6,7.621e6,6.87e6,7.001e6,8.026e6,7.216e6,7.055e6,7.074e6,7.206e6,7.067e6,7.028e6,7.163e6,7.014e6,7.255e6,7.139e6,7.21e6,7.081e6,7.477e6,7.156e6,7.119e6,7.148e6,7.171e6,7.203e6,7.077e6,7.166e6,7.303e6,7.098e6,7.231e6,7.095e6,7.266e6,7.057e6,7.138e6,7.078e6,7.249e6,7.107e6,7.151e6,7.092e6,7.242e6,7.338e6,7.076e6,7.164e6,7.047e6,7.13e6,6.999e6,7.058e6,7.114e6,7.136e6,7.109e6,7.126e6,7.105e6,7.06e6,6.926e6,7.143e6,6.988e6,6.89e6,7.372e6,7.249e6,6.941e6,6.853e6,6.934e6,6.858e6,6.759e6,7.024e6,6.787e6,6.766e6,6.832e6,6.963e6,7.197e6,7.124e6,7.048e6,6.995e6,7.035e6,7.019e6,7.094e6,7.073e6,6.788e6,6.814e6,6.788e6,6.863e6,6.804e6,6.804e6,6.805e6,6.556e6,6.654e6,6.359e6,6.426e6,6.565e6,6.661e6,6.525e6,6.47e6,6.44e6,6.435e6,6.832e6,6.927e6,6.315e6,6.579e6,6.22e6,6.313e6,6.508e6,6.83e6,6.906e6,6.793e6,6.812e6,6.795e6,6.801e6,6.778e6,6.777e6,7.156e6,6.807e6,6.923e6,6.819e6,6.817e6,6.844e6,6.795e6,6.747e6,6.336e6,6.258e6,6.25e6,6.524e6,6.249e6,6.394e6,6.243e6,6.559e6,6.358e6,6.262e6,6.368e6,6.403e6,6.479e6,6.223e6,6.544e6,6.332e6,6.223e6,6.262e6,6.37e6,6.279e6,6.36e6,6.321e6,6.264e6,6.188e6,6.221e6,6.237e6,6.195e6,6.385e6,6.252e6,6.348e6,6.232e6,6.302e6,6.388e6,6.211e6,6.212e6,6.246e6,6.336e6,6.216e6,6.278e6,6.362e6,7.29e6,6.304e6,6.289e6,6.55e6,6.265e6,6.292e6,6.908e6,6.326e6,6.234e6,6.689e6,6.385e6,6.65e6,6.789e6,6.792e6,7.587e6,6.911e6,6.825e6,6.889e6,6.819e6,6.863e6,6.792e6,6.915e6,7.028e6,7.034e6,6.974e6,6.778e6,6.784e6,6.692e6,6.566e6,6.587e6,6.584e6,6.583e6,6.739e6,6.989e6,6.72e6,6.602e6,6.672e6,6.804e6,6.693e6,6.566e6,6.56e6,6.922e6,6.848e6,6.612e6,6.571e6,6.601e6,6.581e6,6.687e6,6.7e6,6.771e6,6.759e6,6.823e6,6.568e6,6.816e6,6.652e6,6.611e6,6.595e6,6.714e6,6.934e6,6.898e6,7.236e6,7.139e6,6.999e6,6.871e6,7.125e6,7.434e6,7.464e6,6.776e6,6.984e6,6.727e6,7.235e6,6.657e6,7.035e6,8.199e6,7.499e6,7.467e6,7.107e6,7.08e6,7.01e6,7.088e6,7.092e6,7.027e6,7.051e6,7.094e6,7.058e6,7.053e6,7.136e6,7.47e6,7.359e6,7.312e6,7.065e6,7.039e6,7.088e6,7.19e6,7.317e6,7.313e6,7.026e6,7.03e6,7.061e6,7.039e6,7.045e6,7.385e6,7.044e6,7.051e6,7.093e6,7.057e6,7.179e6,6.801e6,6.849e6,6.819e6,6.905e6,6.818e6,6.836e6,6.795e6,6.821e6,6.962e6,6.805e6,6.793e6,6.776e6,6.774e6,7.286e6,7.171e6,7.009e6,6.807e6,6.9e6,6.821e6,6.832e6,6.8e6,6.812e6,6.815e6,6.939e6,6.827e6,6.784e6,6.827e6,6.776e6,6.869e6,6.853e6,7.053e6,6.434e6,6.258e6,6.226e6,6.401e6,6.38e6,6.394e6,6.623e6,6.44e6,7.266e6,6.346e6,6.573e6,6.284e6,6.848e6,7.741e6,6.69e6,6.309e6,6.378e6,6.804e6,6.773e6,7.279e6,7.286e6,7.474e6,6.933e6,6.918e6,6.945e6,6.924e6,6.868e6,6.793e6,6.825e6,6.768e6,6.997e6,6.881e6,6.823e6,6.8e6,6.822e6,6.772e6,6.798e6,6.807e6,6.779e6,6.785e6,6.786e6,6.88e6,7.022e6,6.805e6,6.904e6,6.774e6,6.788e6,6.798e6,6.569e6,6.261e6,6.437e6,6.267e6,6.334e6,6.858e6,6.57e6,7.122e6,6.789e6,6.341e6,6.858e6,6.297e6,6.377e6,6.582e6,6.272e6,6.392e6,6.221e6,6.905e6,7.141e6,6.622e6,6.601e6,6.608e6,6.645e6,6.979e6,7.353e6,7.079e6,6.625e6,6.649e6,6.592e6,6.664e6,6.672e6,6.686e6,6.613e6,6.598e6,6.612e6,6.637e6,6.607e6,6.596e6,6.887e6,6.694e6,7.294e6,6.61e6,6.692e6,6.584e6,6.621e6,6.588e6,6.589e6,7.951e6,7.053e6,6.801e6,6.947e6,6.812e6,6.803e6,7.274e6,7.098e6,6.832e6,6.79e6,6.785e6,6.802e6,6.768e6,6.797e6,6.809e6,6.96e6,6.821e6,6.789e6,6.74e6,6.594e6,6.689e6,6.672e6,6.628e6,6.596e6,6.607e6,6.672e6,6.602e6,6.594e6,6.6e6,6.592e6,6.792e6,7.003e6,6.677e6,6.668e6,7.017e6,6.234e6,6.843e6,6.442e6,6.256e6,6.658e6,6.377e6,6.246e6,6.26e6,6.225e6,6.218e6,6.293e6,6.305e6,6.261e6,6.245e6,6.234e6,7.001e6,7.293e6,7.034e6,6.802e6,6.787e6,6.793e6,6.797e6,6.786e6,6.798e6,6.965e6,6.819e6,6.896e6,7.041e6,6.855e6,6.845e6,6.892e6,7.166e6,7.169e6,7.147e6,6.778e6,6.965e6,6.67e6,7.149e6,6.646e6,6.627e6,7.638e6,6.649e6,7.222e6,6.628e6,6.88e6,6.793e6,6.667e6,6.765e6,6.662e6,6.815e6,7.047e6,7.056e6,7.048e6,7.047e6,7.052e6,6.888e6,7.109e6,7.199e6,6.82e6,7.145e6,7.383e6,7.093e6,6.963e6,6.987e6,6.985e6,7.497e6,7.053e6,7.2e6,7.137e6,6.936e6,7.551e6,7.299e6,7.334e6,6.856e6,6.977e6,7.019e6,7.702e6,6.927e6,6.788e6,6.939e6,7.164e6,7.124e6,7.096e6,7.144e6,7.127e6,7.143e6,7.055e6,7.021e6,7.152e6,7.253e6,7.104e6,7.17e6,7.304e6,7.215e6,7.057e6,7.312e6,7.277e6,7.241e6,7.219e6,7.188e6,7.034e6,7.042e6,7.046e6,7.095e6,7.096e6,7.043e6,6.992e6,7.013e6,7.019e6,7.029e6,7.164e6,7.203e6,6.842e6,7.432e6,6.849e6,6.948e6,7.574e6,6.988e6,6.862e6,6.862e6,6.783e6,6.779e6,6.785e6,6.773e6,6.778e6,6.797e6,7.349e6,6.791e6,6.826e6,6.769e6,6.796e6,6.869e6,6.82e6,6.873e6,6.791e6,6.876e6,6.783e6,6.777e6,6.785e6,6.783e6,6.873e6,6.82e6,6.393e6,6.256e6,6.238e6,6.323e6,6.617e6,6.544e6,6.366e6,6.408e6,6.393e6,6.251e6,6.236e6,6.236e6,6.262e6,6.293e6]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null};
+
+      var inputHeadline = " (Issue 90)"
+
+      
+        drawRunTimeHistogram(scenario, inputHeadline);
+        drawRawRunTimeChart(scenario, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>
