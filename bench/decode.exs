@@ -38,13 +38,7 @@ Benchee.run(
   time: 4,
   inputs: inputs,
   formatters: [
-    &Benchee.Formatters.HTML.output/1,
-    &Benchee.Formatters.Console.output/1
-  ],
-  formatter_options: [
-    console: %{comparison: true},
-    html: %{
-      file: Path.expand("output/decode.html", __DIR__)
-    }
+    {Benchee.Formatters.HTML, file: "output/decode.html"},
+    Benchee.Formatters.Console
   ]
 )

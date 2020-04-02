@@ -55,8 +55,8 @@ defmodule Jaxon.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:benchee, "~> 0.8", only: :bench},
-      {:benchee_html, "~> 0.1", only: :bench},
+      {:benchee, "~> 1.0", only: :bench},
+      {:benchee_html, "~> 1.0", only: :bench},
       {:poison, ">= 0.0.0", only: [:bench]},
       {:jason, ">= 0.0.0", only: [:bench, :test, :docs]},
       {:jiffy, ">= 0.0.0", only: :bench},
