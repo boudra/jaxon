@@ -44,7 +44,7 @@ Query a binary JSON stream:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_eumerable() |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -52,7 +52,7 @@ Query a binary JSON stream using JSON path expressions:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query(Jaxon.Path.decode!("$.array[*]")) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_eumerable() |> Jaxon.Stream.query(Jaxon.Path.parse!("$.array[*]")) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -61,6 +61,7 @@ Query a large file without holding the whole file in memory:
 ```elixir
 "large_file.json"
 |> File.stream!()
+|> Jaxon.Stream.from_eumerable()
 |> Jaxon.Stream.query([:root, "users", :all, "id"])
 |> Enum.to_list()
 ```
@@ -70,8 +71,8 @@ Query a large file without holding the whole file in memory:
 Jaxon first parses the JSON string into a list of events/tokens:
 
 ```elixir
-iex(1)> Jaxon.Parsers.NifParser.parse(~s({"key":true}))
-[:start_object, {:string, "key"}, :colon, {:boolean, true}, :end_object]
+iex(1)> Jaxon.Parsers.NifParser.parse(~s({"key":true}), [])
+{:ok, [:start_object, {:string, "key"}, :colon, {:boolean, true}, :end_object]}
 ```
 
 These are all the available events:
