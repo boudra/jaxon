@@ -16,12 +16,14 @@ Links:
 
 ---
 
+[Click here if you want to use the 1.x version](https://github.com/boudra/jaxon/tree/fb638f76945236822e8e015ee4b4d79b8255b71e)
+
 ## Installation
 
 ```elixir
 def deps do
   [
-    {:jaxon, "~> 1.0"}
+    {:jaxon, "~> 2.0"}
   ]
 end
 ```
@@ -109,7 +111,7 @@ config :jaxon, :parser, Jaxon.Parsers.NifParser # only NifParser is supported at
 Then, the decoder's job is to take a list of events and aggregate it into a Elixir term:
 
 ```elixir
-iex(4)> Jaxon.Decoder.events_to_term([:start_object, {:string, "key"}, :colon, {:boolean, true}
+iex(4)> Jaxon.Decoders.Value.decode([:start_object, {:string, "key"}, :colon, {:boolean, true}
 , :end_object])
 {:ok, %{"key" => true}}
 ```
