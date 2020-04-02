@@ -22,7 +22,7 @@ script:
   - mix compile --warnings-as-errors
   - mix format --check-formatted --dry-run
   - mix coveralls.travis
-  - mix dialyzer --halt-exit-status
+  # - mix dialyzer --halt-exit-status
 after_script:
   - mix inch.report
 before_cache:
