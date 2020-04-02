@@ -130,7 +130,7 @@ To run the benchmarks, execute:
 mix bench.decode
 ```
 
-See the benchmarks here: [benchmarks](/BENCHMARKS.md)
+See the decode benchmarks here: [benchmarks](https://boudra.github.io/jaxon/benchmark_results/decode.html)
 
 ## License
 
