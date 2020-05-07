@@ -13,6 +13,7 @@ Links:
 
 - [Online documentation](https://hexdocs.pm/jaxon/)
 - [Introduction to Jaxon](https://moboudra.com/intro-to-jaxon-json-parser-for-elixir/)
+- [Benchmarks](https://boudra.github.io/jaxon/benchmark_results/decode.html)
 
 ---
 
