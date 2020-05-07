@@ -10,6 +10,8 @@ defmodule Jaxon.Event do
           | {:boolean, boolean}
           | nil
           | {:incomplete, binary}
+          | {:incomplete, {:integer, integer}, binary}
+          | {:incomplete, {:decimal, float}, binary}
           | {:yield, [__MODULE__.t()], binary}
           | {:error, binary}
           | :colon

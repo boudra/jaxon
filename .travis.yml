@@ -1,19 +1,33 @@
 language: elixir
-elixir:
-  - 1.6.5
-otp_release:
-  - 19.3
-  - 20.3
-before_script:
-  - MIX_ENV=test mix compile --warnings-as-errors
+cache:
+  directories:
+    - ~/.hex
+    - ~/.mix
+    - _build
+matrix:
+  include:
+    - otp_release: 21.3
+      elixir: 1.9
+    - otp_release: 21.3
+      elixir: 1.8
+    - otp_release: 21.3
+      elixir: 1.7
+install:
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
+env:
+  - MIX_ENV=test
 script:
+  - mix compile --warnings-as-errors
   - mix format --check-formatted --dry-run
-  - MIX_ENV=test mix coveralls.travis
+  - mix coveralls.travis
+  # - mix dialyzer --halt-exit-status
 after_script:
-  - MIX_ENV=docs mix deps.get
-  - MIX_ENV=docs mix inch.report
-sudo: required
-dist: trusty
+  - mix inch.report
+before_cache:
+  - mix deps.clean --all --build
+  - mix clean --build
 cache:
   directories:
     - _build

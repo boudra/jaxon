@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    Pokedex
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          <a name="run_time" href="#run_time">Poison Run Time</a>
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+            <i
+              class="benchee-help-icon icon-question-circle-o"
+              title="Graphs showing the individual run time distribution for Poison.
+  Run Times Histogram shows the distribution of occurrences of specific run times in buckets.
+  Raw Run Times shows all individual recorded run times in the order they were recorded in."
+            ></i>
+          </a>
+        </h2>
+
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left">Poison</td>
+        
+        
+          <td>203.60</td>
+          <td>4.91 ms</td>
+          <td>±5.70%</td>
+          <td>4.91 ms</td>
+          <td>4.89 ms, 4.91 ms, 4.89 ms, 4.93 ms, 4.71 ms, 5.05 ms</td>
+          <td>4.28 ms</td>
+          <td>6.37 ms</td>
+        
+        <td>814</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-times-histogram" class="plot"></div>
+        </section>
+        <section class="benchee-plot-container">
+          <div id="raw-run-times" class="plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenario = {"name":"Poison","job_name":"Poison","input_name":"Pokedex","run_time_data":{"statistics":{"absolute_difference":3300134.71158243,"average":4911705.159705159,"ips":203.5952825922532,"maximum":6.368e6,"median":4.9095e6,"minimum":4.28e6,"mode":[4.895e6,4.914e6,4.887e6,4.934e6,4.706e6,5.05e6],"percentiles":{"50":4.9095e6,"99":5827550.000000001},"relative_less":0.32810814080287115,"relative_more":3.0477756435821095,"sample_size":814,"std_dev":280082.6297826053,"std_dev_ips":11.609716036618527,"std_dev_ratio":0.05702350215977095},"samples":[4.934e6,4.687e6,4.548e6,4.58e6,4.527e6,4.53e6,4.531e6,4.576e6,4.533e6,4.582e6,4.62e6,4.779e6,4.854e6,5.156e6,4.913e6,5.024e6,4.795e6,4.711e6,4.667e6,4.724e6,4.655e6,4.951e6,5.242e6,5.012e6,4.777e6,4.818e6,5.3e6,5.314e6,4.74e6,5.322e6,4.841e6,5.166e6,5.454e6,4.933e6,5.595e6,5.367e6,5.368e6,5.153e6,5.831e6,5.176e6,5.185e6,5.084e6,5.076e6,5.061e6,5.797e6,5.318e6,5.114e6,5.064e6,5.072e6,5.241e6,5.546e6,5.166e6,5.588e6,5.122e6,5.079e6,5.621e6,5.217e6,6.142e6,5.162e6,5.959e6,5.268e6,5.444e6,5.384e6,5.288e6,5.048e6,5.081e6,5.233e6,5.251e6,5.286e6,5.255e6,5.41e6,5.276e6,5.331e6,5.25e6,5.08e6,5.088e6,5.335e6,5.13e6,5.243e6,5.215e6,5.108e6,5.052e6,5.247e6,5.097e6,5.091e6,5.056e6,5.098e6,5.079e6,5.05e6,5.05e6,5.044e6,5.236e6,5.252e6,5.078e6,4.855e6,4.923e6,5.046e6,5.044e6,5.039e6,5.096e6,5.05e6,5.226e6,4.936e6,4.916e6,5.008e6,5.155e6,4.907e6,4.934e6,5.303e6,4.903e6,4.901e6,4.936e6,5.187e6,4.908e6,4.95e6,4.974e6,4.897e6,4.958e6,4.923e6,4.888e6,5.124e6,5.031e6,4.893e6,5.0e6,4.998e6,4.887e6,4.985e6,5.175e6,4.897e6,4.709e6,4.865e6,4.933e6,5.111e6,4.883e6,4.914e6,4.958e6,4.888e6,5.448e6,4.916e6,4.99e6,4.809e6,5.292e6,4.932e6,4.89e6,4.92e6,4.895e6,4.889e6,4.943e6,4.867e6,4.968e6,4.701e6,4.706e6,4.724e6,4.687e6,4.584e6,4.544e6,4.648e6,4.593e6,5.219e6,4.597e6,4.534e6,4.58e6,4.57e6,4.54e6,4.584e6,4.65e6,4.535e6,4.531e6,4.556e6,4.587e6,4.523e6,5.65e6,4.605e6,4.575e6,5.114e6,4.569e6,4.672e6,4.937e6,4.776e6,4.901e6,4.809e6,4.582e6,4.723e6,4.677e6,4.73e6,4.605e6,4.654e6,4.569e6,4.583e6,4.562e6,4.6e6,4.557e6,4.809e6,4.778e6,5.079e6,5.224e6,5.088e6,5.124e6,5.105e6,5.09e6,5.1e6,5.09e6,5.486e6,5.107e6,5.048e6,5.046e6,5.167e6,4.94e6,5.036e6,5.083e6,5.039e6,5.045e6,5.057e6,4.999e6,4.881e6,4.88e6,4.887e6,5.008e6,5.074e6,4.896e6,4.913e6,4.959e6,4.879e6,4.914e6,5.088e6,5.081e6,5.171e6,4.885e6,4.914e6,4.887e6,5.285e6,4.895e6,4.87e6,4.917e6,4.882e6,4.887e6,4.876e6,5.351e6,4.979e6,4.906e6,4.929e6,4.914e6,4.88e6,4.934e6,4.897e6,4.893e6,4.876e6,5.019e6,4.877e6,4.941e6,4.811e6,4.749e6,4.899e6,4.943e6,5.026e6,4.882e6,4.928e6,4.856e6,4.887e6,4.752e6,4.859e6,5.277e6,4.553e6,4.721e6,4.784e6,4.715e6,4.647e6,4.702e6,4.66e6,4.645e6,4.59e6,4.676e6,4.594e6,6.002e6,4.97e6,4.703e6,4.934e6,4.644e6,4.736e6,4.851e6,4.763e6,5.082e6,5.073e6,5.101e6,5.08e6,5.079e6,5.09e6,5.076e6,5.23e6,5.144e6,5.072e6,5.069e6,4.878e6,4.927e6,5.229e6,4.895e6,5.021e6,5.08e6,4.744e6,5.111e6,4.75e6,4.958e6,4.987e6,4.656e6,4.908e6,4.859e6,4.8e6,4.871e6,4.714e6,4.739e6,4.428e6,4.963e6,4.542e6,4.658e6,5.382e6,4.925e6,4.56e6,4.644e6,5.153e6,4.574e6,4.856e6,4.967e6,4.728e6,4.541e6,4.605e6,4.937e6,5.152e6,4.842e6,5.029e6,5.159e6,5.068e6,5.073e6,5.463e6,5.132e6,5.119e6,5.447e6,5.143e6,5.157e6,5.12e6,5.11e6,5.218e6,5.207e6,5.184e6,5.129e6,5.101e6,5.103e6,5.072e6,4.971e6,5.137e6,4.981e6,4.999e6,4.856e6,4.858e6,4.956e6,4.967e6,5.233e6,4.759e6,4.609e6,4.701e6,4.617e6,4.684e6,4.615e6,4.678e6,5.307e6,4.711e6,4.666e6,4.752e6,4.644e6,4.621e6,4.73e6,4.673e6,4.615e6,4.663e6,4.927e6,6.368e6,4.952e6,4.664e6,5.091e6,5.143e6,4.842e6,5.382e6,5.108e6,4.921e6,4.921e6,4.738e6,4.622e6,5.578e6,4.728e6,5.938e6,4.773e6,4.653e6,5.001e6,4.962e6,4.913e6,4.963e6,5.064e6,5.019e6,5.027e6,4.996e6,4.937e6,4.885e6,4.868e6,4.884e6,5.002e6,4.954e6,4.938e6,5.122e6,4.916e6,5.015e6,5.08e6,5.048e6,4.94e6,4.97e6,4.934e6,5.15e6,5.134e6,5.027e6,4.911e6,4.914e6,4.897e6,5.011e6,4.908e6,4.968e6,4.885e6,4.873e6,4.895e6,4.941e6,4.923e6,4.914e6,4.915e6,4.895e6,4.856e6,4.911e6,4.862e6,4.868e6,4.815e6,4.755e6,4.695e6,4.706e6,4.693e6,4.845e6,4.774e6,4.706e6,4.801e6,4.752e6,4.705e6,4.717e6,4.706e6,4.707e6,4.702e6,4.703e6,4.701e6,4.71e6,4.697e6,4.705e6,4.689e6,4.699e6,4.917e6,4.652e6,4.345e6,4.61e6,4.6e6,4.688e6,4.694e6,4.669e6,4.635e6,5.165e6,4.557e6,4.471e6,4.43e6,4.917e6,4.416e6,4.344e6,4.549e6,4.36e6,4.554e6,4.307e6,5.45e6,4.394e6,4.686e6,4.463e6,4.325e6,4.501e6,4.696e6,4.799e6,4.688e6,4.699e6,4.735e6,4.708e6,4.692e6,4.698e6,4.758e6,4.756e6,4.832e6,4.724e6,4.772e6,4.713e6,4.688e6,4.709e6,4.701e6,4.703e6,4.74e6,4.706e6,4.907e6,4.758e6,4.736e6,4.579e6,4.591e6,4.55e6,4.595e6,4.585e6,4.639e6,4.64e6,4.552e6,4.609e6,4.597e6,4.601e6,4.553e6,4.634e6,4.623e6,4.957e6,4.65e6,4.594e6,4.607e6,4.565e6,4.688e6,4.576e6,4.634e6,4.563e6,4.902e6,5.413e6,4.472e6,4.476e6,4.657e6,4.319e6,4.375e6,4.398e6,4.587e6,4.464e6,4.695e6,4.498e6,4.297e6,4.314e6,4.471e6,4.762e6,4.362e6,4.344e6,4.396e6,4.303e6,4.475e6,4.28e6,4.374e6,4.439e6,4.375e6,4.684e6,4.691e6,4.704e6,4.732e6,4.667e6,4.706e6,4.68e6,4.697e6,4.683e6,4.683e6,4.679e6,4.756e6,4.954e6,4.699e6,4.681e6,4.686e6,4.767e6,4.809e6,4.691e6,4.697e6,4.772e6,4.687e6,4.725e6,4.57e6,4.532e6,4.592e6,4.535e6,4.628e6,4.542e6,4.575e6,5.29e6,5.249e6,4.67e6,5.028e6,5.055e6,5.518e6,5.006e6,5.005e6,4.895e6,4.751e6,5.075e6,5.073e6,4.939e6,4.905e6,4.884e6,4.965e6,5.043e6,5.058e6,5.05e6,5.022e6,5.042e6,5.03e6,5.081e6,5.035e6,5.077e6,4.777e6,4.98e6,5.043e6,5.059e6,5.156e6,5.171e6,5.069e6,5.089e6,5.024e6,5.073e6,5.023e6,5.03e6,4.755e6,4.595e6,4.676e6,4.457e6,4.676e6,4.822e6,4.446e6,4.493e6,4.659e6,4.728e6,4.635e6,4.741e6,4.627e6,4.699e6,4.705e6,4.664e6,4.734e6,4.744e6,4.603e6,4.678e6,4.807e6,4.704e6,4.64e6,4.715e6,4.667e6,4.636e6,4.961e6,4.689e6,4.651e6,4.66e6,4.736e6,4.621e6,5.026e6,4.628e6,4.734e6,4.913e6,4.684e6,4.715e6,4.661e6,4.707e6,4.611e6,4.759e6,4.696e6,4.625e6,4.857e6,4.842e6,4.774e6,5.026e6,5.097e6,4.894e6,4.999e6,5.029e6,4.907e6,4.991e6,4.968e6,5.261e6,4.976e6,5.424e6,5.325e6,4.934e6,4.983e6,4.98e6,5.006e6,4.901e6,4.953e6,4.908e6,5.808e6,4.973e6,5.089e6,5.26e6,5.101e6,5.068e6,5.277e6,5.002e6,5.062e6,5.11e6,5.074e6,5.072e6,5.053e6,5.057e6,5.053e6,5.06e6,5.031e6,5.056e6,5.05e6,5.049e6,5.047e6,5.068e6,5.054e6,5.066e6,4.652e6,4.734e6,5.042e6,4.686e6,4.92e6,4.639e6,4.617e6,4.727e6,4.757e6,4.644e6,4.644e6,4.789e6,4.958e6,4.636e6,4.761e6,4.695e6,4.654e6,5.392e6,4.85e6,4.746e6,4.55e6,5.028e6,4.632e6,5.407e6,4.912e6,5.115e6,5.407e6,5.193e6,5.206e6,5.525e6,5.091e6,5.691e6,5.157e6,5.832e6,5.704e6,5.864e6,5.131e6,5.139e6,5.591e6,5.083e6,5.084e6,5.171e6,5.152e6,5.566e6,5.427e6,5.322e6,5.313e6,5.271e6,5.273e6,5.284e6,5.387e6,5.319e6,5.324e6,5.571e6,5.385e6,5.388e6,5.335e6,5.112e6,4.933e6,4.977e6,5.006e6,4.966e6,4.886e6,4.887e6,4.923e6,4.858e6,4.915e6,4.899e6,4.871e6,4.862e6,4.861e6,4.867e6,4.865e6,4.849e6,4.863e6,5.054e6,4.915e6,4.881e6,4.978e6,5.18e6,5.295e6,5.245e6,5.208e6,5.209e6,5.23e6,5.116e6,5.041e6,5.044e6,5.05e6,5.097e6,5.057e6,5.259e6,5.064e6,5.081e6,5.064e6,5.036e6,5.038e6,5.207e6,5.066e6,5.036e6,5.033e6,5.025e6,5.278e6]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null};
+
+      var inputHeadline = " (Pokedex)"
+
+      
+        drawRunTimeHistogram(scenario, inputHeadline);
+        drawRawRunTimeChart(scenario, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

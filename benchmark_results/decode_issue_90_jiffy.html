@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    Issue 90
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          <a name="run_time" href="#run_time">jiffy Run Time</a>
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+            <i
+              class="benchee-help-icon icon-question-circle-o"
+              title="Graphs showing the individual run time distribution for jiffy.
+  Run Times Histogram shows the distribution of occurrences of specific run times in buckets.
+  Raw Run Times shows all individual recorded run times in the order they were recorded in."
+            ></i>
+          </a>
+        </h2>
+
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left">jiffy</td>
+        
+        
+          <td>56.02</td>
+          <td>17.85 ms</td>
+          <td>±11.23%</td>
+          <td>17.34 ms</td>
+          <td>19.78 ms, 17.57 ms, 16.74 ms, 17.20 ms, 16.60 ms</td>
+          <td>15.25 ms</td>
+          <td>30.01 ms</td>
+        
+        <td>224</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-times-histogram" class="plot"></div>
+        </section>
+        <section class="benchee-plot-container">
+          <div id="raw-run-times" class="plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenario = {"name":"jiffy","job_name":"jiffy","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":11018049.2899805,"average":17849745.535714287,"ips":56.02320761375399,"maximum":3.0013e7,"median":1.73425e7,"minimum":1.5253e7,"mode":[1.9776e7,1.7571e7,1.6741e7,1.7198e7,1.6602e7],"percentiles":{"50":1.73425e7,"99":29588250.0},"relative_less":0.3827335371288477,"relative_more":2.612783837814946,"sample_size":224,"std_dev":2005001.5695011197,"std_dev_ips":6.292897507660122,"std_dev_ratio":0.11232661919406384},"samples":[1.7587e7,1.7625e7,1.7466e7,1.9035e7,2.1142e7,1.6868e7,1.7461e7,1.6889e7,1.7343e7,1.7009e7,1.6804e7,1.7362e7,1.7875e7,1.7742e7,1.7957e7,2.1216e7,1.8043e7,1.7457e7,1.7737e7,1.7393e7,1.7217e7,1.7697e7,1.9528e7,1.7728e7,1.7571e7,1.8746e7,1.7342e7,1.7173e7,1.7086e7,2.0393e7,1.7004e7,1.67e7,1.6696e7,1.6862e7,1.8076e7,1.7171e7,1.7116e7,1.7262e7,1.7024e7,1.787e7,1.6961e7,1.6647e7,1.6249e7,1.5286e7,1.5266e7,1.5253e7,1.6404e7,1.5275e7,1.5398e7,1.5945e7,1.5731e7,1.5757e7,1.65e7,1.556e7,1.7269e7,1.9994e7,2.0314e7,1.9989e7,2.0462e7,2.019e7,2.0133e7,2.0424e7,2.0008e7,2.0316e7,2.0128e7,1.9758e7,1.755e7,1.6703e7,1.6687e7,1.6739e7,1.6814e7,1.6895e7,1.6648e7,1.7104e7,1.7927e7,1.722e7,1.6594e7,1.6338e7,1.6729e7,1.8135e7,1.7093e7,1.7304e7,1.7218e7,1.7307e7,1.7377e7,1.7236e7,1.7455e7,1.7395e7,1.7314e7,1.7319e7,1.7274e7,1.7198e7,1.7544e7,1.7389e7,1.9757e7,2.2523e7,2.0216e7,2.0124e7,1.9841e7,1.9993e7,2.9085e7,2.9756e7,3.0013e7,2.1822e7,1.9794e7,1.9776e7,2.099e7,2.0655e7,1.8614e7,2.0093e7,1.9576e7,1.9263e7,1.8486e7,1.7302e7,1.8524e7,1.7595e7,1.7425e7,1.8849e7,1.941e7,1.7257e7,1.7884e7,1.7781e7,1.7287e7,1.7942e7,1.7607e7,1.7535e7,1.7811e7,1.7571e7,1.7335e7,1.8218e7,1.7653e7,1.7483e7,2.0486e7,2.0395e7,1.9678e7,2.0113e7,1.971e7,1.9667e7,1.8352e7,1.7216e7,1.7401e7,1.9776e7,1.6933e7,1.7281e7,1.7207e7,1.7128e7,1.6923e7,1.7258e7,1.6924e7,1.6607e7,1.7186e7,1.6979e7,1.6602e7,1.7198e7,1.6942e7,1.6602e7,1.6846e7,1.5752e7,1.5967e7,1.6741e7,1.7375e7,1.701e7,2.1532e7,1.7883e7,1.7693e7,1.7855e7,1.8339e7,1.8266e7,1.8242e7,1.7551e7,1.7479e7,1.8185e7,1.7822e7,1.8118e7,1.7887e7,1.7654e7,1.7237e7,1.7846e7,1.753e7,1.7201e7,1.7755e7,1.6971e7,1.6569e7,1.7948e7,2.0721e7,1.7003e7,1.6823e7,1.6273e7,1.6777e7,1.9537e7,1.6362e7,1.6183e7,1.6869e7,1.6047e7,1.5529e7,1.5444e7,1.9183e7,1.553e7,1.5593e7,1.5585e7,1.5685e7,1.9098e7,1.5911e7,1.6319e7,1.6141e7,1.5733e7,1.5772e7,1.6754e7,1.6857e7,1.6831e7,1.9873e7,1.7249e7,1.6978e7,1.6741e7,1.6401e7,1.5486e7,1.9313e7,1.571e7,1.5981e7,1.6116e7,2.0211e7,1.6411e7,1.6458e7,1.6195e7]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null};
+
+      var inputHeadline = " (Issue 90)"
+
+      
+        drawRunTimeHistogram(scenario, inputHeadline);
+        drawRawRunTimeChart(scenario, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

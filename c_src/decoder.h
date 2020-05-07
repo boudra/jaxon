@@ -25,7 +25,7 @@ typedef enum {
 } json_event_type_t;
 
 typedef struct {
-    uint8_t* buffer;
+    const uint8_t* buffer;
     size_t size;
     size_t escapes;
 } string_t;
@@ -50,16 +50,16 @@ typedef struct {
 } json_event_t;
 
 typedef struct {
-    unsigned char* buffer;
-    unsigned char* cursor;
-    unsigned char* last_token;
+    const uint8_t* buffer;
+    const uint8_t* cursor;
+    const uint8_t* last_token;
     size_t buffer_length;
 } decoder_t;
 
 void make_decoder(decoder_t* d);
 void update_decoder_buffer(decoder_t* d, unsigned char* buf, size_t length);
 void decode(decoder_t* d, json_event_t* e);
-uint8_t* unescape_unicode(uint8_t*, uint8_t*, uint8_t*);
+const uint8_t* unescape_unicode(const uint8_t*, uint8_t*, const uint8_t*);
 
 static inline const char* event_type_to_string(json_event_type_t type) {
     switch (type) {

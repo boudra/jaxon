@@ -16,12 +16,14 @@ Links:
 
 ---
 
+[Click here if you want to use the 1.x version](https://github.com/boudra/jaxon/tree/fb638f76945236822e8e015ee4b4d79b8255b71e)
+
 ## Installation
 
 ```elixir
 def deps do
   [
-    {:jaxon, "~> 1.0"}
+    {:jaxon, "~> 2.0"}
   ]
 end
 ```
@@ -44,7 +46,7 @@ Query a binary JSON stream:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_enumerable() |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -52,7 +54,7 @@ Query a binary JSON stream using JSON path expressions:
 
 ```elixir
 iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
-iex> stream |> Jaxon.Stream.query(Jaxon.Path.decode!("$.array[*]")) |> Enum.to_list()
+iex> stream |> Jaxon.Stream.from_enumerable() |> Jaxon.Stream.query(Jaxon.Path.parse!("$.array[*]")) |> Enum.to_list()
 [1, 2]
 ```
 
@@ -61,6 +63,7 @@ Query a large file without holding the whole file in memory:
 ```elixir
 "large_file.json"
 |> File.stream!()
+|> Jaxon.Stream.from_enumerable()
 |> Jaxon.Stream.query([:root, "users", :all, "id"])
 |> Enum.to_list()
 ```
@@ -70,8 +73,8 @@ Query a large file without holding the whole file in memory:
 Jaxon first parses the JSON string into a list of events/tokens:
 
 ```elixir
-iex(1)> Jaxon.Parsers.NifParser.parse(~s({"key":true}))
-[:start_object, {:string, "key"}, :colon, {:boolean, true}, :end_object]
+iex(1)> Jaxon.Parsers.NifParser.parse(~s({"key":true}), [])
+{:ok, [:start_object, {:string, "key"}, :colon, {:boolean, true}, :end_object]}
 ```
 
 These are all the available events:
@@ -108,7 +111,7 @@ config :jaxon, :parser, Jaxon.Parsers.NifParser # only NifParser is supported at
 Then, the decoder's job is to take a list of events and aggregate it into a Elixir term:
 
 ```elixir
-iex(4)> Jaxon.Decoder.events_to_term([:start_object, {:string, "key"}, :colon, {:boolean, true}
+iex(4)> Jaxon.Decoders.Value.decode([:start_object, {:string, "key"}, :colon, {:boolean, true}
 , :end_object])
 {:ok, %{"key" => true}}
 ```
@@ -127,7 +130,7 @@ To run the benchmarks, execute:
 mix bench.decode
 ```
 
-See the benchmarks here: [benchmarks](/BENCHMARKS.md)
+See the decode benchmarks here: [benchmarks](https://boudra.github.io/jaxon/benchmark_results/decode.html)
 
 ## License
 

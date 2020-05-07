@@ -5,12 +5,24 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifdef __SSE4_2__
+#include <x86intrin.h>
+#endif
+
+#if __GNUC__ >= 3
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define likely(x) (x)
+#define unlikely(x) (x)
+#endif
+
 #define is_space(c) (c == ' ' || c == '\n' || c == '\r' || c == '\t')
 #define is_digit(c) (c >= '0' && c <= '9')
 #define max(a,b) (((a)>(b))?(a):(b))
 #define min(a,b) (((a)<(b))?(a):(b))
 
-uint8_t* skip_whitespace(uint8_t* buf, uint8_t* limit) {
+const uint8_t* skip_whitespace(const uint8_t* buf, const uint8_t* limit) {
     while (buf < limit && is_space(*buf)) {
         buf++;
     }
@@ -19,7 +31,7 @@ uint8_t* skip_whitespace(uint8_t* buf, uint8_t* limit) {
 
 void syntax_error(decoder_t* d, json_event_t* e) {
     const size_t context_length = 30;
-    uint8_t* context = max(d->cursor - context_length, d->buffer);
+    const uint8_t* context = max(d->cursor - context_length, d->buffer);
 
     e->type = SYNTAX_ERROR;
     e->value.string.buffer = context;
@@ -40,8 +52,8 @@ void update_decoder_buffer(decoder_t* d, uint8_t* buf, size_t length) {
 }
 
 void parse_number(decoder_t* d, json_event_t* e) {
-    uint8_t *limit = d->buffer + d->buffer_length;
-    uint8_t *buf = d->cursor, *decimal_point = NULL;
+    const uint8_t *limit = d->buffer + d->buffer_length;
+    const uint8_t *buf = d->cursor, *decimal_point = NULL;
     int exp_sign = 0, frac_sign = 0;
     long double frac = 0;
     long int exp = 0, frac_exp = 0;
@@ -176,7 +188,7 @@ done:
     }
 }
 
-uint8_t* unescape_unicode(uint8_t* buf, uint8_t* buffer, uint8_t* limit) {
+const uint8_t* unescape_unicode(const uint8_t* buf, uint8_t* buffer, const uint8_t* limit) {
     while (buf < limit) {
         switch(*buf) {
             case '\\':
@@ -278,14 +290,47 @@ uint8_t* unescape_unicode(uint8_t* buf, uint8_t* buffer, uint8_t* limit) {
     return buffer;
 }
 
-uint8_t* parse_string(uint8_t* buffer, uint8_t* limit, size_t* escapes) {
-    uint8_t* buf = buffer;
+const uint8_t* find_char(const uint8_t* buf, const uint8_t* limit, const uint8_t* chars, const size_t num_chars, int* found) {
+    *found = 0;
 
-    while (*buf != '"' && buf < limit) {
+    if(likely(limit - buf >= 16)) {
+        __m128i ranges16 = _mm_loadu_si128((const __m128i*)chars);
+        size_t left = (limit - buf) & ~15;
+
+        do {
+            __m128i b16 = _mm_loadu_si128((const __m128i *)buf);
+            int r = _mm_cmpestri(ranges16, num_chars, b16, 16, _SIDD_CMP_EQUAL_ANY | _SIDD_UBYTE_OPS);
+
+            if (unlikely(r != 16)) {
+                buf += r;
+                *found = 1;
+                break;
+            }
+
+            buf += 16;
+            left -= 16;
+        } while(likely(left != 0));
+    }
+
+    return buf;
+}
+
+const uint8_t* parse_string(const uint8_t* buffer, const uint8_t* limit, size_t* escapes) {
+    const uint8_t* buf = buffer;
+
+    static const uint8_t tokens[] __attribute__((aligned(16))) = "\t\n\\\"\0";
+    int found = 0;
+
+    while (buf < limit) {
+        buf = find_char(buf, limit, tokens, sizeof(tokens), &found);
+
+        if(buf == limit) return buf;
+
         switch(*buf) {
             case '\t':
             case '\n':
             case '\0':
+            case '\"':
                 return buf;
 
             case '\\':
@@ -293,7 +338,7 @@ uint8_t* parse_string(uint8_t* buffer, uint8_t* limit, size_t* escapes) {
 
                 if((buf + 1) < limit) {
                     switch(*(++buf)) {
-                        case '\"':
+                        case '"':
                         case '\\':
                         case '/':
                         case 'n':
@@ -357,11 +402,10 @@ uint8_t* parse_string(uint8_t* buffer, uint8_t* limit, size_t* escapes) {
     }
 
     return buf;
-
 }
 
 void decode(decoder_t* d, json_event_t* e) {
-    uint8_t* limit = d->buffer + d->buffer_length;
+    const uint8_t* limit = d->buffer + d->buffer_length;
     d->cursor = skip_whitespace(d->cursor, limit);
     d->last_token = d->cursor;
 
@@ -467,8 +511,8 @@ void decode(decoder_t* d, json_event_t* e) {
         case '"':
             {
                 size_t escapes = 0;
-                uint8_t* string_end = ++d->cursor;
-                uint8_t* cursor = parse_string(string_end, limit, &escapes);
+                const uint8_t* string_end = ++d->cursor;
+                const uint8_t* cursor = parse_string(string_end, limit, &escapes);
 
                 if(cursor == limit) {
                     e->type = INCOMPLETE;

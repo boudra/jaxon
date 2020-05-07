@@ -5,8 +5,8 @@ defmodule Jaxon.MixProject do
     [
       app: :jaxon,
       name: "Jaxon",
-      version: "1.0.10",
-      elixir: "~> 1.6",
+      version: "2.0.0-alpha.1",
+      elixir: "~> 1.7",
       compilers: [:elixir_make] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -55,13 +55,14 @@ defmodule Jaxon.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:benchee, "~> 0.8", only: :bench},
-      {:benchee_html, "~> 0.1", only: :bench},
-      {:poison, "~> 3.0", only: [:bench, :dev]},
-      {:jason, "~> 1.0", only: :bench},
-      {:jiffy, "~> 0.14", only: :bench},
-      {:ex_doc, ">= 0.0.0", only: :dev},
-      {:inch_ex, "~> 0.5", only: :dev},
+      {:benchee, "~> 1.0", only: :bench},
+      {:benchee_html, "~> 1.0", only: :bench},
+      {:poison, ">= 0.0.0", only: [:bench]},
+      {:jason, ">= 0.0.0", only: [:bench, :test, :docs]},
+      {:jiffy, ">= 0.0.0", only: :bench},
+      {:ex_doc, ">= 0.0.0", only: [:docs, :dev]},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:test, :dev], runtime: false},
+      {:inch_ex, github: "rrrene/inch_ex", only: [:docs, :test]},
       {:elixir_make, "~> 0.4", runtime: false},
       {:excoveralls, "~> 0.8", only: :test}
     ]

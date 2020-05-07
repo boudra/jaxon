@@ -40,6 +40,7 @@ defmodule JaxonEventStreamTest do
 
   def query(stream, query) do
     stream
+    |> Stream.from_enumerable()
     |> Stream.query(Jaxon.Path.parse!(query))
     |> Enum.to_list()
   end
@@ -66,6 +67,7 @@ defmodule JaxonEventStreamTest do
     result =
       [@json_stream]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "numbers", :all])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -76,6 +78,7 @@ defmodule JaxonEventStreamTest do
   test "multiple JSON doucuments in a stream chunk" do
     result =
       ["#{@json_stream}\n#{@json_stream}"]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "numbers", :all])
       |> Enum.to_list()
 
@@ -86,6 +89,7 @@ defmodule JaxonEventStreamTest do
     result =
       ["42\n"]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -95,6 +99,7 @@ defmodule JaxonEventStreamTest do
     result =
       [~s({"key":true}\n)]
       |> Elixir.Stream.cycle()
+      |> Stream.from_enumerable()
       |> Stream.query([:root])
       |> Elixir.Stream.take(30)
       |> Enum.to_list()
@@ -105,6 +110,7 @@ defmodule JaxonEventStreamTest do
   test "it doesn't error when incomplete JSON is streamed" do
     result =
       [~s([{"numbers":[1,2],"key":"hello")]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, :all, "key"])
       |> Enum.to_list()
 
@@ -114,8 +120,67 @@ defmodule JaxonEventStreamTest do
   test "stream syntax error" do
     assert_raise Jaxon.ParseError, fn ->
       [~s(wrong)]
+      |> Stream.from_enumerable()
       |> Stream.query([:root, "key"])
       |> Enum.to_list()
     end
+  end
+
+  test "query stream" do
+    Util.chunk_binary(@json_stream, 4)
+    |> Jaxon.Stream.from_enumerable()
+    |> Jaxon.Stream.query([:root, "numbers", 2])
+    |> Enum.to_list()
+  end
+
+  test "value stream" do
+    expected = [
+      {[], :start_object},
+      {["numbers"], :start_array},
+      {["numbers", 0], 1},
+      {["numbers", 1], 2},
+      {["numbers", 2], -1},
+      {["numbers"], :end},
+      {["empty_array"], :start_array},
+      {["empty_array"], :end},
+      {["empty_object"], :start_object},
+      {["empty_object"], :end},
+      {["bool1"], true},
+      {[""], "empty"},
+      {["bool2"], false},
+      {["null"], nil},
+      {["person"], :start_object},
+      {["person", "name"], "Keanu Reeves"},
+      {["person", "decimal"], 0.2},
+      {["person", "unicode"], ")"},
+      {["person", "movies"], :start_array},
+      {["person", "movies", 0], :start_object},
+      {["person", "movies", 0, "name"], "Speed"},
+      {["person", "movies", 0], :end},
+      {["person", "movies", 1], :start_object},
+      {["person", "movies", 1, "name"], "The Matrix"},
+      {["person", "movies", 1], :end},
+      {["person", "movies"], :end},
+      {["person"], :end},
+      {[], :end}
+    ]
+
+    result =
+      @json_stream
+      |> Util.chunk_binary(20)
+      |> Jaxon.Stream.from_enumerable()
+      |> Jaxon.Stream.values()
+      |> Enum.to_list()
+
+    assert result == expected
+  end
+
+  test "empty query" do
+    assert_raise(ArgumentError, fn ->
+      @json_stream
+      |> Jaxon.Stream.from_binary()
+      |> Jaxon.Stream.query([])
+      |> Enum.to_list()
+    end)
   end
 end

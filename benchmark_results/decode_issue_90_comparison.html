@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    Issue 90
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          Run Time Comparison
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#comparison">
+            <i
+            class="benchee-help-icon icon-question-circle-o"
+            title="Comparisons of the different benchmarking jobs. For Iterations per Second higher is better, the black whiskers denote standard deviation. otherwise it is runtime so lower is better. The Box Plot shows a distribution of run times with the median and outliers."
+            ></i>
+          </a>
+        </h2>
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_issue_90_jaxon.html">Jaxon</a></td>
+        
+        
+          <td>146.38</td>
+          <td>6.83 ms</td>
+          <td>±4.87%</td>
+          <td>6.82 ms</td>
+          <td>6.79 ms</td>
+          <td>6.19 ms</td>
+          <td>8.20 ms</td>
+        
+        <td>586</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_issue_90_jiffy.html">jiffy</a></td>
+        
+        
+          <td>56.02</td>
+          <td>17.85 ms</td>
+          <td>±11.23%</td>
+          <td>17.34 ms</td>
+          <td>19.78 ms, 17.57 ms, 16.74 ms, 17.20 ms, 16.60 ms</td>
+          <td>15.25 ms</td>
+          <td>30.01 ms</td>
+        
+        <td>224</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_issue_90_poison.html">Poison</a></td>
+        
+        
+          <td>6.93</td>
+          <td>144.35 ms</td>
+          <td>±2.86%</td>
+          <td>144.43 ms</td>
+          <td>none</td>
+          <td>137.06 ms</td>
+          <td>152.80 ms</td>
+        
+        <td>28</td>
+      </tr>
+    
+      
+      <tr>
+        
+          <td class="text-left"><a href="decode_issue_90_jason.html">Jason</a></td>
+        
+        
+          <td>6.69</td>
+          <td>149.45 ms</td>
+          <td>±2.64%</td>
+          <td>149.25 ms</td>
+          <td>none</td>
+          <td>142.87 ms</td>
+          <td>157.54 ms</td>
+        
+        <td>27</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="ips-comparison" class="job-count-4 plot"></div>
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-time-box-plot" class="job-count-4 plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenarios     = [{"name":"Jaxon","job_name":"Jaxon","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":null,"average":6831696.245733788,"ips":146.37653139576767,"maximum":8.199e6,"median":6.8205e6,"minimum":6.188e6,"mode":6.793e6,"percentiles":{"50":6.8205e6,"99":7707070.0},"relative_less":null,"relative_more":null,"sample_size":586,"std_dev":332794.6928297159,"std_dev_ips":7.130488688479664,"std_dev_ratio":0.048713332803333766},"samples":[7.67e6,6.83e6,6.285e6,7.187e6,7.753e6,7.092e6,6.371e6,6.568e6,7.621e6,6.87e6,7.001e6,8.026e6,7.216e6,7.055e6,7.074e6,7.206e6,7.067e6,7.028e6,7.163e6,7.014e6,7.255e6,7.139e6,7.21e6,7.081e6,7.477e6,7.156e6,7.119e6,7.148e6,7.171e6,7.203e6,7.077e6,7.166e6,7.303e6,7.098e6,7.231e6,7.095e6,7.266e6,7.057e6,7.138e6,7.078e6,7.249e6,7.107e6,7.151e6,7.092e6,7.242e6,7.338e6,7.076e6,7.164e6,7.047e6,7.13e6,6.999e6,7.058e6,7.114e6,7.136e6,7.109e6,7.126e6,7.105e6,7.06e6,6.926e6,7.143e6,6.988e6,6.89e6,7.372e6,7.249e6,6.941e6,6.853e6,6.934e6,6.858e6,6.759e6,7.024e6,6.787e6,6.766e6,6.832e6,6.963e6,7.197e6,7.124e6,7.048e6,6.995e6,7.035e6,7.019e6,7.094e6,7.073e6,6.788e6,6.814e6,6.788e6,6.863e6,6.804e6,6.804e6,6.805e6,6.556e6,6.654e6,6.359e6,6.426e6,6.565e6,6.661e6,6.525e6,6.47e6,6.44e6,6.435e6,6.832e6,6.927e6,6.315e6,6.579e6,6.22e6,6.313e6,6.508e6,6.83e6,6.906e6,6.793e6,6.812e6,6.795e6,6.801e6,6.778e6,6.777e6,7.156e6,6.807e6,6.923e6,6.819e6,6.817e6,6.844e6,6.795e6,6.747e6,6.336e6,6.258e6,6.25e6,6.524e6,6.249e6,6.394e6,6.243e6,6.559e6,6.358e6,6.262e6,6.368e6,6.403e6,6.479e6,6.223e6,6.544e6,6.332e6,6.223e6,6.262e6,6.37e6,6.279e6,6.36e6,6.321e6,6.264e6,6.188e6,6.221e6,6.237e6,6.195e6,6.385e6,6.252e6,6.348e6,6.232e6,6.302e6,6.388e6,6.211e6,6.212e6,6.246e6,6.336e6,6.216e6,6.278e6,6.362e6,7.29e6,6.304e6,6.289e6,6.55e6,6.265e6,6.292e6,6.908e6,6.326e6,6.234e6,6.689e6,6.385e6,6.65e6,6.789e6,6.792e6,7.587e6,6.911e6,6.825e6,6.889e6,6.819e6,6.863e6,6.792e6,6.915e6,7.028e6,7.034e6,6.974e6,6.778e6,6.784e6,6.692e6,6.566e6,6.587e6,6.584e6,6.583e6,6.739e6,6.989e6,6.72e6,6.602e6,6.672e6,6.804e6,6.693e6,6.566e6,6.56e6,6.922e6,6.848e6,6.612e6,6.571e6,6.601e6,6.581e6,6.687e6,6.7e6,6.771e6,6.759e6,6.823e6,6.568e6,6.816e6,6.652e6,6.611e6,6.595e6,6.714e6,6.934e6,6.898e6,7.236e6,7.139e6,6.999e6,6.871e6,7.125e6,7.434e6,7.464e6,6.776e6,6.984e6,6.727e6,7.235e6,6.657e6,7.035e6,8.199e6,7.499e6,7.467e6,7.107e6,7.08e6,7.01e6,7.088e6,7.092e6,7.027e6,7.051e6,7.094e6,7.058e6,7.053e6,7.136e6,7.47e6,7.359e6,7.312e6,7.065e6,7.039e6,7.088e6,7.19e6,7.317e6,7.313e6,7.026e6,7.03e6,7.061e6,7.039e6,7.045e6,7.385e6,7.044e6,7.051e6,7.093e6,7.057e6,7.179e6,6.801e6,6.849e6,6.819e6,6.905e6,6.818e6,6.836e6,6.795e6,6.821e6,6.962e6,6.805e6,6.793e6,6.776e6,6.774e6,7.286e6,7.171e6,7.009e6,6.807e6,6.9e6,6.821e6,6.832e6,6.8e6,6.812e6,6.815e6,6.939e6,6.827e6,6.784e6,6.827e6,6.776e6,6.869e6,6.853e6,7.053e6,6.434e6,6.258e6,6.226e6,6.401e6,6.38e6,6.394e6,6.623e6,6.44e6,7.266e6,6.346e6,6.573e6,6.284e6,6.848e6,7.741e6,6.69e6,6.309e6,6.378e6,6.804e6,6.773e6,7.279e6,7.286e6,7.474e6,6.933e6,6.918e6,6.945e6,6.924e6,6.868e6,6.793e6,6.825e6,6.768e6,6.997e6,6.881e6,6.823e6,6.8e6,6.822e6,6.772e6,6.798e6,6.807e6,6.779e6,6.785e6,6.786e6,6.88e6,7.022e6,6.805e6,6.904e6,6.774e6,6.788e6,6.798e6,6.569e6,6.261e6,6.437e6,6.267e6,6.334e6,6.858e6,6.57e6,7.122e6,6.789e6,6.341e6,6.858e6,6.297e6,6.377e6,6.582e6,6.272e6,6.392e6,6.221e6,6.905e6,7.141e6,6.622e6,6.601e6,6.608e6,6.645e6,6.979e6,7.353e6,7.079e6,6.625e6,6.649e6,6.592e6,6.664e6,6.672e6,6.686e6,6.613e6,6.598e6,6.612e6,6.637e6,6.607e6,6.596e6,6.887e6,6.694e6,7.294e6,6.61e6,6.692e6,6.584e6,6.621e6,6.588e6,6.589e6,7.951e6,7.053e6,6.801e6,6.947e6,6.812e6,6.803e6,7.274e6,7.098e6,6.832e6,6.79e6,6.785e6,6.802e6,6.768e6,6.797e6,6.809e6,6.96e6,6.821e6,6.789e6,6.74e6,6.594e6,6.689e6,6.672e6,6.628e6,6.596e6,6.607e6,6.672e6,6.602e6,6.594e6,6.6e6,6.592e6,6.792e6,7.003e6,6.677e6,6.668e6,7.017e6,6.234e6,6.843e6,6.442e6,6.256e6,6.658e6,6.377e6,6.246e6,6.26e6,6.225e6,6.218e6,6.293e6,6.305e6,6.261e6,6.245e6,6.234e6,7.001e6,7.293e6,7.034e6,6.802e6,6.787e6,6.793e6,6.797e6,6.786e6,6.798e6,6.965e6,6.819e6,6.896e6,7.041e6,6.855e6,6.845e6,6.892e6,7.166e6,7.169e6,7.147e6,6.778e6,6.965e6,6.67e6,7.149e6,6.646e6,6.627e6,7.638e6,6.649e6,7.222e6,6.628e6,6.88e6,6.793e6,6.667e6,6.765e6,6.662e6,6.815e6,7.047e6,7.056e6,7.048e6,7.047e6,7.052e6,6.888e6,7.109e6,7.199e6,6.82e6,7.145e6,7.383e6,7.093e6,6.963e6,6.987e6,6.985e6,7.497e6,7.053e6,7.2e6,7.137e6,6.936e6,7.551e6,7.299e6,7.334e6,6.856e6,6.977e6,7.019e6,7.702e6,6.927e6,6.788e6,6.939e6,7.164e6,7.124e6,7.096e6,7.144e6,7.127e6,7.143e6,7.055e6,7.021e6,7.152e6,7.253e6,7.104e6,7.17e6,7.304e6,7.215e6,7.057e6,7.312e6,7.277e6,7.241e6,7.219e6,7.188e6,7.034e6,7.042e6,7.046e6,7.095e6,7.096e6,7.043e6,6.992e6,7.013e6,7.019e6,7.029e6,7.164e6,7.203e6,6.842e6,7.432e6,6.849e6,6.948e6,7.574e6,6.988e6,6.862e6,6.862e6,6.783e6,6.779e6,6.785e6,6.773e6,6.778e6,6.797e6,7.349e6,6.791e6,6.826e6,6.769e6,6.796e6,6.869e6,6.82e6,6.873e6,6.791e6,6.876e6,6.783e6,6.777e6,6.785e6,6.783e6,6.873e6,6.82e6,6.393e6,6.256e6,6.238e6,6.323e6,6.617e6,6.544e6,6.366e6,6.408e6,6.393e6,6.251e6,6.236e6,6.236e6,6.262e6,6.293e6]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"jiffy","job_name":"jiffy","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":11018049.2899805,"average":17849745.535714287,"ips":56.02320761375399,"maximum":3.0013e7,"median":1.73425e7,"minimum":1.5253e7,"mode":[1.9776e7,1.7571e7,1.6741e7,1.7198e7,1.6602e7],"percentiles":{"50":1.73425e7,"99":29588250.0},"relative_less":0.3827335371288477,"relative_more":2.612783837814946,"sample_size":224,"std_dev":2005001.5695011197,"std_dev_ips":6.292897507660122,"std_dev_ratio":0.11232661919406384},"samples":[1.7587e7,1.7625e7,1.7466e7,1.9035e7,2.1142e7,1.6868e7,1.7461e7,1.6889e7,1.7343e7,1.7009e7,1.6804e7,1.7362e7,1.7875e7,1.7742e7,1.7957e7,2.1216e7,1.8043e7,1.7457e7,1.7737e7,1.7393e7,1.7217e7,1.7697e7,1.9528e7,1.7728e7,1.7571e7,1.8746e7,1.7342e7,1.7173e7,1.7086e7,2.0393e7,1.7004e7,1.67e7,1.6696e7,1.6862e7,1.8076e7,1.7171e7,1.7116e7,1.7262e7,1.7024e7,1.787e7,1.6961e7,1.6647e7,1.6249e7,1.5286e7,1.5266e7,1.5253e7,1.6404e7,1.5275e7,1.5398e7,1.5945e7,1.5731e7,1.5757e7,1.65e7,1.556e7,1.7269e7,1.9994e7,2.0314e7,1.9989e7,2.0462e7,2.019e7,2.0133e7,2.0424e7,2.0008e7,2.0316e7,2.0128e7,1.9758e7,1.755e7,1.6703e7,1.6687e7,1.6739e7,1.6814e7,1.6895e7,1.6648e7,1.7104e7,1.7927e7,1.722e7,1.6594e7,1.6338e7,1.6729e7,1.8135e7,1.7093e7,1.7304e7,1.7218e7,1.7307e7,1.7377e7,1.7236e7,1.7455e7,1.7395e7,1.7314e7,1.7319e7,1.7274e7,1.7198e7,1.7544e7,1.7389e7,1.9757e7,2.2523e7,2.0216e7,2.0124e7,1.9841e7,1.9993e7,2.9085e7,2.9756e7,3.0013e7,2.1822e7,1.9794e7,1.9776e7,2.099e7,2.0655e7,1.8614e7,2.0093e7,1.9576e7,1.9263e7,1.8486e7,1.7302e7,1.8524e7,1.7595e7,1.7425e7,1.8849e7,1.941e7,1.7257e7,1.7884e7,1.7781e7,1.7287e7,1.7942e7,1.7607e7,1.7535e7,1.7811e7,1.7571e7,1.7335e7,1.8218e7,1.7653e7,1.7483e7,2.0486e7,2.0395e7,1.9678e7,2.0113e7,1.971e7,1.9667e7,1.8352e7,1.7216e7,1.7401e7,1.9776e7,1.6933e7,1.7281e7,1.7207e7,1.7128e7,1.6923e7,1.7258e7,1.6924e7,1.6607e7,1.7186e7,1.6979e7,1.6602e7,1.7198e7,1.6942e7,1.6602e7,1.6846e7,1.5752e7,1.5967e7,1.6741e7,1.7375e7,1.701e7,2.1532e7,1.7883e7,1.7693e7,1.7855e7,1.8339e7,1.8266e7,1.8242e7,1.7551e7,1.7479e7,1.8185e7,1.7822e7,1.8118e7,1.7887e7,1.7654e7,1.7237e7,1.7846e7,1.753e7,1.7201e7,1.7755e7,1.6971e7,1.6569e7,1.7948e7,2.0721e7,1.7003e7,1.6823e7,1.6273e7,1.6777e7,1.9537e7,1.6362e7,1.6183e7,1.6869e7,1.6047e7,1.5529e7,1.5444e7,1.9183e7,1.553e7,1.5593e7,1.5585e7,1.5685e7,1.9098e7,1.5911e7,1.6319e7,1.6141e7,1.5733e7,1.5772e7,1.6754e7,1.6857e7,1.6831e7,1.9873e7,1.7249e7,1.6978e7,1.6741e7,1.6401e7,1.5486e7,1.9313e7,1.571e7,1.5981e7,1.6116e7,2.0211e7,1.6411e7,1.6458e7,1.6195e7]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"Poison","job_name":"Poison","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":137522875.18283764,"average":144354571.42857143,"ips":6.927387128123014,"maximum":1.52802e8,"median":1.44429e8,"minimum":1.37059e8,"mode":null,"percentiles":{"50":1.44429e8,"99":1.52802e8},"relative_less":0.04732580463594257,"relative_more":21.130121456836875,"sample_size":28,"std_dev":4127781.6697625266,"std_dev_ips":0.19808684493905415,"std_dev_ratio":0.02859474160681505},"samples":[1.44196e8,1.38267e8,1.45126e8,1.4631e8,1.38662e8,1.46051e8,1.52802e8,1.47823e8,1.41214e8,1.46127e8,1.44662e8,1.45315e8,1.46891e8,1.5258e8,1.5055e8,1.41669e8,1.43328e8,1.40787e8,1.37721e8,1.41332e8,1.4355e8,1.47519e8,1.47379e8,1.47971e8,1.43168e8,1.37059e8,1.41893e8,1.41976e8]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null},{"name":"Jason","job_name":"Jason","input_name":"Issue 90","run_time_data":{"statistics":{"absolute_difference":142615353.38389584,"average":149447049.62962964,"ips":6.691333167688967,"maximum":157537896.0,"median":149245901.0,"minimum":142873906.0,"mode":null,"percentiles":{"50":149245901.0,"99":157537896.0},"relative_less":0.04571315568065469,"relative_more":21.875540752116333,"sample_size":27,"std_dev":3951182.1195773035,"std_dev_ips":0.17690998941651523,"std_dev_ratio":0.026438675968307207},"samples":[146767903.0,150132901.0,1.511599e8,154005899.0,157537896.0,1.523689e8,149245901.0,150277901.0,148966902.0,142873906.0,148612902.0,148717902.0,143241906.0,149470901.0,143867905.0,147429903.0,143298906.0,148918902.0,147618902.0,148085903.0,150030901.0,155841897.0,154538898.0,153609899.0,1.515229e8,143591906.0,153331898.0]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null}];
+      var inputHeadline = " (Issue 90)";
+
+      
+        drawIpsComparisonChart(scenarios, inputHeadline);
+        drawRunTimeComparisonBoxPlot(scenarios, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

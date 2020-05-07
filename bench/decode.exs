@@ -15,7 +15,8 @@ decode_inputs = [
   "JSON Generator (Pretty)",
   "UTF-8 escaped",
   "UTF-8 unescaped",
-  "Issue 90"
+  "Issue 90",
+  "Yelp Photos"
 ]
 
 read_data = fn name ->
@@ -34,16 +35,10 @@ Benchee.run(
   decode_jobs,
   parallel: 1,
   warmup: 2,
-  time: 5,
+  time: 4,
   inputs: inputs,
   formatters: [
-    &Benchee.Formatters.HTML.output/1,
-    &Benchee.Formatters.Console.output/1
-  ],
-  formatter_options: [
-    console: %{comparison: true},
-    html: %{
-      file: Path.expand("output/decode.html", __DIR__)
-    }
+    {Benchee.Formatters.HTML, file: "benchmark_results/decode.html"},
+    Benchee.Formatters.Console
   ]
 )

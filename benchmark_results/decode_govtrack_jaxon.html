@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Benchee Report</title>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/benchee.css">
+    <link rel="stylesheet" type="text/css" href="assets/fontello/css/fontello.css">
+  
+</head>
+
+  <body>
+
+    <div class="header">
+  <h1>benchee report</h1>
+  
+  <span class="input-label">
+    GovTrack
+  </span>
+
+
+  <span class="version-note">
+  <a href="javascript:toggleSystemDataInfo();" title="Click to toggle system info">System info</a>
+</span>
+
+</div>
+
+
+    <article id="system-info" class="benchee-systeminfo" >
+  <h3>System info</h3>
+  <ul class="benchee-systeminfo-list">
+    <li>Elixir: 1.9.4</li>
+    <li>Erlang: 22.1.8</li>
+    <li>Operating system: macOS</li>
+    <li>Available memory: 16 GB</li>
+    <li>CPU Information: Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz</li>
+    <li>Number of Available Cores: 8</li>
+  </ul>
+</article>
+
+
+    
+      <article>
+        <h2>
+          <a name="run_time" href="#run_time">Jaxon Run Time</a>
+          <a href="https://github.com/PragTob/benchee_html/wiki/Chart-Types#individual">
+            <i
+              class="benchee-help-icon icon-question-circle-o"
+              title="Graphs showing the individual run time distribution for Jaxon.
+  Run Times Histogram shows the distribution of occurrences of specific run times in buckets.
+  Raw Run Times shows all individual recorded run times in the order they were recorded in."
+            ></i>
+          </a>
+        </h2>
+
+        <section>
+          <table>
+  <thead>
+    <tr>
+      <th class="text-left">Name</th>
+      
+        <th>Iterations per Second</th>
+      
+      <th>Average</th>
+      <th>Deviation</th>
+      <th>Median</th>
+      <th>Mode</th>
+      <th>Minimum</th>
+      <th>Maximum</th>
+      <th>Sample size</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+      
+      <tr>
+        
+          <td class="text-left">Jaxon</td>
+        
+        
+          <td>13.18</td>
+          <td>75.86 ms</td>
+          <td>±7.25%</td>
+          <td>74.54 ms</td>
+          <td>74.87 ms</td>
+          <td>70.77 ms</td>
+          <td>104.00 ms</td>
+        
+        <td>53</td>
+      </tr>
+    
+  </tbody>
+</table>
+
+        </section>
+
+        <section class="benchee-plot-container">
+          <div id="run-times-histogram" class="plot"></div>
+        </section>
+        <section class="benchee-plot-container">
+          <div id="raw-run-times" class="plot"></div>
+        </section>
+      </article>
+    
+
+    
+
+    <footer>
+      <a href="https://github.com/PragTob/benchee" target="blank">benchee version: 1.0.1 </a>
+<br/>
+<a href="https://github.com/PragTob/benchee_html" target="blank">benchee_html version: 1.0.0</a>
+
+
+    </footer>
+
+    
+  <script src="assets/javascripts/plotly-1.30.1.min.js"></script>
+  <script src="assets/javascripts/benchee.js"></script>
+
+
+
+    <script>
+      var scenario = {"name":"Jaxon","job_name":"Jaxon","input_name":"GovTrack","run_time_data":{"statistics":{"absolute_difference":null,"average":75859113.20754717,"ips":13.182331795311715,"maximum":1.04001e8,"median":7.4536e7,"minimum":7.0771e7,"mode":7.4874e7,"percentiles":{"50":7.4536e7,"99":1.04001e8},"relative_less":null,"relative_more":null,"sample_size":53,"std_dev":5497971.796176567,"std_dev_ips":0.9554038447585599,"std_dev_ratio":0.07247608841846542},"samples":[1.04001e8,8.4128e7,8.0782e7,9.7792e7,7.5354e7,7.8466e7,7.5716e7,7.637e7,7.7018e7,7.6681e7,7.643e7,7.4362e7,7.5734e7,7.5193e7,7.4874e7,7.4656e7,7.3959e7,7.3049e7,7.1248e7,7.2154e7,7.3211e7,7.4223e7,7.4257e7,7.4059e7,7.4506e7,7.4275e7,7.3622e7,7.7266e7,7.7816e7,7.6472e7,7.6227e7,7.3935e7,7.4874e7,7.3961e7,7.5017e7,7.4675e7,7.3802e7,7.5654e7,7.2595e7,7.0771e7,7.4536e7,7.5879e7,7.5516e7,7.454e7,7.3176e7,7.1826e7,7.253e7,7.3201e7,7.3564e7,7.4502e7,7.4238e7,7.4114e7,7.3726e7]},"memory_usage_data":{"statistics":{"absolute_difference":null,"average":null,"ips":null,"maximum":null,"median":null,"minimum":null,"mode":null,"percentiles":null,"relative_less":null,"relative_more":null,"sample_size":0,"std_dev":null,"std_dev_ips":null,"std_dev_ratio":null},"samples":[]},"tag":null};
+
+      var inputHeadline = " (GovTrack)"
+
+      
+        drawRunTimeHistogram(scenario, inputHeadline);
+        drawRawRunTimeChart(scenario, inputHeadline);
+      
+
+      
+    </script>
+  </body>
+</html>

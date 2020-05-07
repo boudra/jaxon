@@ -1,7 +1,12 @@
 defmodule Jaxon.Parser do
   @parser Application.get_env(:jaxon, :parser, Jaxon.Parsers.NifParser)
 
-  @callback parse(String.t()) :: [Jaxon.Event.t()]
+  @type parse_return() ::
+          {:ok, [Jaxon.Event.t()]}
+          | {:error, Jaxon.ParseError.t()}
+          | {:incomplete, [Jaxon.Event.t()], String.t()}
+
+  @callback parse(String.t(), Keyword.t()) :: parse_return()
 
   @moduledoc ~S"""
   ## Example
@@ -12,7 +17,7 @@ defmodule Jaxon.Parser do
 
   ```
   iex> Jaxon.Parser.parse("{\"jaxon\":\"rocks\",\"array\":[1,2]}")
-  [
+  {:ok, [
    :start_object,
    {:string, "jaxon"},
    :colon,
@@ -26,10 +31,21 @@ defmodule Jaxon.Parser do
    {:integer, 2},
    :end_array,
    :end_object
-  ]
+  ]}
+  ```
+
+  ```
+  iex> Jaxon.Parser.parse(~s(2, 3  true null "incomplete string))
+  {:incomplete, [
+   {:integer, 2},
+   :comma,
+   {:integer, 3},
+   {:boolean, true},
+    nil,
+  ], "\"incomplete string"}
   ```
   """
 
-  @spec parse(String.t()) :: [Jaxon.Event.t()]
-  defdelegate parse(events), to: @parser
+  @spec parse(String.t(), Keyword.t()) :: parse_return()
+  defdelegate parse(events, opts \\ []), to: @parser
 end

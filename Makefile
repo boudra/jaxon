@@ -16,7 +16,7 @@ all: priv/decoder.so
 
 priv/decoder.so: c_src/decoder_nif.c c_src/decoder.c
 	mkdir -p priv
-	$(CC) $(CFLAGS) -std=c99 -O3 -I$(ERL_INCLUDE_PATH) c_src/decoder*.c -o priv/decoder.so
+	$(CC) $(CFLAGS) -msse2 -mavx2 -std=c99 -O3 -I$(ERL_INCLUDE_PATH) c_src/decoder*.c -o priv/decoder.so
 
 clean:
 	@rm -rf priv/decoder.so

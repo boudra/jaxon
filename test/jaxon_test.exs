@@ -5,12 +5,20 @@ defmodule JaxonTest do
   alias Jaxon.{ParseError}
 
   test "errors" do
-    assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
+    assert_raise(ParseError, ~r/Syntax error at `random string`.*/, fn ->
+      decode!(~s(random string))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected incomplete string.*/, fn ->
       decode!(~s("incomplete string))
     end)
 
     assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
       decode!(~s({))
+    end)
+
+    assert_raise(ParseError, ~r/Unexpected comma.*/, fn ->
+      decode!(~s({,))
     end)
 
     assert_raise(ParseError, ~r/Unexpected end of stream.*/, fn ->
@@ -99,39 +107,6 @@ defmodule JaxonTest do
       assert {:ok, _} = decode(File.read!(unquote(filename)))
     end
   end)
-
-  test "partial decode" do
-    {:yield, tail, fun} =
-      ~s({)
-      |> Jaxon.Parser.parse()
-      |> Jaxon.Decoder.events_to_term()
-
-    value =
-      (tail <> ~s("hello":"world"}))
-      |> Jaxon.Parser.parse()
-      |> fun.()
-
-    assert value == {:ok, %{"hello" => "world"}}
-  end
-
-  # test "parse performance" do
-  #   data = File.read!("bench/data/govtrack.json")
-  #   iters = 10
-  #
-  #   time =
-  #     Stream.cycle([data])
-  #     |> Stream.take(iters)
-  #     |> Enum.reduce(0, fn json, acc ->
-  #       {time, _} =
-  #         :timer.tc(fn ->
-  #           decode!(json)
-  #         end)
-  #
-  #       acc + time
-  #     end)
-  #
-  #   IO.inspect("took #{time / iters / 1_000}ms")
-  # end
 
   test "escaped vs unescaped utf8" do
     assert decode!(File.read!("bench/data/utf-8-unescaped.json")) ==

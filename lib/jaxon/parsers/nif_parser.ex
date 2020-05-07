@@ -31,19 +31,48 @@ defmodule Jaxon.Parsers.NifParser do
     ])
   end
 
-  @spec parse_nif(String.t()) :: [Jaxon.Event.t()]
+  @spec parse_nif(String.t()) ::
+          [Jaxon.Event.t()] | {:yield, [Jaxon.Event.t()], String.t()} | no_return()
   defp parse_nif(_) do
-    raise "Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled"
+    :erlang.nif_error("Jaxon.Parsers.NifParser.parse_nif/1: NIF not compiled")
   end
 
-  @spec parse(String.t()) :: [Jaxon.Event.t()]
-  def parse(binary) do
+  @spec do_parse(String.t(), [Jaxon.Event.t()]) :: [Jaxon.Event.t()]
+  defp do_parse(binary, acc) do
     case parse_nif(binary) do
       {:yield, events, tail} ->
-        events ++ parse(tail)
+        do_parse(tail, events ++ acc)
 
       events ->
-        events
+        events ++ acc
+    end
+  end
+
+  def parse(binary, opts) do
+    allow_incomplete = Keyword.get(opts, :allow_incomplete, true)
+
+    case {allow_incomplete, do_parse(binary, [])} do
+      {true, [{:incomplete, tail} | events]} ->
+        {:incomplete, :lists.reverse(events), tail}
+
+      {true, [{:incomplete, _, tail} | events]} ->
+        {:incomplete, :lists.reverse(events), tail}
+
+      {false, [{:incomplete, event, _} | events]} ->
+        {:ok, :lists.reverse(events, [event])}
+
+      {false, [err = {:incomplete, _} | _]} ->
+        {:error,
+         %Jaxon.ParseError{
+           unexpected: err,
+           expected: [:string]
+         }}
+
+      {_, [err = {:error, _} | _]} ->
+        {:error, %Jaxon.ParseError{unexpected: err}}
+
+      {_, events} ->
+        {:ok, :lists.reverse(events)}
     end
   end
 end
