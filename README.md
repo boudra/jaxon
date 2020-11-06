@@ -1,6 +1,6 @@
 # Jaxon :zap: [![Hex.pm](https://img.shields.io/hexpm/v/jaxon.svg)](https://hex.pm/packages/jaxon) [![Build Status](https://travis-ci.org/boudra/jaxon.svg?branch=master)](https://travis-ci.org/boudra/jaxon) [![Inline docs](http://inch-ci.org/github/boudra/jaxon.svg)](http://inch-ci.org/github/boudra/jaxon) [![Coverage Status](https://coveralls.io/repos/github/boudra/jaxon/badge.svg)](https://coveralls.io/github/boudra/jaxon)
 
-**Jaxon** is the [fastest JSON parser](#benchmarks) that can [stream](#streaming) any JSON document without holding it all in memory.
+**Jaxon** is a [fast JSON parser](#benchmarks) that can [stream](#streaming) any JSON document without holding it all in memory.
 
 Jaxon fully conforms to the [RFC 8259](https://tools.ietf.org/html/rfc8259) and [ECMA 404](http://www.ecma-international.org/publications/standards/Ecma-404.htm) standards and is tested against [JSONTestSuite](https://github.com/nst/JSONTestSuite).
 
@@ -43,12 +43,14 @@ iex> Jaxon.decode!(~s({"jaxon":"rocks","array":[1,2]}))
 
 ## Streaming
 
-Query a binary JSON stream:
+Jaxon can also query streams of JSON documents:
+
+Query a binary JSON stream (notice how some items are incomplete JSON documents):
 
 ```elixir
-iex> stream = [~s({"jaxon":"rocks","array":[1,2]})]
+iex> stream = [~s({"jaxon":"rocks","array":[1,2]}),~s({"jaxon":"rocks"), ~s(,"array":[3,4]})]
 iex> stream |> Jaxon.Stream.from_enumerable() |> Jaxon.Stream.query([:root, "array", :all]) |> Enum.to_list()
-[1, 2]
+[1, 2, 3, 4]
 ```
 
 Query a binary JSON stream using JSON path expressions:
@@ -70,6 +72,25 @@ Query a large file without holding the whole file in memory:
 |> Stream.into(File.stream!("large_file.csv"))
 |> Stream.run()
 ```
+
+# Jason Path
+
+You can either write your own like so:
+
+`[:root, "users", 0, "name"]`
+
+Or use the parser:
+
+```elixir
+iex> Jaxon.Path.parse!("$.array[*]")
+[:root, "array", :all]
+```
+
+```elixir
+iex> Jaxon.Path.parse!(~s($["key with spaces"][0]))
+[:root, "key with spaces", 0]
+```
+
 
 ## How does Jaxon work?
 
