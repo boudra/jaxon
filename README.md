@@ -159,9 +159,9 @@ See the decode benchmarks here: [benchmarks](https://boudra.github.io/jaxon/benc
 ## License
 
 ```
-Copyright © 2018 Mohamed Boudra <mohamed@boudra.me>
+Copyright © 2018 Mohamed Boudra <mohamed@numidian.io>
 
 This project is under the Apache 2.0 license. See the LICENSE file for more details.
 ```
 
-Developed at [Sqlify.io](https://sqlify.io) for big data JSON parsing.
+Developed at [Konbert](https://konbert.com) for big data JSON parsing.
