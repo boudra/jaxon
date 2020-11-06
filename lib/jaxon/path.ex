@@ -17,7 +17,7 @@ defmodule Jaxon.Path do
 
   ```
   iex> Jaxon.Path.encode([:root, "with space", "other", "more space", 0])
-  {:ok, "$[with space].other[more space][0]"}
+  {:ok, ~s($["with space"].other["more space"][0])}
   ```
 
   How to handle encode errors:
@@ -44,6 +44,9 @@ defmodule Jaxon.Path do
   ```
   iex> Jaxon.Path.parse("$[*].pets[0]")
   {:ok, [:root, :all, "pets", 0]}
+
+  iex> Jaxon.Path.parse(~s($["key with spaces"].pets[0]))
+  {:ok, [:root, "key with spaces", "pets", 0]}
   ```
 
   How to handle parse errors;
@@ -110,36 +113,20 @@ defmodule Jaxon.Path do
     [k | acc]
   end
 
-  defp parse_string(<<?\\, ?", rest::binary>>, str) do
-    parse_string(rest, <<str::binary, ?">>)
+  defp parse_string(endchar, <<?\\, endchar, rest::binary>>, str) do
+    parse_string(endchar, rest, <<str::binary, endchar>>)
   end
 
-  defp parse_string(<<?", rest::binary>>, str) do
+  defp parse_string(endchar, <<endchar, rest::binary>>, str) do
     {str, rest}
   end
 
-  defp parse_string("", _) do
+  defp parse_string(_, "", _) do
     ""
   end
 
-  defp parse_string(<<c, rest::binary>>, str) do
-    parse_string(rest, <<str::binary, c>>)
-  end
-
-  defp parse_bracket_string(<<?\\, ?], rest::binary>>, str) do
-    parse_bracket_string(rest, <<str::binary, ?]>>)
-  end
-
-  defp parse_bracket_string(<<?], rest::binary>>, str) do
-    {str, rest}
-  end
-
-  defp parse_bracket_string("", _) do
-    ""
-  end
-
-  defp parse_bracket_string(<<c, rest::binary>>, str) do
-    parse_bracket_string(rest, <<str::binary, c>>)
+  defp parse_string(endchar, <<c, rest::binary>>, str) do
+    parse_string(endchar, rest, <<str::binary, c>>)
   end
 
   defp parse_json_path(<<?\\, ?., rest::binary>>, cur, acc) do
@@ -154,13 +141,26 @@ defmodule Jaxon.Path do
     [:all | parse_json_path(rest, "", acc)]
   end
 
+  defp parse_json_path(bin = <<?[, ?", rest::binary>>, "", acc) do
+    case parse_string(?", rest, "") do
+      {key, <<?], rest::binary>>} ->
+        [key | parse_json_path(rest, "", acc)]
+
+      {_, _} ->
+        {:error, "Ending bracket not found for string at `#{String.slice(bin, 0, 10)}`"}
+
+      "" ->
+        {:error, "Ending quote not found for string at `#{String.slice(bin, 0, 10)}`"}
+    end
+  end
+
   defp parse_json_path(bin = <<?[, rest::binary>>, "", acc) do
     case Integer.parse(rest) do
       {i, <<?], rest::binary>>} ->
         [i | parse_json_path(rest, "", acc)]
 
       _ ->
-        case parse_bracket_string(rest, "") do
+        case parse_string(?], rest, "") do
           {key, rest} ->
             [key | parse_json_path(rest, "", acc)]
 
@@ -187,7 +187,7 @@ defmodule Jaxon.Path do
   end
 
   defp parse_json_path(bin = <<?", rest::binary>>, "", acc) do
-    case parse_string(rest, "") do
+    case parse_string(?", rest, "") do
       {key, rest} ->
         [key | parse_json_path(rest, "", acc)]
 
@@ -239,11 +239,9 @@ defmodule Jaxon.Path do
   defp do_encode_segment(s) when is_binary(s) do
     if(String.contains?(s, ["*", "$", "]", "[", ".", "\"", " "])) do
       safe_str =
-        s
-        |> String.replace("[", "\\[")
-        |> String.replace("]", "\\]")
+        String.replace(s, "\"", "\\\"")
 
-      "[#{safe_str}]"
+      ~s(["#{safe_str}"])
     else
       s
     end

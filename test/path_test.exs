@@ -5,12 +5,12 @@ defmodule JaxonPathTest do
   alias Jaxon.{ParseError, EncodeError}
 
   test "encode" do
-    assert encode!([:root, "te.st", 0]) == "$[te.st][0]"
+    assert encode!([:root, "te.st", 0]) == ~s($["te.st"][0])
     assert encode!([:root, "test", "0"]) == "$.test.0"
     assert encode!([:root, "test", :all]) == "$.test[*]"
     assert encode!([:root, :all]) == "$[*]"
     assert encode!([:root, :all, :all]) == "$[*][*]"
-    assert encode!([:root, "$", :all]) == "$[$][*]"
+    assert encode!([:root, "$", :all]) == ~s($["$"][*])
     assert encode!([:root, "", :all]) == ~s($[][*])
 
     assert_raise(EncodeError, "`:whoops` is not a valid JSON path segment", fn ->
