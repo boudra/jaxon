@@ -73,7 +73,7 @@ Query a large file without holding the whole file in memory:
 |> Stream.run()
 ```
 
-# Jason Path
+# JSON Path
 
 You can either write your own like so:
 
