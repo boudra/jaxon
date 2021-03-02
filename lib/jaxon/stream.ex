@@ -40,7 +40,7 @@ defmodule Jaxon.Stream do
   [[:start_object, {:string, "jaxon"}]]
   ```
   """
-  @spec from_enumerable(String.t()) :: event_stream()
+  @spec from_enumerable(Enumerable.t()) :: event_stream()
   def from_enumerable(bin_stream) do
     Stream.transform(bin_stream, "", fn chunk, tail ->
       chunk = tail <> chunk
