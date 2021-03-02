@@ -26,7 +26,7 @@ defmodule Jaxon.Stream do
   ```
   """
 
-  @spec query(event_stream(), [Path.t()]) :: term_stream()
+  @spec query(event_stream(), Path.t()) :: term_stream()
   defdelegate query(event_stream, query), to: Decoders.Query
 
   @spec values(event_stream()) :: term_stream()

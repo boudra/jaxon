@@ -5,7 +5,7 @@ defmodule Jaxon.Path do
   Utility module for parsing and encoding JSON path expressions.
   """
 
-  @type t :: [String.t() | :all | :root | integer]
+  @type t :: list(String.t() | :all | :root | integer)
 
   @doc ~S"""
   Encoding path expressions:
