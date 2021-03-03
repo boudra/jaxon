@@ -45,9 +45,9 @@ defmodule Jaxon.Stream do
     Stream.transform(bin_stream, "", fn chunk, tail ->
       chunk = tail <> chunk
 
-      events = Parser.parse(chunk)
-
-      case events do
+      chunk
+      |> Parser.parse()
+      |> case do
         {:incomplete, events, tail} ->
           {[events], tail}
 
