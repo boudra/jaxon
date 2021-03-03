@@ -27,7 +27,7 @@ defmodule Jaxon.Path do
   {:error, %Jaxon.EncodeError{message: "`:whoops` is not a valid JSON path segment"}}
   ```
   """
-  @spec encode(t()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec encode(t()) :: {:ok, String.t()} | {:error, EncodeError.t()}
   def encode(path) do
     case do_encode(path) do
       {:error, err} ->
@@ -56,7 +56,7 @@ defmodule Jaxon.Path do
   {:error, %Jaxon.ParseError{message: "Ending quote not found for string at `\"test[x]`"}}
   ```
   """
-  @spec parse(String.t()) :: {:ok, t} | {:error, String.t()}
+  @spec parse(String.t()) :: {:ok, t()} | {:error, ParseError.t()}
   def parse(bin) do
     case parse_json_path(bin, "", []) do
       {:error, err} ->
