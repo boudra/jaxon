@@ -27,6 +27,7 @@ jobs:
             latest: true
     env:
       MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-elixir@v1
