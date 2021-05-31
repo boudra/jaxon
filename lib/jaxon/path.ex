@@ -5,7 +5,7 @@ defmodule Jaxon.Path do
   Utility module for parsing and encoding JSON path expressions.
   """
 
-  @type t :: [String.t() | :all | :root | integer]
+  @type t :: list(String.t() | :all | :root | integer)
 
   @doc ~S"""
   Encoding path expressions:
@@ -27,7 +27,7 @@ defmodule Jaxon.Path do
   {:error, %Jaxon.EncodeError{message: "`:whoops` is not a valid JSON path segment"}}
   ```
   """
-  @spec encode(t()) :: {:ok, String.t()} | {:error, String.t()}
+  @spec encode(t()) :: {:ok, String.t()} | {:error, EncodeError.t()}
   def encode(path) do
     case do_encode(path) do
       {:error, err} ->
@@ -56,7 +56,7 @@ defmodule Jaxon.Path do
   {:error, %Jaxon.ParseError{message: "Ending quote not found for string at `\"test[x]`"}}
   ```
   """
-  @spec parse(String.t()) :: {:ok, t} | {:error, String.t()}
+  @spec parse(String.t()) :: {:ok, t()} | {:error, ParseError.t()}
   def parse(bin) do
     case parse_json_path(bin, "", []) do
       {:error, err} ->
@@ -97,10 +97,6 @@ defmodule Jaxon.Path do
     end
   end
 
-  defp add_key(_, acc = {:error, _}) do
-    acc
-  end
-
   defp add_key("*", acc) do
     [:all | acc]
   end
@@ -138,13 +134,13 @@ defmodule Jaxon.Path do
   end
 
   defp parse_json_path(<<"[*]", rest::binary>>, "", acc) do
-    [:all | parse_json_path(rest, "", acc)]
+    safe_parse_path_and_merge_key(:all, rest, acc)
   end
 
   defp parse_json_path(bin = <<?[, ?", rest::binary>>, "", acc) do
     case parse_string(?", rest, "") do
       {key, <<?], rest::binary>>} ->
-        [key | parse_json_path(rest, "", acc)]
+        safe_parse_path_and_merge_key(key, rest, acc)
 
       {_, _} ->
         {:error, "Ending bracket not found for string at `#{String.slice(bin, 0, 10)}`"}
@@ -157,12 +153,12 @@ defmodule Jaxon.Path do
   defp parse_json_path(bin = <<?[, rest::binary>>, "", acc) do
     case Integer.parse(rest) do
       {i, <<?], rest::binary>>} ->
-        [i | parse_json_path(rest, "", acc)]
+        safe_parse_path_and_merge_key(i, rest, acc)
 
       _ ->
         case parse_string(?], rest, "") do
           {key, rest} ->
-            [key | parse_json_path(rest, "", acc)]
+            safe_parse_path_and_merge_key(key, rest, acc)
 
           _ ->
             {:error, "Ending bracket not found for string at `#{String.slice(bin, 0, 10)}`"}
@@ -171,11 +167,11 @@ defmodule Jaxon.Path do
   end
 
   defp parse_json_path(rest = <<?[, _::binary>>, cur, acc) do
-    add_key(cur, parse_json_path(rest, "", acc))
+    safe_parse_path_and_add_key(cur, rest, acc)
   end
 
   defp parse_json_path(<<?., rest::binary>>, cur, acc) do
-    add_key(cur, parse_json_path(rest, "", acc))
+    safe_parse_path_and_add_key(cur, rest, acc)
   end
 
   defp parse_json_path("", "", _) do
@@ -189,7 +185,7 @@ defmodule Jaxon.Path do
   defp parse_json_path(bin = <<?", rest::binary>>, "", acc) do
     case parse_string(?", rest, "") do
       {key, rest} ->
-        [key | parse_json_path(rest, "", acc)]
+        safe_parse_path_and_merge_key(key, rest, acc)
 
       _ ->
         {:error, "Ending quote not found for string at `#{String.slice(bin, 0, 10)}`"}
@@ -238,8 +234,7 @@ defmodule Jaxon.Path do
 
   defp do_encode_segment(s) when is_binary(s) do
     if(String.contains?(s, ["*", "$", "]", "[", ".", "\"", " "])) do
-      safe_str =
-        String.replace(s, "\"", "\\\"")
+      safe_str = String.replace(s, "\"", "\\\"")
 
       ~s(["#{safe_str}"])
     else
@@ -257,5 +252,25 @@ defmodule Jaxon.Path do
 
   defp do_encode([h | t]) do
     append_segment(do_encode_segment(h), do_encode(t))
+  end
+
+  defp safe_parse_path_and_add_key(cur, rest, acc) do
+    case parse_json_path(rest, "", acc) do
+      {:error, reason} ->
+        {:error, reason}
+
+      item ->
+        add_key(cur, item)
+    end
+  end
+
+  defp safe_parse_path_and_merge_key(left_value, rest, acc) do
+    case parse_json_path(rest, "", acc) do
+      {:error, reason} ->
+        {:error, reason}
+
+      item ->
+        [left_value | item]
+    end
   end
 end

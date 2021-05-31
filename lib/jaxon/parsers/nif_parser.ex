@@ -1,7 +1,13 @@
 defmodule Jaxon.Parsers.NifParser do
   @moduledoc false
+
   @on_load :load_nifs
   @behaviour Jaxon.Parser
+
+  @type parse_return() ::
+          {:ok, list(Jaxon.Event.t())}
+          | {:incomplete, list(Jaxon.Event.t()), String.t()}
+          | {:error, Jaxon.ParseError.t()}
 
   def load_nifs do
     nif_filename =
@@ -48,6 +54,7 @@ defmodule Jaxon.Parsers.NifParser do
     end
   end
 
+  @spec parse(String.t(), Keyword.t()) :: parse_return()
   def parse(binary, opts) do
     allow_incomplete = Keyword.get(opts, :allow_incomplete, true)
 

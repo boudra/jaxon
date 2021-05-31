@@ -1,5 +1,9 @@
 defmodule Jaxon.ParseError do
-  @type t :: %__MODULE__{message: String.t(), unexpected: atom(), expected: [atom()]}
+  @type t :: %__MODULE__{
+          message: String.t() | nil,
+          unexpected: {:incomplete, String.t()} | {:error, String.t()} | nil,
+          expected: [atom()] | nil
+        }
 
   defexception [:message, :unexpected, :expected]
 

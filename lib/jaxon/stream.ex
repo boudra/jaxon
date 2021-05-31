@@ -26,7 +26,7 @@ defmodule Jaxon.Stream do
   ```
   """
 
-  @spec query(event_stream(), [Path.t()]) :: term_stream()
+  @spec query(event_stream(), Path.t()) :: term_stream()
   defdelegate query(event_stream, query), to: Decoders.Query
 
   @spec values(event_stream()) :: term_stream()
@@ -40,14 +40,14 @@ defmodule Jaxon.Stream do
   [[:start_object, {:string, "jaxon"}]]
   ```
   """
-  @spec from_enumerable(String.t()) :: event_stream()
+  @spec from_enumerable(Enumerable.t()) :: event_stream()
   def from_enumerable(bin_stream) do
     Stream.transform(bin_stream, "", fn chunk, tail ->
       chunk = tail <> chunk
 
-      events = Parser.parse(chunk)
-
-      case events do
+      chunk
+      |> Parser.parse()
+      |> case do
         {:incomplete, events, tail} ->
           {[events], tail}
 
