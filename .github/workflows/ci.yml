@@ -23,7 +23,7 @@ jobs:
           - elixir: 1.10.x
             otp: 21.3.8.18
           - elixir: 1.11.x
-            otp: 23.1.1
+            otp: 23.1.2
             latest: true
     env:
       MIX_ENV: test
@@ -61,8 +61,8 @@ jobs:
       # - run: mix dialyzer --halt-exit-status
       #   if: matrix.latest
 
-      - run: mix inch.report
-        if: matrix.latest
+      # - run: mix inch.report
+      #   if: matrix.latest
 
-      - run: mix coveralls.github
-        if: matrix.latest
+      # - run: mix coveralls.github
+      #   if: matrix.latest
