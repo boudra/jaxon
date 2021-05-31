@@ -183,4 +183,39 @@ defmodule JaxonEventStreamTest do
       |> Enum.to_list()
     end)
   end
+
+  test "correctly parses chunked decimal with exponential" do
+    expected = [
+      %{
+        "decimal" => 1.234e+7
+      },
+      %{
+        "decimal" => 1.234e-7
+      },
+      %{
+        "decimal" => 1.234e+7
+      },
+      %{
+        "decimal" => 1.234e-7
+      }
+    ]
+
+    result =
+      [
+        ~s([{"decimal": 1.234e+7),
+        ~s(},),
+        ~s({"decimal": 1.234e-),
+        ~s(7},),
+        ~s({"decimal": 1.234e),
+        ~s(+7},),
+        ~s({"decimal": 1.234),
+        ~s(e-7}])
+      ]
+      |> Jaxon.Stream.from_enumerable()
+      |> Jaxon.Stream.query([:root])
+      |> Enum.to_list()
+      |> List.first()
+
+    assert result == expected
+  end
 end

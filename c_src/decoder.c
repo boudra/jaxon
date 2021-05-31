@@ -120,7 +120,7 @@ void parse_number(decoder_t* d, json_event_t* e) {
             buf += 1;
         }
 
-        if(!is_digit(*buf)) {
+        if(buf < limit && !is_digit(*buf)) {
             syntax_error(d, e);
             return;
         }
