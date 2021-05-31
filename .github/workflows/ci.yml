@@ -8,8 +8,8 @@ on:
 
 jobs:
   test:
-    name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
-    runs-on: ubuntu-latest
+    name: Test | Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}}
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
