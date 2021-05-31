@@ -58,8 +58,8 @@ jobs:
 
       - run: mix test
 
-      # - run: mix dialyzer --halt-exit-status
-      #   if: matrix.latest
+      - run: mix dialyzer --halt-exit-status
+        if: matrix.latest
 
       # - run: mix inch.report
       #   if: matrix.latest
