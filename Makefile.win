@@ -1,0 +1,28 @@
+!IF [where /Q Makefile.auto.win]
+# The file doesn't exist, so don't include it.
+!ELSE
+!INCLUDE Makefile.auto.win
+!IF [del /Q /F Makefile.auto.win] == 0
+!ENDIF
+!ENDIF
+
+NMAKE = nmake /$(MAKEFLAGS)
+CFLAGS = /O2 /EHsc /I"c_src/"
+
+SRC = c_src/decoder.c c_src/decoder_nif.c
+
+all: clean priv\decoder.dll
+
+clean:
+	@del /Q /F priv\decoder.dll
+
+Makefile.auto.win:
+	erl -noshell -s init stop -eval "io:setopts(standard_io, [{encoding, unicode}]), io:format(\"ERTS_INCLUDE_PATH=~ts/erts-~ts/include/\", [code:root_dir(), erlang:system_info(version)])." > $@
+
+!IFDEF ERTS_INCLUDE_PATH
+priv\decoder.dll:
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(SRC)
+!ELSE
+priv\decoder.dll: Makefile.auto.win
+	$(NMAKE) /F Makefile.win priv\decoder.dll
+!ENDIF

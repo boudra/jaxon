@@ -9,6 +9,12 @@
 #include <x86intrin.h>
 #endif
 
+#ifdef _MSC_VER
+#include <emmintrin.h>
+#include <intrin.h>
+#endif
+
+
 #if __GNUC__ >= 3
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
@@ -318,7 +324,7 @@ const uint8_t* find_char(const uint8_t* buf, const uint8_t* limit, const uint8_t
 const uint8_t* parse_string(const uint8_t* buffer, const uint8_t* limit, size_t* escapes) {
     const uint8_t* buf = buffer;
 
-    static const uint8_t tokens[] __attribute__((aligned(16))) = "\t\n\\\"\0";
+    static const uint8_t tokens[16] = "\t\n\\\"\0";
     int found = 0;
 
     while (buf < limit) {

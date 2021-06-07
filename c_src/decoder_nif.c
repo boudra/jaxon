@@ -8,13 +8,15 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#include <sys/time.h>
 
-#ifdef __MACH__
-    #include <mach/clock.h>
-    #include <mach/mach.h>
+#ifndef _MSC_VER
+#include <sys/time.h>
 #endif
 
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 typedef struct {
     ERL_NIF_TERM nif_start_object;
@@ -118,7 +120,9 @@ inline double timespec_to_ms(struct timespec *t) {
 
 void get_current_monotic_time(struct timespec* timestamp) {
 /* clock_gettime is only supported from OS X 10.12 (Sierra) */
-#if __MACH__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
+#if _MSC_VER
+  timespec_get(timestamp, TIME_UTC);
+#elif __MACH__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
   static clock_serv_t clock_server;
   static int clock_server_initialised = 0;
 
@@ -138,13 +142,15 @@ void get_current_monotic_time(struct timespec* timestamp) {
 #endif
 }
 
+#define EVENT_TERMS_ALLOCATE 4096
+
 ERL_NIF_TERM decode_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     struct timespec start, last, now, tmp;
     decoder_t decoder;
     ErlNifBinary input, input_copy_bin;
-    size_t event_terms_allocated = 4096;
+    size_t event_terms_allocated = EVENT_TERMS_ALLOCATE;
     size_t event_terms_index = event_terms_allocated;
-    ERL_NIF_TERM stack_terms[event_terms_allocated];
+    ERL_NIF_TERM stack_terms[EVENT_TERMS_ALLOCATE];
     ERL_NIF_TERM *event_terms = &stack_terms[0];
     json_event_t event ;
     ERL_NIF_TERM binary, ret, input_copy;
