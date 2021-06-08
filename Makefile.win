@@ -14,7 +14,7 @@ SRC = c_src/decoder.c c_src/decoder_nif.c
 all: clean priv\decoder.dll
 
 clean:
-	@del /Q /F priv\decoder.dll
+	del /Q /F priv\decoder.dll
 
 Makefile.auto.win:
 	erl -noshell -s init stop -eval "io:setopts(standard_io, [{encoding, unicode}]), io:format(\"ERTS_INCLUDE_PATH=~ts/erts-~ts/include/\", [code:root_dir(), erlang:system_info(version)])." > $@

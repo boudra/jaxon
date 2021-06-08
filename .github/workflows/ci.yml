@@ -9,10 +9,11 @@ on:
 jobs:
   test:
     name: Test | Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}}
-    runs-on: [ubuntu-18.04, windows-2019]
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [macos-latest, windows-latest, ubuntu-18.04]
         include:
           - elixir: 1.7.x
             otp: 19.3.6.13
