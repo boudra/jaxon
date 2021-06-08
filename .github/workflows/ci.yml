@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-18.04]
+        os: ubuntu-18.04
         include:
           - elixir: 1.7.x
             otp: 19.3.6.13
