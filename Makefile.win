@@ -21,7 +21,7 @@ Makefile.auto.win:
 
 !IFDEF ERTS_INCLUDE_PATH
 priv\decoder.dll:
-	f NOT EXIST "priv" mkdir "priv"
+	if NOT EXIST "priv" mkdir "priv"
 	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(SRC)
 !ELSE
 priv\decoder.dll: Makefile.auto.win
