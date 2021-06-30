@@ -5,15 +5,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-#ifdef __SSE4_2__
-#include <x86intrin.h>
-#endif
-
-#ifdef _MSC_VER
-#include <emmintrin.h>
-#include <intrin.h>
-#endif
-
 
 #if __GNUC__ >= 3
 #define likely(x) __builtin_expect(!!(x), 1)
@@ -296,42 +287,10 @@ const uint8_t* unescape_unicode(const uint8_t* buf, uint8_t* buffer, const uint8
     return buffer;
 }
 
-const uint8_t* find_char(const uint8_t* buf, const uint8_t* limit, const uint8_t* chars, const size_t num_chars, int* found) {
-    *found = 0;
-
-    if(likely(limit - buf >= 16)) {
-        __m128i ranges16 = _mm_loadu_si128((const __m128i*)chars);
-        size_t left = (limit - buf) & ~15;
-
-        do {
-            __m128i b16 = _mm_loadu_si128((const __m128i *)buf);
-            int r = _mm_cmpestri(ranges16, num_chars, b16, 16, _SIDD_CMP_EQUAL_ANY | _SIDD_UBYTE_OPS);
-
-            if (unlikely(r != 16)) {
-                buf += r;
-                *found = 1;
-                break;
-            }
-
-            buf += 16;
-            left -= 16;
-        } while(likely(left != 0));
-    }
-
-    return buf;
-}
-
 const uint8_t* parse_string(const uint8_t* buffer, const uint8_t* limit, size_t* escapes) {
     const uint8_t* buf = buffer;
 
-    static const uint8_t tokens[16] = "\t\n\\\"\0";
-    int found = 0;
-
-    while (buf < limit) {
-        buf = find_char(buf, limit, tokens, sizeof(tokens), &found);
-
-        if(buf == limit) return buf;
-
+    while (*buf != '"' && buf < limit) {
         switch(*buf) {
             case '\t':
             case '\n':
