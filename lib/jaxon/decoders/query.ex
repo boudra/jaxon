@@ -261,7 +261,7 @@ defmodule Jaxon.Decoders.Query do
 
   defp object([:end_object | e], [object | stack], [_key | path], acc, query)
        when is_list(object) do
-    add_value(e, stack, path, acc, query, :maps.from_list(object))
+    add_value(e, stack, path, acc, query, :lists.reverse(object))
   end
 
   defp object([], stack, path, acc, query) do
