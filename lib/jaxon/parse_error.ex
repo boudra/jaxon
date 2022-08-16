@@ -65,7 +65,7 @@ defmodule Jaxon.ParseError do
   end
 
   def message(%{unexpected: {:error, context}}) do
-    if String.is_valid?(context) do
+    if String.valid?(context) do
       "Syntax error at `#{context}`"
     else
       "Syntax error, invalid byte found 0x#{String.first(context) |> Base.encode16()}"
