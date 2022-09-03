@@ -68,7 +68,7 @@ Query a large file without holding the whole file in memory:
 |> File.stream!()
 |> Jaxon.Stream.from_enumerable()
 |> Jaxon.Stream.query([:root, "users", :all, "metadata"])
-|> Stream.map(&(&1["username"],",",&1["email"],"\n"))
+|> Stream.map(&[&1["username"],",",&1["email"],"\n"])
 |> Stream.into(File.stream!("large_file.csv"))
 |> Stream.run()
 ```
