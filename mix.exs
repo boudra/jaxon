@@ -64,7 +64,7 @@ defmodule Jaxon.MixProject do
       {:dialyxir, "~> 1.0.0-rc.7", only: [:test, :dev], runtime: false},
       {:inch_ex, github: "rrrene/inch_ex", only: [:docs, :test]},
       {:elixir_make, "~> 0.4", runtime: false},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:excoveralls, "~> 0.17.0", only: :test}
     ]
   end
 end
