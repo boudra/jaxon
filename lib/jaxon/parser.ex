@@ -1,5 +1,5 @@
 defmodule Jaxon.Parser do
-  @parser Application.get_env(:jaxon, :parser, Jaxon.Parsers.NifParser)
+  @parser Application.compile_env(:jaxon, :parser, Jaxon.Parsers.NifParser)
 
   @type parse_return() ::
           {:ok, list(Jaxon.Event.t())}
