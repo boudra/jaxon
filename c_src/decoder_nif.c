@@ -122,6 +122,8 @@ void get_current_monotic_time(struct timespec* timestamp) {
 /* clock_gettime is only supported from OS X 10.12 (Sierra) */
 #if _MSC_VER
   timespec_get(timestamp, TIME_UTC);
+#elif __FreeBSD__ 
+  clock_gettime(CLOCK_MONOTONIC, timestamp);
 #elif __MACH__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
   static clock_serv_t clock_server;
   static int clock_server_initialised = 0;

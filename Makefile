@@ -12,6 +12,13 @@ ifeq ($(UNAME), Linux)
 	CFLAGS := -shared -fpic -D_POSIX_C_SOURCE=199309L
 endif
 
+ifeq ($(UNAME), FreeBSD)
+	CC := gcc
+	CFLAGS := -shared -fpic -D_POSIX_C_SOURCE=199309L
+endif
+
+
+
 all: priv/decoder.so
 
 priv/decoder.so: c_src/decoder_nif.c c_src/decoder.c
